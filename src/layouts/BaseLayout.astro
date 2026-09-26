@@ -4,6 +4,7 @@ import '@fontsource/ibm-plex-mono/400.css';
 import '@fontsource/ibm-plex-mono/500.css';
 import '@fontsource/ibm-plex-mono/600.css';
 import '../styles/global.css';
+import { DEFAULT_SEO, type SeoSettings } from '../lib/seo';
 
 interface Props {
   title: string;
@@ -11,19 +12,43 @@ interface Props {
   canonical?: string | URL;
   image?: string;
   noindex?: boolean;
+  seo?: SeoSettings;
+  sameAs?: string[];
 }
 
 const {
   title,
-  description = 'Plataforma profesional para tu radio online: sitio web, reproductor, app PWA y panel de administración.',
+  description,
   canonical,
-  image = '/images/og-default.png',
+  image,
   noindex = false,
+  seo = DEFAULT_SEO,
+  sameAs = [],
 } = Astro.props;
 
 const site = Astro.site ?? new URL('https://ipstream.cl');
 const canonicalURL = canonical ? new URL(canonical, site) : Astro.url;
-const ogImage = new URL(image, site);
+const metaDescription = description || seo.defaultDescription;
+const ogImage = new URL(image || seo.defaultImage, site);
+const robotsContent = noindex ? 'noindex,nofollow' : seo.robots;
+const twitterHandle = seo.twitterHandle
+  ? seo.twitterHandle.startsWith('@')
+    ? seo.twitterHandle
+    : `@${seo.twitterHandle}`
+  : '';
+
+const analyticsId = /^[A-Za-z0-9-]+$/.test(seo.analyticsId) ? seo.analyticsId : '';
+const isGtag = /^G-[A-Z0-9]+$/i.test(analyticsId);
+const isGtm = /^GTM-[A-Z0-9]+$/i.test(analyticsId);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: seo.siteName,
+  url: site.toString(),
+  logo: new URL('/images/logos/logo.png', site).toString(),
+  ...(sameAs.length > 0 ? { sameAs } : {}),
+};
 ---
 
 <!doctype html>
@@ -36,19 +61,45 @@ const ogImage = new URL(image, site);
     <meta name="generator" content={Astro.generator} />
 
     <title>{title}</title>
-    <meta name="description" content={description} />
-    {noindex ? <meta name="robots" content="noindex,nofollow" /> : <link rel="canonical" href={canonicalURL} />}
+    <meta name="description" content={metaDescription} />
+    {seo.keywords && <meta name="keywords" content={seo.keywords} />}
+    <meta name="robots" content={robotsContent} />
+    {!noindex && <link rel="canonical" href={canonicalURL} />}
+    {seo.googleVerification && <meta name="google-site-verification" content={seo.googleVerification} />}
 
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="IPStream" />
+    <meta property="og:site_name" content={seo.siteName} />
     <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
+    <meta property="og:description" content={metaDescription} />
     <meta property="og:url" content={canonicalURL} />
     <meta property="og:image" content={ogImage} />
     <meta name="twitter:card" content="summary_large_image" />
+    {twitterHandle && <meta name="twitter:site" content={twitterHandle} />}
     <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content={description} />
+    <meta name="twitter:description" content={metaDescription} />
     <meta name="twitter:image" content={ogImage} />
+
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+    {
+      isGtag && (
+        <>
+          <script async src={`https://www.googletagmanager.com/gtag/js?id=${analyticsId}`} />
+          <script
+            is:inline
+            set:html={`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${analyticsId}');`}
+          />
+        </>
+      )
+    }
+    {
+      isGtm && (
+        <script
+          is:inline
+          set:html={`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${analyticsId}');`}
+        />
+      )
+    }
   </head>
   <body>
     <slot />

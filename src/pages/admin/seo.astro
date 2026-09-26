@@ -1,0 +1,71 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import ResultMessage from '../../components/admin/ResultMessage.astro';
+import { actions } from 'astro:actions';
+import { getDatabase } from '../../lib/db/client';
+import { getSeoSettings, ROBOTS_OPTIONS } from '../../lib/seo';
+import { getAdminContext } from '../../lib/admin';
+
+const { csrf } = getAdminContext(Astro);
+const db = getDatabase();
+const seo = getSeoSettings(db);
+const result = Astro.getActionResult(actions.seo);
+---
+
+<AdminLayout title="SEO">
+  <ResultMessage result={result} />
+
+  <div class="admin-card">
+    <h2>Metadatos globales</h2>
+    <p class="hint">
+      Estos valores se aplican a todo el sitio como predeterminados. Cada página puede sobrescribir título y descripción.
+    </p>
+    <form method="POST" action={actions.seo} class="form-grid" style="margin-top: 1rem;">
+      <input type="hidden" name="csrf" value={csrf} />
+
+      <div class="field">
+        <label for="seo_site_name">Nombre del sitio</label>
+        <input class="input" id="seo_site_name" name="seo_site_name" value={seo.siteName} />
+      </div>
+      <div class="field">
+        <label for="seo_twitter_handle">Usuario en X / Twitter</label>
+        <input class="input" id="seo_twitter_handle" name="seo_twitter_handle" value={seo.twitterHandle} placeholder="@ipstream" />
+      </div>
+
+      <div class="field field--full">
+        <label for="seo_default_description">Descripción por defecto</label>
+        <textarea class="textarea" id="seo_default_description" name="seo_default_description">{seo.defaultDescription}</textarea>
+      </div>
+
+      <div class="field field--full">
+        <label for="seo_default_image">Imagen para redes (ruta o URL)</label>
+        <input class="input" id="seo_default_image" name="seo_default_image" value={seo.defaultImage} placeholder="/images/og-default.png" />
+      </div>
+
+      <div class="field field--full">
+        <label for="seo_keywords">Palabras clave (separadas por coma)</label>
+        <input class="input" id="seo_keywords" name="seo_keywords" value={seo.keywords} placeholder="radio online, streaming, ipstream" />
+      </div>
+
+      <div class="field">
+        <label for="seo_robots">Indexación por buscadores</label>
+        <select class="select" id="seo_robots" name="seo_robots">
+          {ROBOTS_OPTIONS.map((option) => <option value={option.value} selected={seo.robots === option.value}>{option.label}</option>)}
+        </select>
+      </div>
+      <div class="field">
+        <label for="seo_google_verification">Google Search Console (verificación)</label>
+        <input class="input" id="seo_google_verification" name="seo_google_verification" value={seo.googleVerification} placeholder="xxxxx" />
+      </div>
+
+      <div class="field field--full">
+        <label for="seo_analytics_id">Analytics (GA4 <span class="mono">G-XXXX</span> o Tag Manager <span class="mono">GTM-XXXX</span>)</label>
+        <input class="input" id="seo_analytics_id" name="seo_analytics_id" value={seo.analyticsId} placeholder="G-XXXXXXXXXX" />
+      </div>
+
+      <div class="field field--full">
+        <button class="btn-admin btn-admin--primary" type="submit">Guardar SEO</button>
+      </div>
+    </form>
+  </div>
+</AdminLayout>

@@ -47,7 +47,8 @@ import {
   setCommunityActive,
   updateCommunityRadio,
 } from '../lib/db/repositories/community';
-import { SOCIAL_KEYS, setSocialLinks } from '../lib/db/repositories/settings';
+import { SOCIAL_KEYS, setSetting, setSocialLinks } from '../lib/db/repositories/settings';
+import { SEO_KEYS } from '../lib/seo';
 import { slugify } from '../lib/utils/slug';
 
 function optionalText() {
@@ -501,6 +502,43 @@ export const server = {
       }
       setSocialLinks(db, links);
       return { ok: true, message: 'Redes sociales actualizadas' };
+    },
+  }),
+
+  seo: defineAction({
+    accept: 'form',
+    input: z.object({
+      csrf: z.string().optional(),
+      seo_site_name: optionalText(),
+      seo_default_description: optionalText(),
+      seo_default_image: optionalText(),
+      seo_keywords: optionalText(),
+      seo_robots: optionalText(),
+      seo_google_verification: optionalText(),
+      seo_analytics_id: optionalText(),
+      seo_twitter_handle: optionalText(),
+    }),
+    handler: async (input, context) => {
+      guard(context, input.csrf);
+      const db = getDatabase();
+      const analytics = input.seo_analytics_id?.trim() ?? '';
+      if (analytics && !/^(G|GTM|UA)-[A-Za-z0-9-]+$/.test(analytics)) {
+        throw new ActionError({ code: 'BAD_REQUEST', message: 'ID de Analytics no válido (usa G-XXXX para GA4 o GTM-XXXX)' });
+      }
+      const robots = input.seo_robots?.trim() || 'index,follow';
+      try {
+        setSetting(db, SEO_KEYS.siteName, input.seo_site_name?.trim() ?? '');
+        setSetting(db, SEO_KEYS.defaultDescription, input.seo_default_description?.trim() ?? '');
+        setSetting(db, SEO_KEYS.defaultImage, input.seo_default_image?.trim() ?? '');
+        setSetting(db, SEO_KEYS.keywords, input.seo_keywords?.trim() ?? '');
+        setSetting(db, SEO_KEYS.robots, robots);
+        setSetting(db, SEO_KEYS.googleVerification, input.seo_google_verification?.trim() ?? '');
+        setSetting(db, SEO_KEYS.analyticsId, analytics);
+        setSetting(db, SEO_KEYS.twitterHandle, input.seo_twitter_handle?.trim() ?? '');
+      } catch (error) {
+        return fail(error);
+      }
+      return { ok: true, message: 'Configuración SEO guardada' };
     },
   }),
 };
