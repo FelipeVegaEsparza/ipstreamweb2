@@ -62,18 +62,42 @@ export function listPlans(db: AppDatabase, options: ListOptions = {}): PlanWithC
     .all();
 }
 
+const UNCATEGORIZED: PlanCategory = {
+  id: 0,
+  name: 'Planes',
+  slug: 'planes',
+  description: null,
+  icon: null,
+  displayOrder: Number.MAX_SAFE_INTEGER,
+  isActive: true,
+  createdAt: '',
+  updatedAt: '',
+};
+
 export function listPlansGroupedByCategory(
   db: AppDatabase,
   options: ListOptions = {},
 ): Array<{ category: PlanCategory; plans: Plan[] }> {
   const categories = listCategories(db, options);
   const rows = listPlans(db, options);
-  return categories
+  const activeCategoryIds = new Set(categories.map((category) => category.id));
+
+  const groups = categories
     .map((category) => ({
       category,
       plans: rows.filter((row) => row.plan.categoryId === category.id).map((row) => row.plan),
     }))
     .filter((group) => group.plans.length > 0);
+
+  const orphans = rows
+    .filter((row) => row.plan.categoryId == null || !activeCategoryIds.has(row.plan.categoryId))
+    .map((row) => row.plan);
+
+  if (orphans.length > 0) {
+    groups.push({ category: UNCATEGORIZED, plans: orphans });
+  }
+
+  return groups;
 }
 
 export function getPlanByKey(db: AppDatabase, planKey: string): Plan | undefined {
