@@ -18,12 +18,12 @@ pnpm-debug.log*
 .env.production
 .env.local
 
-# data (SQLite) y uploads
-data/
+# data (SQLite) y uploads (solo en la raiz del proyecto)
+/data/
 *.db
 *.db-shm
 *.db-wal
-uploads/
+/uploads/
 
 # OS / editores
 .DS_Store
