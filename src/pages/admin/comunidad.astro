@@ -45,6 +45,10 @@ const result = Astro.getActionResult(actions.community);
         <label for="description">Descripción</label>
         <textarea class="textarea" id="description" name="description">{editing?.description ?? ''}</textarea>
       </div>
+      <label class="checkbox">
+        <input type="checkbox" name="isActive" value="true" checked={editing ? editing.isActive : true} />
+        Activa (visible en el sitio)
+      </label>
       <div class="field field--full">
         <button class="btn-admin btn-admin--primary" type="submit">{editing ? 'Guardar' : 'Crear radio'}</button>
       </div>

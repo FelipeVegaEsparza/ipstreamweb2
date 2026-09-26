@@ -84,6 +84,10 @@ const result = Astro.getActionResult(actions.plan);
         <label for="image">Imagen (reemplaza la actual)</label>
         <input class="input" id="image" name="image" type="file" accept="image/*" />
       </div>
+      <label class="checkbox">
+        <input type="checkbox" name="isActive" value="true" checked={editing ? editing.isActive : true} />
+        Activo (visible en el sitio)
+      </label>
       <div class="field field--full">
         <button class="btn-admin btn-admin--primary" type="submit">{editing ? 'Guardar cambios' : 'Crear plan'}</button>
       </div>

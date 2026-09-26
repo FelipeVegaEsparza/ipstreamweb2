@@ -124,6 +124,10 @@ const resultCategory = Astro.getActionResult(actions.tutorialCategory);
         <label for="tut-description">Descripción</label>
         <textarea class="textarea" id="tut-description" name="description">{editingTutorial?.description ?? ''}</textarea>
       </div>
+      <label class="checkbox">
+        <input type="checkbox" name="isActive" value="true" checked={editingTutorial ? editingTutorial.isActive : true} />
+        Activo (visible en el sitio)
+      </label>
       <div class="field field--full">
         <button class="btn-admin btn-admin--primary" type="submit">{editingTutorial ? 'Guardar' : 'Crear tutorial'}</button>
       </div>

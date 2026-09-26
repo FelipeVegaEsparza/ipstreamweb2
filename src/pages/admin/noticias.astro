@@ -55,6 +55,10 @@ const toInput = (value: string | null | undefined) => (value ? value.replace(' '
         <label for="content">Contenido (HTML permitido)</label>
         <textarea class="textarea" id="content" name="content" style="min-height: 12rem;" required>{editing?.content ?? ''}</textarea>
       </div>
+      <label class="checkbox">
+        <input type="checkbox" name="isActive" value="true" checked={editing ? editing.isActive : true} />
+        Activa (visible en el sitio)
+      </label>
       <div class="field field--full">
         <button class="btn-admin btn-admin--primary" type="submit">{editing ? 'Guardar cambios' : 'Crear noticia'}</button>
       </div>
