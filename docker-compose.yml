@@ -20,7 +20,13 @@ services:
     volumes:
       - app_data:/data
       - uploads_data:/app/uploads
+    networks:
+      - dokploy-network
 
 volumes:
   app_data:
   uploads_data:
+
+networks:
+  dokploy-network:
+    external: true
