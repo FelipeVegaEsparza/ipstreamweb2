@@ -1,0 +1,244 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+import ConsoleButton from '../components/ui/ConsoleButton.astro';
+import Module from '../components/ui/Module.astro';
+import Icon from '../components/ui/Icon.astro';
+import FrequencyStrip from '../components/ui/FrequencyStrip.astro';
+import PlayerCard from '../components/PlayerCard.astro';
+import HeroBackground from '../components/HeroBackground.astro';
+import { PILLARS, HIGHLIGHTS, STUDIO_FEATURES, PLAYERS } from '../lib/content';
+
+export const prerender = true;
+---
+
+<SiteLayout
+  title="Características — IPStream"
+  description="Todo lo que incluye IPStream: sitio web profesional, app PWA, panel de administración, reproductores y el transmisor IPStreamStudio."
+  social={null}
+>
+  <section class="band band--dark hero-band">
+    <HeroBackground />
+    <div class="container">
+      <p class="eyebrow">[ CARACTERÍSTICAS ]</p>
+      <h1 class="display">Una plataforma completa para tu radio</h1>
+      <p class="lede muted">Transmite, gestiona y haz crecer tu audiencia con herramientas profesionales incluidas.</p>
+      <div class="freq-wrap"><FrequencyStrip /></div>
+    </div>
+  </section>
+
+  <section class="band band--panel" id="sitio-web">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">[ 01 / BASE ]</p>
+        <h2>La base de tu emisora</h2>
+      </div>
+      <div class="grid-3">
+        {
+          PILLARS.map((pillar) => (
+            <Module label={`Canal ${pillar.code}`} icon={pillar.icon} led="signal">
+              <h3>{pillar.title}</h3>
+              <p class="muted">{pillar.description}</p>
+              <ul class="points">{pillar.points.map((point) => <li>{point}</li>)}</ul>
+            </Module>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="band band--paper">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">[ 02 / DESTACADAS ]</p>
+        <h2>Funcionalidades premium</h2>
+      </div>
+      <div class="grid-3">
+        {
+          HIGHLIGHTS.map((item) => (
+            <article class="highlight">
+              <div class="highlight__head">
+                <span class="highlight__icon">
+                  <Icon name={item.icon ?? 'play'} size={22} />
+                </span>
+                <span class="mono code">{item.code}</span>
+              </div>
+              <h3>{item.title}</h3>
+              <p class="muted">{item.description}</p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="band band--dark" id="ipstreamstudio">
+    <div class="container studio">
+      <div>
+        <p class="eyebrow">[ 03 / TRANSMISOR ]</p>
+        <h2 class="display">IPStreamStudio</h2>
+        <p class="muted">
+          Software de transmisión de audio desarrollado por IPStream. Incluido en todos los planes, sin costo adicional:
+          transmisión en vivo, locución de hora y temperatura, gestión de playlist y automatización 24/7.
+        </p>
+        <div class="studio-grid">
+          {
+            STUDIO_FEATURES.map((feature) => (
+              <div>
+                <span class="mono code">{feature.code}</span>
+                <h3>{feature.title}</h3>
+                <p class="muted">{feature.description}</p>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+      <img src="/images/estudio/1.png" alt="IPStreamStudio" width="640" height="480" loading="lazy" />
+    </div>
+  </section>
+
+  <section class="band band--panel">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">[ 04 / REPRODUCTORES ]</p>
+        <h2>Reproductores para cada necesidad</h2>
+      </div>
+      <div class="players">
+        {
+          PLAYERS.map((player, index) => (
+            <PlayerCard code={String(index + 1).padStart(2, '0')} {...player} />
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="band band--dark">
+    <div class="container cta">
+      <h2 class="display">¿Listo para empezar?</h2>
+      <ConsoleButton href="/planes">Ver planes y precios</ConsoleButton>
+    </div>
+  </section>
+</SiteLayout>
+
+<style>
+  .lede {
+    margin-top: var(--space-4);
+    max-width: 40rem;
+  }
+
+  .freq-wrap {
+    margin-top: var(--space-7);
+  }
+
+  .grid-3 {
+    display: grid;
+    gap: var(--space-5);
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  }
+
+  .points {
+    list-style: none;
+    padding: 0;
+    margin-top: var(--space-4);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .points li {
+    font-size: 0.8125rem;
+    color: var(--steel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: 0.2rem 0.5rem;
+  }
+
+  .highlight {
+    display: flex;
+    flex-direction: column;
+    border-top: 2px solid var(--line-paper);
+    padding-top: var(--space-5);
+    transition: border-color 0.15s ease;
+  }
+
+  .highlight:hover {
+    border-top-color: var(--blue);
+  }
+
+  .highlight__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+  }
+
+  .highlight__icon {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 1px solid var(--line-paper);
+    border-radius: var(--radius);
+    color: var(--blue);
+    background: color-mix(in srgb, var(--blue) 7%, transparent);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .highlight:hover .highlight__icon {
+    border-color: color-mix(in srgb, var(--blue) 45%, var(--line-paper));
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--blue) 12%, transparent);
+  }
+
+  .highlight h3 {
+    margin-block: 0 var(--space-2);
+  }
+
+  .code {
+    font-size: 0.6875rem;
+    letter-spacing: 0.2em;
+    color: var(--muted-on-paper);
+  }
+
+  .studio {
+    display: grid;
+    gap: var(--space-8);
+    align-items: center;
+  }
+
+  .studio h2 {
+    margin-block: var(--space-3);
+  }
+
+  .studio-grid {
+    display: grid;
+    gap: var(--space-5);
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    margin-top: var(--space-6);
+  }
+
+  .studio img {
+    width: 100%;
+    height: auto;
+  }
+
+  .players {
+    display: grid;
+    gap: var(--space-5);
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+
+  .cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-5);
+  }
+
+  @media (min-width: 900px) {
+    .studio {
+      grid-template-columns: 1.1fr 0.9fr;
+    }
+  }
+</style>

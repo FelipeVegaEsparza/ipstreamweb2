@@ -1,0 +1,150 @@
+---
+interface Props {
+  code: string;
+  title: string;
+  description: string;
+  tags: string[];
+  image: string;
+}
+
+const { code, title, description, tags, image } = Astro.props;
+---
+
+<article class="player">
+  <header class="player__strip">
+    <span class="mono player__id">Rep {code}</span>
+    <span class="player__led" aria-hidden="true"></span>
+  </header>
+
+  <div class="player__screen">
+    <img src={image} alt={title} width="1440" height="771" loading="lazy" />
+  </div>
+
+  <div class="player__body">
+    <h3>{title}</h3>
+    <p class="muted">{description}</p>
+    <ul class="player__tags">
+      {tags.map((tag) => <li class="mono">{tag}</li>)}
+    </ul>
+  </div>
+</article>
+
+<style>
+  .player {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(180deg, var(--panel-2), var(--panel));
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+  }
+
+  .player:hover {
+    border-color: color-mix(in srgb, var(--signal) 55%, var(--line));
+    transform: translateY(-3px);
+  }
+
+  .player__strip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: 0.55rem 1rem;
+    border-bottom: 1px solid var(--line);
+    background: color-mix(in srgb, var(--ink) 55%, transparent);
+  }
+
+  .player__id {
+    font-size: 0.625rem;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--steel);
+  }
+
+  .player__led {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--line);
+    transition: background 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .player:hover .player__led {
+    background: var(--signal);
+    box-shadow: 0 0 10px rgba(53, 214, 208, 0.65);
+  }
+
+  .player__screen {
+    display: grid;
+    place-items: center;
+    padding: clamp(1rem, 3.5vw, 2rem);
+    background:
+      radial-gradient(120% 100% at 50% 0%, rgba(53, 214, 208, 0.09), transparent 68%),
+      linear-gradient(180deg, color-mix(in srgb, var(--ink) 40%, transparent), transparent);
+  }
+
+  .player__screen img {
+    width: 100%;
+    height: auto;
+    filter: drop-shadow(0 20px 34px rgba(0, 0, 0, 0.55));
+    transition: transform 0.25s ease;
+  }
+
+  .player:hover .player__screen img {
+    transform: translateY(-3px) scale(1.012);
+  }
+
+  .player__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: 0 1.25rem 1.35rem;
+  }
+
+  .player__body h3 {
+    font-size: 1.125rem;
+  }
+
+  .player__body p {
+    font-size: 0.9375rem;
+  }
+
+  .player__tags {
+    list-style: none;
+    margin: var(--space-3) 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .player__tags li {
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--signal);
+  }
+
+  .player__tags li:not(:last-child)::after {
+    content: '·';
+    color: var(--steel);
+    margin-inline: 0.55rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .player,
+    .player__screen img,
+    .player__led {
+      transition: none;
+    }
+
+    .player:hover {
+      transform: none;
+    }
+
+    .player:hover .player__screen img {
+      transform: none;
+    }
+  }
+</style>

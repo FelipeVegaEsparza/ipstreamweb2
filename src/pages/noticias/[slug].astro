@@ -1,0 +1,198 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import HeroBackground from '../../components/HeroBackground.astro';
+import { getDatabase } from '../../lib/db/client';
+import { getNewsBySlug, listNews } from '../../lib/db/repositories/news';
+import { formatDate } from '../../lib/format';
+
+const { slug } = Astro.params;
+const db = getDatabase();
+const article = slug ? getNewsBySlug(db, slug, { activeOnly: true }) : undefined;
+
+if (!article) {
+  Astro.response.status = 404;
+}
+
+const related = article
+  ? listNews(db, { activeOnly: true, limit: 4 }).filter((item) => item.slug !== article.slug).slice(0, 3)
+  : [];
+
+const jsonLd = article
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'NewsArticle',
+      headline: article.title,
+      datePublished: article.publishedAt,
+      author: { '@type': 'Organization', name: article.author },
+      image: article.image ?? undefined,
+    }
+  : null;
+---
+
+<SiteLayout
+  title={article ? `${article.title} — IPStream` : 'Noticia no encontrada — IPStream'}
+  description={article?.excerpt ?? 'La noticia que buscas no existe o fue eliminada.'}
+  image={article?.image ?? undefined}
+  canonical={article ? `/noticias/${article.slug}` : undefined}
+  noindex={!article}
+>
+  {
+    article ? (
+      <>
+        {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+        <article class="article">
+          <header class="band band--dark hero-band">
+            <HeroBackground />
+            <div class="container article-head">
+              <p class="eyebrow">[ NOTICIAS / {formatDate(article.publishedAt)} ]</p>
+              <h1 class="display">{article.title}</h1>
+              <p class="muted mono">Por {article.author}</p>
+            </div>
+          </header>
+
+          {article.image && (
+            <div class="container hero-image">
+              <img src={article.image} alt={article.title} width="960" height="540" />
+            </div>
+          )}
+
+          <div class="band band--paper">
+            <div class="container">
+              <div class="prose" set:html={article.content} />
+            </div>
+          </div>
+
+          {related.length > 0 && (
+            <section class="band band--panel">
+              <div class="container">
+                <div class="section-head">
+                  <p class="eyebrow">[ SIGUE LEYENDO ]</p>
+                  <h2>Más noticias</h2>
+                </div>
+                <div class="related">
+                  {related.map((item) => (
+                    <a class="related-item" href={`/noticias/${item.slug}`}>
+                      <span class="mono">{formatDate(item.publishedAt)}</span>
+                      <h3>{item.title}</h3>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </section>
+          )}
+        </article>
+      </>
+    ) : (
+      <section class="band band--panel">
+        <div class="container empty">
+          <p class="eyebrow">[ ERROR 404 ]</p>
+          <h1 class="display">Noticia no encontrada</h1>
+          <p class="muted">La noticia que buscas no existe o ha sido eliminada.</p>
+          <a class="link mono" href="/noticias">Volver a noticias</a>
+        </div>
+      </section>
+    )
+  }
+</SiteLayout>
+
+<style>
+  .article-head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    max-width: 54rem;
+  }
+
+  .article-head h1 {
+    font-size: clamp(1.875rem, 1.2rem + 3vw, 3.25rem);
+  }
+
+  .hero-image {
+    margin-top: var(--space-7);
+  }
+
+  .hero-image img {
+    width: 100%;
+    max-height: 30rem;
+    object-fit: cover;
+    border-radius: var(--radius);
+    border: 1px solid var(--line);
+  }
+
+  .prose {
+    max-width: 46rem;
+    font-size: 1.0625rem;
+    line-height: 1.75;
+  }
+
+  .prose :global(h2) {
+    font-size: 1.625rem;
+    margin-block: var(--space-6) var(--space-3);
+  }
+
+  .prose :global(h3) {
+    font-size: 1.25rem;
+    margin-block: var(--space-5) var(--space-2);
+  }
+
+  .prose :global(p) {
+    margin-bottom: var(--space-4);
+  }
+
+  .prose :global(ul),
+  .prose :global(ol) {
+    margin-bottom: var(--space-4);
+    padding-left: 1.5rem;
+  }
+
+  .prose :global(a) {
+    color: var(--blue);
+    text-decoration: underline;
+  }
+
+  .prose :global(img) {
+    border-radius: var(--radius);
+    margin-block: var(--space-5);
+  }
+
+  .related {
+    display: grid;
+    gap: var(--space-4);
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
+
+  .related-item {
+    border-top: 2px solid var(--line);
+    padding-top: var(--space-4);
+  }
+
+  .related-item .mono {
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--steel);
+  }
+
+  .related-item h3 {
+    margin-top: var(--space-2);
+    font-size: 1.125rem;
+  }
+
+  .related-item:hover h3 {
+    color: var(--signal);
+  }
+
+  .empty {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-4);
+  }
+
+  .link {
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--signal);
+  }
+</style>

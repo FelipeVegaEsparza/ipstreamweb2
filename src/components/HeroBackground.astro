@@ -1,0 +1,137 @@
+---
+const barCount = 48;
+
+const bars = Array.from({ length: barCount }, (_, index) => {
+  const wave = Math.sin(index * 0.5) * 0.5 + Math.sin(index * 0.17) * 0.35 + Math.sin(index * 1.1) * 0.15;
+  const height = Math.round((0.35 + Math.abs(wave) * 0.65) * 100) / 100;
+  return { index, height };
+});
+---
+
+<div class="hero-bg" aria-hidden="true">
+  <div class="hero-bg__grid"></div>
+  <div class="hero-bg__glow"></div>
+  <div class="hero-bg__eq">
+    {bars.map((bar) => <span style={`--i:${bar.index};--h:${bar.height}`} />)}
+  </div>
+  <div class="hero-bg__scan"></div>
+</div>
+
+<style>
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .hero-bg__grid {
+    position: absolute;
+    inset: -20%;
+    background-image:
+      linear-gradient(to right, var(--line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--line) 1px, transparent 1px);
+    background-size: 3.5rem 3.5rem;
+    opacity: 0.5;
+    animation: grid-pan 40s linear infinite;
+    -webkit-mask-image: radial-gradient(120% 90% at 50% 0%, #000 20%, transparent 72%);
+    mask-image: radial-gradient(120% 90% at 50% 0%, #000 20%, transparent 72%);
+  }
+
+  .hero-bg__glow {
+    position: absolute;
+    top: -24rem;
+    right: -14rem;
+    width: 56rem;
+    height: 56rem;
+    background: radial-gradient(circle, rgba(53, 214, 208, 0.16), transparent 62%);
+    animation: glow-drift 22s ease-in-out infinite alternate;
+  }
+
+  .hero-bg__eq {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: 32%;
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    padding-inline: var(--space-4);
+    opacity: 0.14;
+    filter: saturate(0.75);
+    -webkit-mask-image: linear-gradient(to top, #000 5%, transparent 90%);
+    mask-image: linear-gradient(to top, #000 5%, transparent 90%);
+  }
+
+  .hero-bg__eq span {
+    flex: 1 1 0;
+    height: 100%;
+    transform-origin: bottom;
+    background: var(--signal-gradient-v);
+    transform: scaleY(var(--h, 0.5));
+    animation: eq 2.6s ease-in-out infinite;
+    animation-delay: calc(var(--i) * -0.14s);
+  }
+
+  .hero-bg__scan {
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--signal), transparent);
+    opacity: 0.4;
+    animation: scan 7s ease-in-out infinite;
+  }
+
+  @keyframes grid-pan {
+    to {
+      background-position: 3.5rem 3.5rem;
+    }
+  }
+
+  @keyframes glow-drift {
+    from {
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+    to {
+      transform: translate3d(-6rem, 4rem, 0) scale(1.12);
+    }
+  }
+
+  @keyframes eq {
+    0%,
+    100% {
+      transform: scaleY(calc(var(--h, 0.5) * 0.35));
+    }
+    50% {
+      transform: scaleY(var(--h, 0.5));
+    }
+  }
+
+  @keyframes scan {
+    0% {
+      top: 0;
+      opacity: 0;
+    }
+    10% {
+      opacity: 0.4;
+    }
+    90% {
+      opacity: 0.4;
+    }
+    100% {
+      top: 100%;
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-bg__grid,
+    .hero-bg__glow,
+    .hero-bg__eq span,
+    .hero-bg__scan {
+      animation: none;
+    }
+  }
+</style>

@@ -1,0 +1,66 @@
+/*
+ * Sistema "Al Aire" — tokens
+ * La paleta deriva de los colores reales del logo de IPStream:
+ * cyan #5FE0E0 -> azul #1050B0, gris #A0A0A0.
+ * Regla dura: el gradiente cyan->azul es el UNICO del sistema y solo se usa
+ * en elementos de senal (medidores, waveform, indicador on-air).
+ */
+:root {
+  /* Superficies oscuras (consola) */
+  --ink: #0f1114;
+  --panel: #171c22;
+  --panel-2: #1d232b;
+  --line: #262d35;
+
+  /* Superficie clara (bandas editoriales) */
+  --paper: #f3f5f7;
+  --line-paper: #d8dde2;
+
+  /* Acento de marca */
+  --signal: #35d6d0;
+  --signal-strong: #5fe0e0;
+  --blue: #1a5fc8;
+
+  /* Texto */
+  --text: #e9ebed;
+  --steel: #a0a6ad;
+  --ink-text: #10151a;
+  --muted-on-paper: #5b646d;
+
+  /* Estados */
+  --danger: #ff5b4a;
+  --ok: #46d17f;
+
+  /* Gradiente de senal (unico permitido) */
+  --signal-gradient: linear-gradient(90deg, var(--signal-strong), var(--blue));
+  --signal-gradient-v: linear-gradient(180deg, var(--signal-strong), var(--blue));
+
+  /* Tipografia */
+  --font-display: 'Archivo Variable', system-ui, -apple-system, sans-serif;
+  --font-text: 'Archivo Variable', system-ui, -apple-system, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Escala espacial (base 4px) */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+  --space-9: 6rem;
+
+  /* Radios: consola = esquinas contenidas, no burbujas */
+  --radius-sm: 2px;
+  --radius: 4px;
+  --radius-lg: 8px;
+
+  /* Filetes y sombras discretas */
+  --shadow-panel: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 14px 34px -22px rgba(0, 0, 0, 0.85);
+  --focus-ring: 0 0 0 2px var(--ink), 0 0 0 4px var(--signal);
+  --focus-ring-paper: 0 0 0 2px var(--paper), 0 0 0 4px var(--blue);
+
+  /* Layout */
+  --maxw: 1200px;
+}

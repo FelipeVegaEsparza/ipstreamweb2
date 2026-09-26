@@ -1,0 +1,117 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+import OnAirBadge from '../components/ui/OnAirBadge.astro';
+import HeroBackground from '../components/HeroBackground.astro';
+import { getDatabase } from '../lib/db/client';
+import { listPortfolio } from '../lib/db/repositories/portfolio';
+
+const db = getDatabase();
+const clients = listPortfolio(db, { activeOnly: true });
+---
+
+<SiteLayout title="Clientes — IPStream" description="Conoce las radios y proyectos que transmiten con IPStream.">
+  <section class="band band--dark hero-band">
+    <HeroBackground />
+    <div class="container">
+      <p class="eyebrow">[ CLIENTES ]</p>
+      <h1 class="display">Proyectos que confían en IPStream</h1>
+      <p class="lede muted">Conoce algunos de los proyectos que transmiten con nuestra plataforma.</p>
+    </div>
+  </section>
+
+  <section class="band band--panel">
+    <div class="container">
+      {
+        clients.length === 0 ? (
+          <div class="empty">
+            <OnAirBadge label="SIN SEÑAL" tone="danger" />
+            <h2>Estamos actualizando el portafolio</h2>
+          </div>
+        ) : (
+          <div class="clients">
+            {clients.map((client) => {
+              const href = client.projectUrl ?? undefined;
+              return (
+                <a
+                  class="client"
+                  href={href ?? '#'}
+                  target={href ? '_blank' : undefined}
+                  rel={href ? 'noopener external' : undefined}
+                >
+                  {client.imageUrl ? (
+                    <img src={client.imageUrl} alt={client.title} width="360" height="203" loading="lazy" />
+                  ) : (
+                    <span class="placeholder" />
+                  )}
+                  <div class="client-body">
+                    <h2>{client.title}</h2>
+                    {client.description && <p class="muted">{client.description}</p>}
+                  </div>
+                </a>
+              );
+            })}
+          </div>
+        )
+      }
+    </div>
+  </section>
+</SiteLayout>
+
+<style>
+  .lede {
+    margin-top: var(--space-4);
+  }
+
+  .clients {
+    display: grid;
+    gap: var(--space-5);
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  }
+
+  .client {
+    display: flex;
+    flex-direction: column;
+    background: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: border-color 0.15s ease;
+  }
+
+  .client:hover {
+    border-color: var(--signal);
+  }
+
+  .client img,
+  .placeholder {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .placeholder {
+    display: block;
+    background: var(--panel-2);
+  }
+
+  .client-body {
+    padding: var(--space-5);
+  }
+
+  .client-body h2 {
+    font-size: 1.125rem;
+  }
+
+  .client-body p {
+    margin-top: var(--space-2);
+    font-size: 0.9375rem;
+  }
+
+  .empty {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-4);
+  }
+</style>

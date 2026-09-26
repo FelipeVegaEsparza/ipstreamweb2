@@ -1,0 +1,207 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+import ConsoleButton from '../components/ui/ConsoleButton.astro';
+import Module from '../components/ui/Module.astro';
+import OnAirBadge from '../components/ui/OnAirBadge.astro';
+import HeroBackground from '../components/HeroBackground.astro';
+import { getDatabase } from '../lib/db/client';
+import { listPlansGroupedByCategory } from '../lib/db/repositories/plans';
+import { formatCLP } from '../lib/format';
+
+const db = getDatabase();
+const groups = listPlansGroupedByCategory(db, { activeOnly: true });
+---
+
+<SiteLayout title="Planes y precios — IPStream" description="Elige el plan que mejor se adapte a tu radio online. Planes de streaming de audio, video y combinados.">
+  <section class="band band--dark hero-band">
+    <HeroBackground />
+    <div class="container">
+      <p class="eyebrow">[ PLANES / PRECIOS ]</p>
+      <h1 class="display">Planes y precios</h1>
+      <p class="lede muted">Elige el plan que mejor se adapte a tus necesidades y comienza a transmitir hoy mismo.</p>
+    </div>
+  </section>
+
+  {
+    groups.length === 0 ? (
+      <section class="band band--panel">
+        <div class="container empty">
+          <OnAirBadge label="SIN SEÑAL" tone="danger" />
+          <h2>No hay planes disponibles</h2>
+          <p class="muted">Estamos actualizando nuestros planes. Vuelve pronto.</p>
+        </div>
+      </section>
+    ) : (
+      groups.map((group, index) => (
+        <section class:list={['band', index % 2 === 0 ? 'band--panel' : 'band--paper']}>
+          <div class="container">
+            <div class="section-head">
+              <p class="eyebrow">[ {String(index + 1).padStart(2, '0')} / {group.category.name.toUpperCase()} ]</p>
+              <h2>{group.category.name}</h2>
+              {group.category.description && <p class="muted">{group.category.description}</p>}
+            </div>
+
+            <div class="plans">
+              {group.plans.map((plan) => (
+                <Module label={plan.planKey} led={plan.isActive ? 'signal' : 'off'}>
+                  {plan.imageUrl && (
+                    <img class="plan-image" src={plan.imageUrl} alt={plan.planName} width="480" height="270" loading="lazy" />
+                  )}
+                  <h3>{plan.title ?? plan.planName}</h3>
+                  {plan.description && <p class="muted">{plan.description}</p>}
+
+                  <dl class="prices">
+                    <div>
+                      <dt class="mono">Mensual</dt>
+                      <dd class="mono price">{formatCLP(plan.monthlyPrice ?? plan.price)}</dd>
+                    </div>
+                    {plan.annualPrice != null && (
+                      <div>
+                        <dt class="mono">Anual</dt>
+                        <dd class="mono price">{formatCLP(plan.annualPrice)}</dd>
+                      </div>
+                    )}
+                  </dl>
+
+                  {plan.features && plan.features.length > 0 && (
+                    <ul class="features">
+                      {plan.features.map((feature) => <li>{feature}</li>)}
+                    </ul>
+                  )}
+
+                  {plan.billingNote && <p class="note mono">{plan.billingNote}</p>}
+
+                  <div class="plan-actions">
+                    <ConsoleButton href="/soporte">Contratar</ConsoleButton>
+                    {plan.demoUrl && (
+                      <ConsoleButton variant="ghost" href={plan.demoUrl}>Ver demo</ConsoleButton>
+                    )}
+                  </div>
+                </Module>
+              ))}
+            </div>
+          </div>
+        </section>
+      ))
+    )
+  }
+
+  <section class="band band--dark">
+    <div class="container cta">
+      <div>
+        <p class="eyebrow">[ PRUEBA ]</p>
+        <h2 class="display">¿Qué esperas para tener tu radio online?</h2>
+        <p class="muted">Transmite con todas las herramientas incluidas desde el primer día.</p>
+      </div>
+      <ConsoleButton href="/soporte">Contactar ventas</ConsoleButton>
+    </div>
+  </section>
+</SiteLayout>
+
+<style>
+  .lede {
+    margin-top: var(--space-4);
+    max-width: 40rem;
+  }
+
+  .plans {
+    display: grid;
+    gap: var(--space-5);
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+
+  .plan-image {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    margin-bottom: var(--space-4);
+    border: 1px solid var(--line);
+  }
+
+  .prices {
+    display: flex;
+    gap: var(--space-6);
+    margin-block: var(--space-5);
+    padding-block: var(--space-4);
+    border-block: 1px solid var(--line);
+  }
+
+  .prices dt {
+    font-size: 0.625rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--steel);
+  }
+
+  .prices dd {
+    margin: 0;
+  }
+
+  .price {
+    font-size: 1.375rem;
+    color: var(--signal);
+  }
+
+  .band--paper .price {
+    color: var(--blue);
+  }
+
+  .features {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin-bottom: var(--space-5);
+  }
+
+  .features li {
+    position: relative;
+    padding-left: 1.25rem;
+    font-size: 0.9375rem;
+    color: var(--steel);
+  }
+
+  .features li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.6em;
+    width: 0.5rem;
+    height: 2px;
+    background: var(--signal);
+  }
+
+  .band--paper .features li {
+    color: var(--muted-on-paper);
+  }
+
+  .note {
+    font-size: 0.6875rem;
+    color: var(--steel);
+    margin-bottom: var(--space-5);
+  }
+
+  .plan-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+
+  .empty {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-4);
+  }
+
+  .cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-6);
+  }
+</style>

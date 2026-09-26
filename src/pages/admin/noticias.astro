@@ -1,0 +1,100 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import ResultMessage from '../../components/admin/ResultMessage.astro';
+import { actions } from 'astro:actions';
+import { getDatabase } from '../../lib/db/client';
+import { listNews } from '../../lib/db/repositories/news';
+import { getAdminContext } from '../../lib/admin';
+import { formatDateShort } from '../../lib/format';
+
+const { csrf } = getAdminContext(Astro);
+const db = getDatabase();
+const items = listNews(db);
+const editId = Number(Astro.url.searchParams.get('id')) || null;
+const editing = editId ? items.find((item) => item.id === editId) ?? null : null;
+const result = Astro.getActionResult(actions.news);
+const toInput = (value: string | null | undefined) => (value ? value.replace(' ', 'T').slice(0, 16) : '');
+---
+
+<AdminLayout title="Noticias">
+  <ResultMessage result={result} />
+
+  <div class="admin-card">
+    <h2>{editing ? `Editar: ${editing.title}` : 'Nueva noticia'}</h2>
+    <form method="POST" action={actions.news} enctype="multipart/form-data" class="form-grid">
+      <input type="hidden" name="csrf" value={csrf} />
+      <input type="hidden" name="intent" value={editing ? 'update' : 'create'} />
+      {editing && <input type="hidden" name="id" value={editing.id} />}
+      {editing?.image && <input type="hidden" name="imageUrl" value={editing.image} />}
+
+      <div class="field field--full">
+        <label for="title">Título</label>
+        <input class="input" id="title" name="title" value={editing?.title ?? ''} required />
+      </div>
+      <div class="field">
+        <label for="slug">Slug</label>
+        <input class="input" id="slug" name="slug" value={editing?.slug ?? ''} />
+      </div>
+      <div class="field">
+        <label for="author">Autor</label>
+        <input class="input" id="author" name="author" value={editing?.author ?? 'IPStream'} />
+      </div>
+      <div class="field">
+        <label for="publishedAt">Fecha de publicación</label>
+        <input class="input" id="publishedAt" name="publishedAt" type="datetime-local" value={toInput(editing?.publishedAt)} />
+      </div>
+      <div class="field">
+        <label for="image">Imagen</label>
+        <input class="input" id="image" name="image" type="file" accept="image/*" />
+      </div>
+      <div class="field field--full">
+        <label for="excerpt">Resumen</label>
+        <textarea class="textarea" id="excerpt" name="excerpt">{editing?.excerpt ?? ''}</textarea>
+      </div>
+      <div class="field field--full">
+        <label for="content">Contenido (HTML permitido)</label>
+        <textarea class="textarea" id="content" name="content" style="min-height: 12rem;" required>{editing?.content ?? ''}</textarea>
+      </div>
+      <div class="field field--full">
+        <button class="btn-admin btn-admin--primary" type="submit">{editing ? 'Guardar cambios' : 'Crear noticia'}</button>
+      </div>
+    </form>
+    {editing && <p class="hint" style="margin-top: 1rem;"><a href="/admin/noticias">Cancelar edición</a></p>}
+  </div>
+
+  <div class="admin-card">
+    <h2>Noticias ({items.length})</h2>
+    <table class="admin-table">
+      <thead><tr><th>Imagen</th><th>Título</th><th>Publicada</th><th>Estado</th><th>Acciones</th></tr></thead>
+      <tbody>
+        {items.map((item) => (
+          <tr>
+            <td>{item.image ? <img src={item.image} alt="" /> : <span class="muted">—</span>}</td>
+            <td><strong>{item.title}</strong><br /><span class="muted mono">{item.slug}</span></td>
+            <td class="mono">{formatDateShort(item.publishedAt)}</td>
+            <td><span class:list={['badge', { 'badge--on': item.isActive }]}>{item.isActive ? 'Activa' : 'Inactiva'}</span></td>
+            <td>
+              <div class="admin-actions">
+                <a class="btn-admin" href={`/admin/noticias?id=${item.id}`}>Editar</a>
+                <a class="btn-admin" href={`/noticias/${item.slug}`} target="_blank" rel="noopener">Ver</a>
+                <form method="POST" action={actions.news}>
+                  <input type="hidden" name="csrf" value={csrf} />
+                  <input type="hidden" name="intent" value="toggle" />
+                  <input type="hidden" name="id" value={item.id} />
+                  <input type="hidden" name="isActive" value={item.isActive ? 'false' : 'true'} />
+                  <button class="btn-admin" type="submit">{item.isActive ? 'Desactivar' : 'Activar'}</button>
+                </form>
+                <form method="POST" action={actions.news}>
+                  <input type="hidden" name="csrf" value={csrf} />
+                  <input type="hidden" name="intent" value="delete" />
+                  <input type="hidden" name="id" value={item.id} />
+                  <button class="btn-admin btn-admin--danger" type="submit">Eliminar</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</AdminLayout>

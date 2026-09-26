@@ -1,0 +1,185 @@
+---
+import { NAV, SITE } from '../lib/site';
+
+const path = Astro.url.pathname;
+const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
+---
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="/" aria-label={`${SITE.name} inicio`}>
+      <img src="/images/logos/logo.png" alt={SITE.name} width="150" height="38" />
+    </a>
+
+    <nav class="nav-desktop" aria-label="Navegación principal">
+      {
+        NAV.map((item) => (
+          <a
+            href={item.href}
+            class:list={['nav-link', { 'is-active': isActive(item.href) }]}
+            aria-current={isActive(item.href) ? 'page' : undefined}
+          >
+            {item.label}
+          </a>
+        ))
+      }
+    </nav>
+
+    <div class="actions">
+      <a class="panel-link" href={SITE.panelUrl} rel="noopener external">Ingresar</a>
+      <a class="cta" href="/soporte">Contactar</a>
+    </div>
+
+    <details class="nav-mobile">
+      <summary aria-label="Abrir menú de navegación"><span></span><span></span></summary>
+      <nav aria-label="Navegación móvil">
+        {NAV.map((item) => <a href={item.href}>{item.label}</a>)}
+        <a href={SITE.panelUrl} rel="noopener external">Ingresar al panel</a>
+        <a href="/soporte">Contactar</a>
+      </nav>
+    </details>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: color-mix(in srgb, var(--ink) 88%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .header-inner {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+    min-height: 4.5rem;
+  }
+
+  .brand img {
+    height: 2.1rem;
+    width: auto;
+  }
+
+  .nav-desktop {
+    display: none;
+    align-items: center;
+    gap: var(--space-4);
+    margin-inline: auto;
+  }
+
+  .nav-link {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--steel);
+    padding-block: 0.25rem;
+    border-bottom: 1px solid transparent;
+  }
+
+  .nav-link:hover,
+  .nav-link.is-active {
+    color: var(--text);
+    border-bottom-color: var(--signal);
+  }
+
+  .actions {
+    display: none;
+    align-items: center;
+    gap: var(--space-4);
+    margin-left: auto;
+  }
+
+  .panel-link {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--steel);
+  }
+
+  .panel-link:hover {
+    color: var(--signal);
+  }
+
+  .cta {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink);
+    background: var(--signal);
+    padding: 0.6rem 1rem;
+    border-radius: var(--radius);
+  }
+
+  .cta:hover {
+    background: var(--signal-strong);
+  }
+
+  .nav-mobile {
+    margin-left: auto;
+  }
+
+  .nav-mobile summary {
+    list-style: none;
+    cursor: pointer;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: grid;
+    place-content: center;
+    gap: 6px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+  }
+
+  .nav-mobile summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .nav-mobile summary span {
+    display: block;
+    width: 1.25rem;
+    height: 2px;
+    background: var(--text);
+  }
+
+  .nav-mobile nav {
+    position: absolute;
+    inset-inline: 0;
+    top: 4.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding: var(--space-4) var(--space-5) var(--space-5);
+    background: var(--panel);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .nav-mobile nav a {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding-block: 0.5rem;
+    color: var(--steel);
+  }
+
+  .nav-mobile nav a:last-child {
+    color: var(--signal);
+  }
+
+  @media (min-width: 900px) {
+    .nav-desktop,
+    .actions {
+      display: flex;
+    }
+
+    .nav-mobile {
+      display: none;
+    }
+  }
+</style>

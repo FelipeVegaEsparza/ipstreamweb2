@@ -1,0 +1,107 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+import Module from '../components/ui/Module.astro';
+import OnAirBadge from '../components/ui/OnAirBadge.astro';
+import HeroBackground from '../components/HeroBackground.astro';
+import { getDatabase } from '../lib/db/client';
+import { listTutorialsGroupedByCategory } from '../lib/db/repositories/tutorials';
+
+const db = getDatabase();
+const groups = listTutorialsGroupedByCategory(db, { activeOnly: true });
+const total = groups.reduce((sum, group) => sum + group.tutorials.length, 0);
+---
+
+<SiteLayout title="Tutoriales — IPStream" description="Guías paso a paso y videos para aprender a usar todas las herramientas de IPStream.">
+  <section class="band band--dark hero-band">
+    <HeroBackground />
+    <div class="container">
+      <p class="eyebrow">[ TUTORIALES ]</p>
+      <h1 class="display">Aprende a usar tu plataforma</h1>
+      <p class="lede muted">
+        {total > 0 ? `${total} tutoriales disponibles para sacar el máximo provecho a tu radio online.` : 'Pronto publicaremos nuevas guías.'}
+      </p>
+    </div>
+  </section>
+
+  {
+    groups.length === 0 ? (
+      <section class="band band--panel">
+        <div class="container empty">
+          <OnAirBadge label="SIN SEÑAL" tone="danger" />
+          <h2>Todavía no hay tutoriales publicados</h2>
+          <p class="muted">
+            Estamos preparando las guías. Mientras tanto, escríbenos a soporte y te ayudamos directamente.
+          </p>
+          <a class="link mono" href="/soporte">Ir a soporte</a>
+        </div>
+      </section>
+    ) : (
+      groups.map((group, index) => (
+        <section class:list={['band', index % 2 === 0 ? 'band--panel' : 'band--paper']}>
+          <div class="container">
+            <div class="section-head">
+              <p class="eyebrow">[ {String(index + 1).padStart(2, '0')} / {group.category.name.toUpperCase()} ]</p>
+              <h2>{group.category.name}</h2>
+            </div>
+            <div class="grid-3">
+              {group.tutorials.map((tutorial) => (
+                <Module label={tutorial.difficulty} led="signal">
+                  <h3>{tutorial.title}</h3>
+                  {tutorial.description && <p class="muted">{tutorial.description}</p>}
+                  <p class="meta mono">
+                    {tutorial.duration && <span>{tutorial.duration}</span>}
+                    <span>{tutorial.views} vistas</span>
+                  </p>
+                  {tutorial.videoUrl && (
+                    <a class="link mono" href={tutorial.videoUrl} rel="noopener external" target="_blank">Ver tutorial</a>
+                  )}
+                </Module>
+              ))}
+            </div>
+          </div>
+        </section>
+      ))
+    )
+  }
+</SiteLayout>
+
+<style>
+  .lede {
+    margin-top: var(--space-4);
+    max-width: 40rem;
+  }
+
+  .grid-3 {
+    display: grid;
+    gap: var(--space-5);
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  }
+
+  .meta {
+    display: flex;
+    gap: var(--space-4);
+    margin-block: var(--space-4);
+    font-size: 0.6875rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--steel);
+  }
+
+  .link {
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--signal);
+  }
+
+  .band--paper .link {
+    color: var(--blue);
+  }
+
+  .empty {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-4);
+  }
+</style>

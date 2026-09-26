@@ -1,0 +1,12 @@
+---
+interface Props {
+  result?: { data?: unknown; error?: unknown } | null;
+}
+
+const { result } = Astro.props;
+const data = result?.data as { message?: string; ok?: boolean } | undefined;
+const error = result?.error as { message?: string } | undefined;
+---
+
+{error && <div class="msg msg--error">{error.message ?? 'Ocurrió un error'}</div>}
+{!error && data?.message && <div class="msg">{data.message}</div>}

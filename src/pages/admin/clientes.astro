@@ -1,0 +1,89 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import ResultMessage from '../../components/admin/ResultMessage.astro';
+import { actions } from 'astro:actions';
+import { getDatabase } from '../../lib/db/client';
+import { listPortfolio } from '../../lib/db/repositories/portfolio';
+import { getAdminContext } from '../../lib/admin';
+
+const { csrf } = getAdminContext(Astro);
+const db = getDatabase();
+const items = listPortfolio(db);
+const editId = Number(Astro.url.searchParams.get('id')) || null;
+const editing = editId ? items.find((item) => item.id === editId) ?? null : null;
+const result = Astro.getActionResult(actions.portfolio);
+---
+
+<AdminLayout title="Clientes (portafolio)">
+  <ResultMessage result={result} />
+
+  <div class="admin-card">
+    <h2>{editing ? `Editar: ${editing.title}` : 'Nuevo cliente'}</h2>
+    <form method="POST" action={actions.portfolio} enctype="multipart/form-data" class="form-grid">
+      <input type="hidden" name="csrf" value={csrf} />
+      <input type="hidden" name="intent" value={editing ? 'update' : 'create'} />
+      {editing && <input type="hidden" name="id" value={editing.id} />}
+      {editing?.imageUrl && <input type="hidden" name="imageUrl" value={editing.imageUrl} />}
+
+      <div class="field">
+        <label for="title">Título</label>
+        <input class="input" id="title" name="title" value={editing?.title ?? ''} required />
+      </div>
+      <div class="field">
+        <label for="projectUrl">URL del proyecto</label>
+        <input class="input" id="projectUrl" name="projectUrl" value={editing?.projectUrl ?? ''} />
+      </div>
+      <div class="field">
+        <label for="displayOrder">Orden</label>
+        <input class="input" id="displayOrder" name="displayOrder" type="number" value={editing?.displayOrder ?? 0} />
+      </div>
+      <div class="field">
+        <label for="image">Imagen</label>
+        <input class="input" id="image" name="image" type="file" accept="image/*" />
+      </div>
+      <div class="field field--full">
+        <label for="description">Descripción</label>
+        <textarea class="textarea" id="description" name="description">{editing?.description ?? ''}</textarea>
+      </div>
+      <div class="field field--full">
+        <button class="btn-admin btn-admin--primary" type="submit">{editing ? 'Guardar' : 'Crear cliente'}</button>
+      </div>
+    </form>
+    {editing && <p class="hint" style="margin-top: 1rem;"><a href="/admin/clientes">Cancelar</a></p>}
+  </div>
+
+  <div class="admin-card">
+    <h2>Clientes ({items.length})</h2>
+    <table class="admin-table">
+      <thead><tr><th>Imagen</th><th>Título</th><th>Enlace</th><th>Estado</th><th>Acciones</th></tr></thead>
+      <tbody>
+        {items.map((item) => (
+          <tr>
+            <td>{item.imageUrl ? <img src={item.imageUrl} alt="" /> : <span class="muted">—</span>}</td>
+            <td><strong>{item.title}</strong></td>
+            <td class="mono muted">{item.projectUrl}</td>
+            <td><span class:list={['badge', { 'badge--on': item.isActive }]}>{item.isActive ? 'Activo' : 'Inactivo'}</span></td>
+            <td>
+              <div class="admin-actions">
+                <a class="btn-admin" href={`/admin/clientes?id=${item.id}`}>Editar</a>
+                <form method="POST" action={actions.portfolio}>
+                  <input type="hidden" name="csrf" value={csrf} />
+                  <input type="hidden" name="intent" value="toggle" />
+                  <input type="hidden" name="id" value={item.id} />
+                  <input type="hidden" name="isActive" value={item.isActive ? 'false' : 'true'} />
+                  <button class="btn-admin" type="submit">{item.isActive ? 'Desactivar' : 'Activar'}</button>
+                </form>
+                <form method="POST" action={actions.portfolio}>
+                  <input type="hidden" name="csrf" value={csrf} />
+                  <input type="hidden" name="intent" value="delete" />
+                  <input type="hidden" name="id" value={item.id} />
+                  <button class="btn-admin btn-admin--danger" type="submit">Eliminar</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</AdminLayout>

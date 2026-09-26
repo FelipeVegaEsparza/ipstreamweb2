@@ -1,0 +1,139 @@
+---
+import { NAV, SITE, SOCIAL_LABELS } from '../lib/site';
+
+interface Props {
+  social?: Record<string, string> | null;
+}
+
+const { social = null } = Astro.props;
+const socialEntries = social
+  ? Object.entries(social).filter(([key, value]) => value && value !== '#' && key in SOCIAL_LABELS)
+  : [];
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div class="footer-brand">
+      <img src="/images/logos/logo.png" alt={SITE.name} width="150" height="38" />
+      <p class="muted">
+        Soluciones profesionales para tu radio online. Transmite, comparte y llega a más oyentes con la plataforma más
+        completa del mercado.
+      </p>
+      {
+        socialEntries.length > 0 && (
+          <ul class="social">
+            {socialEntries.map(([key, value]) => (
+              <li>
+                <a href={value} rel="noopener external" target="_blank">
+                  {SOCIAL_LABELS[key]}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+
+    <nav class="footer-col" aria-label="Enlaces">
+      <h2 class="footer-title mono">Enlaces</h2>
+      <ul>
+        {NAV.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+      </ul>
+    </nav>
+
+    <nav class="footer-col" aria-label="Soporte">
+      <h2 class="footer-title mono">Soporte</h2>
+      <ul>
+        <li><a href="/soporte">Centro de ayuda</a></li>
+        <li><a href="/tutoriales">Tutoriales</a></li>
+        <li><a href="/soporte#faq">Preguntas frecuentes</a></li>
+        <li><a href={`mailto:${SITE.email}`}>{SITE.email}</a></li>
+      </ul>
+    </nav>
+
+    <div class="footer-col">
+      <h2 class="footer-title mono">Panel</h2>
+      <ul>
+        <li><a href={SITE.panelUrl} rel="noopener external">Ingresar al panel</a></li>
+        <li><a href="/planes">Ver planes</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="container footer-bottom">
+    <p class="mono">© {year} {SITE.name}. Todos los derechos reservados.</p>
+    <p class="mono muted">Hecho en Chile</p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--panel);
+    border-top: 1px solid var(--line);
+    padding-top: var(--space-8);
+  }
+
+  .footer-grid {
+    display: grid;
+    gap: var(--space-7);
+    grid-template-columns: 1fr;
+    padding-bottom: var(--space-7);
+  }
+
+  .footer-brand {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    max-width: 26rem;
+  }
+
+  .footer-brand img {
+    height: 2rem;
+    width: auto;
+  }
+
+  .footer-title {
+    font-size: 0.6875rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--signal);
+    margin-bottom: var(--space-3);
+  }
+
+  .footer-col ul,
+  .social {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .footer-col a,
+  .social a {
+    color: var(--steel);
+    font-size: 0.9375rem;
+  }
+
+  .footer-col a:hover,
+  .social a:hover {
+    color: var(--text);
+  }
+
+  .footer-bottom {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding-block: var(--space-5);
+    border-top: 1px solid var(--line);
+    font-size: 0.75rem;
+  }
+
+  @media (min-width: 720px) {
+    .footer-grid {
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+    }
+  }
+</style>

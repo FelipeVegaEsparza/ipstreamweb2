@@ -1,0 +1,94 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import Icon from '../../components/ui/Icon.astro';
+import { getDatabase } from '../../lib/db/client';
+import { listCategories, listPlans } from '../../lib/db/repositories/plans';
+import { listNews } from '../../lib/db/repositories/news';
+import { listTutorials, listTutorialCategories } from '../../lib/db/repositories/tutorials';
+import { listPortfolio } from '../../lib/db/repositories/portfolio';
+import { listCommunity } from '../../lib/db/repositories/community';
+
+const db = getDatabase();
+const cards = [
+  { label: 'Planes', value: listPlans(db).length, href: '/admin/planes', icon: 'layers' },
+  { label: 'Categorías de planes', value: listCategories(db).length, href: '/admin/categorias', icon: 'folder' },
+  { label: 'Noticias', value: listNews(db).length, href: '/admin/noticias', icon: 'news' },
+  { label: 'Tutoriales', value: listTutorials(db).length, href: '/admin/tutoriales', icon: 'book' },
+  { label: 'Categorías de tutoriales', value: listTutorialCategories(db).length, href: '/admin/tutoriales', icon: 'list' },
+  { label: 'Clientes', value: listPortfolio(db).length, href: '/admin/clientes', icon: 'users' },
+  { label: 'Comunidad', value: listCommunity(db).length, href: '/admin/comunidad', icon: 'radio' },
+];
+---
+
+<AdminLayout title="Resumen">
+  <div class="stats">
+    {
+      cards.map((card) => (
+        <a class="stat" href={card.href}>
+          <span class="stat__top">
+            <span class="stat__icon"><Icon name={card.icon} size={18} /></span>
+            <span class="stat__value mono">{card.value}</span>
+          </span>
+          <span class="stat__label">{card.label}</span>
+        </a>
+      ))
+    }
+  </div>
+</AdminLayout>
+
+<style>
+  .stats {
+    display: grid;
+    gap: var(--space-4);
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding: var(--space-5);
+    background: linear-gradient(180deg, var(--panel), color-mix(in srgb, var(--panel) 88%, var(--ink)));
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-panel);
+    transition: border-color 0.15s ease, transform 0.15s ease;
+  }
+
+  .stat:hover {
+    border-color: color-mix(in srgb, var(--signal) 55%, var(--line));
+    transform: translateY(-2px);
+  }
+
+  .stat__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+
+  .stat__icon {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    color: var(--signal);
+    background: rgba(53, 214, 208, 0.06);
+  }
+
+  .stat__value {
+    font-size: 2.25rem;
+    line-height: 1;
+    color: var(--text);
+  }
+
+  .stat__label {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--steel);
+  }
+</style>

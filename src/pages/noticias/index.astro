@@ -1,0 +1,133 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import OnAirBadge from '../../components/ui/OnAirBadge.astro';
+import HeroBackground from '../../components/HeroBackground.astro';
+import { getDatabase } from '../../lib/db/client';
+import { listNews } from '../../lib/db/repositories/news';
+import { formatDate } from '../../lib/format';
+
+const legacySlug = Astro.url.searchParams.get('slug');
+if (legacySlug) {
+  return Astro.redirect(`/noticias/${encodeURIComponent(legacySlug)}`, 301);
+}
+
+const db = getDatabase();
+const items = listNews(db, { activeOnly: true });
+---
+
+<SiteLayout title="Noticias — IPStream" description="Novedades, actualizaciones y consejos para tu radio online.">
+  <section class="band band--dark hero-band">
+    <HeroBackground />
+    <div class="container">
+      <p class="eyebrow">[ NOTICIAS ]</p>
+      <h1 class="display">Últimas noticias</h1>
+      <p class="lede muted">Novedades, actualizaciones y consejos para tu radio online.</p>
+    </div>
+  </section>
+
+  <section class="band band--panel">
+    <div class="container">
+      {
+        items.length === 0 ? (
+          <div class="empty">
+            <OnAirBadge label="SIN SEÑAL" tone="danger" />
+            <h2>No hay noticias publicadas</h2>
+          </div>
+        ) : (
+          <div class="news-list">
+            {items.map((item) => (
+              <article class="news-item">
+                <a class="news-media" href={`/noticias/${item.slug}`} aria-hidden="true" tabindex="-1">
+                  {item.image ? (
+                    <img src={item.image} alt={item.title} width="480" height="270" loading="lazy" />
+                  ) : (
+                    <span class="placeholder" />
+                  )}
+                </a>
+                <div class="news-body">
+                  <p class="mono date">{formatDate(item.publishedAt)}</p>
+                  <h2><a href={`/noticias/${item.slug}`}>{item.title}</a></h2>
+                  {item.excerpt && <p class="muted">{item.excerpt}</p>}
+                  <a class="read mono" href={`/noticias/${item.slug}`}>Leer noticia</a>
+                </div>
+              </article>
+            ))}
+          </div>
+        )
+      }
+    </div>
+  </section>
+</SiteLayout>
+
+<style>
+  .lede {
+    margin-top: var(--space-4);
+  }
+
+  .news-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .news-item {
+    display: grid;
+    gap: var(--space-5);
+    padding-bottom: var(--space-6);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .news-media img,
+  .placeholder {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-radius: var(--radius);
+    border: 1px solid var(--line);
+  }
+
+  .placeholder {
+    display: block;
+    background: var(--ink);
+  }
+
+  .date {
+    font-size: 0.6875rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--signal);
+    margin-bottom: var(--space-2);
+  }
+
+  .news-body h2 {
+    font-size: clamp(1.375rem, 1rem + 1.5vw, 1.875rem);
+    margin-bottom: var(--space-3);
+  }
+
+  .news-body h2 a:hover {
+    color: var(--signal);
+  }
+
+  .read {
+    display: inline-block;
+    margin-top: var(--space-4);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--signal);
+  }
+
+  .empty {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-4);
+  }
+
+  @media (min-width: 800px) {
+    .news-item {
+      grid-template-columns: 320px 1fr;
+      align-items: start;
+    }
+  }
+</style>

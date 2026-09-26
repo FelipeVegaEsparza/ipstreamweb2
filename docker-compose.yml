@@ -1,0 +1,26 @@
+services:
+  web:
+    build:
+      context: .
+      args:
+        SITE_URL: ${SITE_URL:-https://ipstream.cl}
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 4321
+      SITE_URL: ${SITE_URL:-https://ipstream.cl}
+      DATABASE_PATH: /data/app.db
+      UPLOADS_DIR: /app/uploads
+      ADMIN_USER: ${ADMIN_USER}
+      ADMIN_PASS: ${ADMIN_PASS}
+      SESSION_SECRET: ${SESSION_SECRET}
+    expose:
+      - 4321
+    volumes:
+      - app_data:/data
+      - uploads_data:/app/uploads
+
+volumes:
+  app_data:
+  uploads_data:

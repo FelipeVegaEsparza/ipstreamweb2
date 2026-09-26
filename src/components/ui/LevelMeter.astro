@@ -1,0 +1,53 @@
+---
+interface Props {
+  level?: number;
+  bars?: number;
+  label?: string;
+}
+
+const { level = 0.6, bars = 16, label } = Astro.props;
+const clamped = Math.max(0, Math.min(1, level));
+const activeCount = Math.round(clamped * bars);
+---
+
+<div class="meter">
+  {label && <span class="meter__label mono">{label}</span>}
+  <div class="meter__bars" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow={Math.round(clamped * 100)} aria-label={label ?? 'Nivel de senal'}>
+    {Array.from({ length: bars }, (_, i) => (
+      <span class:list={['meter__bar', { 'is-active': i < activeCount }]} />
+    ))}
+  </div>
+</div>
+
+<style>
+  .meter {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .meter__label {
+    font-size: 0.6875rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--steel);
+  }
+
+  .meter__bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 1.75rem;
+  }
+
+  .meter__bar {
+    width: 4px;
+    height: 100%;
+    background: var(--line);
+    border-radius: 1px;
+  }
+
+  .meter__bar.is-active {
+    background: var(--signal-gradient-v);
+  }
+</style>

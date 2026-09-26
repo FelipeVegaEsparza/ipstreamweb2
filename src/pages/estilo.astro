@@ -1,0 +1,79 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ConsoleButton from '../components/ui/ConsoleButton.astro';
+import OnAirBadge from '../components/ui/OnAirBadge.astro';
+import Waveform from '../components/ui/Waveform.astro';
+import LevelMeter from '../components/ui/LevelMeter.astro';
+import FrequencyStrip from '../components/ui/FrequencyStrip.astro';
+import Module from '../components/ui/Module.astro';
+---
+
+<BaseLayout title="Sistema de diseño — IPStream" noindex={true}>
+  <main>
+    <section class="band band--dark">
+      <div class="container">
+        <p class="eyebrow">[ 00 / SISTEMA ]</p>
+        <h1 class="display" style="font-size: clamp(2rem, 1rem + 4vw, 4rem); margin-block: 1rem 2rem;">
+          Sistema de diseño "Al Aire"
+        </h1>
+        <FrequencyStrip />
+        <div class="stack" style="margin-top: 2rem;">
+          <OnAirBadge />
+          <OnAirBadge label="REC" tone="danger" />
+          <Waveform animated />
+        </div>
+        <div class="row" style="margin-top: 2rem;">
+          <ConsoleButton href="/estilo">Contratar</ConsoleButton>
+          <ConsoleButton variant="ghost" href="/estilo">Ver planes</ConsoleButton>
+          <ConsoleButton variant="quiet" href="/estilo">Detalles</ConsoleButton>
+          <ConsoleButton disabled>No disponible</ConsoleButton>
+        </div>
+        <div style="margin-top: 2rem; max-width: 320px;">
+          <LevelMeter level={0.66} label="Senal" />
+        </div>
+      </div>
+    </section>
+
+    <section class="band band--paper">
+      <div class="container">
+        <p class="eyebrow">[ 01 / MODULOS ]</p>
+        <h2 class="display" style="margin-block: 0.75rem 2rem;">Componentes sobre superficie clara</h2>
+        <div class="grid">
+          <Module label="Canal 01" led="signal">
+            <h3>Sitio web profesional</h3>
+            <p class="muted">Tu radio con presencia profesional y reproductor integrado.</p>
+          </Module>
+          <Module label="Canal 02" led="ok">
+            <h3>App PWA</h3>
+            <p class="muted">Instalable en Android, iPhone y PC, sin tiendas.</p>
+          </Module>
+          <Module label="Canal 03">
+            <h3>Panel admin</h3>
+            <p class="muted">Gestiona contenido y parrilla en tiempo real.</p>
+          </Module>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <style>
+    .stack {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: var(--space-5);
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-3);
+    }
+
+    .grid {
+      display: grid;
+      gap: var(--space-5);
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+  </style>
+</BaseLayout>

@@ -1,0 +1,58 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+import ConsoleButton from '../components/ui/ConsoleButton.astro';
+import OnAirBadge from '../components/ui/OnAirBadge.astro';
+import Waveform from '../components/ui/Waveform.astro';
+import HeroBackground from '../components/HeroBackground.astro';
+
+export const prerender = true;
+---
+
+<SiteLayout title="Página no encontrada — IPStream" description="La página que buscas no existe." noindex social={null}>
+  <section class="band band--dark hero-band">
+    <HeroBackground />
+    <div class="container notfound">
+      <OnAirBadge label="FUERA DEL AIRE" tone="danger" />
+      <p class="code mono">ERROR 404</p>
+      <h1 class="display">Esta frecuencia no está disponible</h1>
+      <p class="muted">La página que buscas no existe o cambió de dirección.</p>
+      <Waveform bars={40} />
+      <div class="actions">
+        <ConsoleButton href="/">Volver al inicio</ConsoleButton>
+        <ConsoleButton variant="ghost" href="/planes">Ver planes</ConsoleButton>
+      </div>
+    </div>
+  </section>
+</SiteLayout>
+
+<style>
+  .notfound {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-5);
+    max-width: 44rem;
+  }
+
+  .code {
+    font-size: 0.875rem;
+    letter-spacing: 0.4em;
+    color: var(--signal);
+  }
+
+  .notfound h1 {
+    font-size: clamp(2rem, 1.2rem + 4vw, 3.5rem);
+  }
+
+  .notfound :global(.wave) {
+    width: 100%;
+    max-width: 22rem;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-top: var(--space-3);
+  }
+</style>

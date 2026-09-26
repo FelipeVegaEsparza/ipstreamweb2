@@ -1,0 +1,631 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+import ConsoleButton from '../components/ui/ConsoleButton.astro';
+import OnAirBadge from '../components/ui/OnAirBadge.astro';
+import Module from '../components/ui/Module.astro';
+import Icon from '../components/ui/Icon.astro';
+import PlayerCard from '../components/PlayerCard.astro';
+import HeroBackground from '../components/HeroBackground.astro';
+import { getDatabase } from '../lib/db/client';
+import { listPlansGroupedByCategory } from '../lib/db/repositories/plans';
+import { listNews } from '../lib/db/repositories/news';
+import { listPortfolio } from '../lib/db/repositories/portfolio';
+import { PILLARS, HIGHLIGHTS, STUDIO_FEATURES, PLAYERS } from '../lib/content';
+import { formatCLP, formatDateShort } from '../lib/format';
+
+const db = getDatabase();
+const planGroups = listPlansGroupedByCategory(db, { activeOnly: true });
+const latestNews = listNews(db, { activeOnly: true, limit: 3 });
+const clients = listPortfolio(db, { activeOnly: true }).slice(0, 8);
+
+const minMonthly = (group: (typeof planGroups)[number]) =>
+  Math.min(...group.plans.map((plan) => plan.monthlyPrice ?? plan.price));
+---
+
+<SiteLayout title="IPStream — Crea tu propia radio online" description="Sitio web profesional, reproductor, app PWA y panel de administración para tu radio online. Transmite con IPStream.">
+  <section class="hero band band--dark">
+    <HeroBackground />
+    <div class="container hero-grid">
+      <div class="hero-copy">
+        <OnAirBadge />
+        <h1 class="display">Tu radio online,<br />al aire en minutos</h1>
+        <p class="lede">
+          Sitio web profesional, reproductor, app PWA y panel de administración en una sola plataforma. Transmite con
+          IPStreamStudio e incluye todo sin costo adicional.
+        </p>
+        <div class="hero-actions">
+          <ConsoleButton href="/planes">Ver planes</ConsoleButton>
+          <ConsoleButton variant="ghost" href="/soporte">Hablar con ventas</ConsoleButton>
+        </div>
+      </div>
+
+      <div class="hero-console">
+        <img
+          class="hero-image"
+          src="/images/hero1.png"
+          alt="IPStream en vivo: reproductor y panel de tu radio online"
+          width="500"
+          height="400"
+          fetchpriority="high"
+        />
+      </div>
+    </div>
+  </section>
+
+  <section class="band band--panel">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">[ 01 / CARACTERÍSTICAS ]</p>
+        <h2>Todo lo que necesitas para tu radio online</h2>
+        <p class="muted">Una solución completa para transmitir, gestionar y hacer crecer tu audiencia.</p>
+      </div>
+      <div class="grid-3">
+        {
+          PILLARS.map((pillar) => (
+            <Module label={`Canal ${pillar.code}`} icon={pillar.icon} led="signal">
+              {pillar.image && (
+                <div class="pillar-media">
+                  <img src={pillar.image} alt={pillar.title} width="1440" height="771" loading="lazy" />
+                </div>
+              )}
+              <h3>{pillar.title}</h3>
+              <p class="muted">{pillar.description}</p>
+              <ul class="points">
+                {pillar.points.map((point) => <li>{point}</li>)}
+              </ul>
+            </Module>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="band band--paper">
+    <div class="container studio">
+      <div class="studio-copy">
+        <p class="eyebrow">[ 02 / IPSTREAMSTUDIO ]</p>
+        <h2 class="display">Tu transmisor de audio profesional</h2>
+        <p class="studio-lead muted">
+          Software de transmisión desarrollado por IPStream. Enlaza tu estudio, programa cuñas y mantén tu radio al aire
+          24/7. Incluido en todos los planes, sin costo adicional.
+        </p>
+        <ul class="channels">
+          {
+            STUDIO_FEATURES.map((feature) => (
+              <li class="channel">
+                <span class="mono channel__idx">{feature.code}</span>
+                <div class="channel__text">
+                  <h3>{feature.title}</h3>
+                  <p class="muted">{feature.description}</p>
+                </div>
+                <span class="channel__led" aria-hidden="true" />
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <figure class="monitor">
+        <span class="monitor__strip">
+          <span class="mono monitor__name">IPStreamStudio</span>
+          <OnAirBadge label="ON AIR" />
+        </span>
+        <img
+          src="/images/estudio/1.png"
+          alt="IPStreamStudio, software de transmisión de audio"
+          width="1276"
+          height="780"
+          loading="lazy"
+        />
+        <figcaption class="monitor__foot">
+          <span class="mono">24/7</span>
+          <span class="mono">Auto-DJ</span>
+          <span class="mono">Hora/Temp</span>
+          <span class="mono">Grabación</span>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="band band--dark">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">[ 03 / FUNCIONALIDADES ]</p>
+        <h2>Diseñado para hacer crecer tu audiencia</h2>
+      </div>
+      <div class="grid-3">
+        {
+          HIGHLIGHTS.map((item) => (
+            <article class="highlight">
+              <div class="highlight__head">
+                <span class="highlight__icon">
+                  <Icon name={item.icon ?? 'play'} size={22} />
+                </span>
+                <span class="mono highlight-code">{item.code}</span>
+              </div>
+              <h3>{item.title}</h3>
+              <p class="muted">{item.description}</p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="band band--panel">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">[ 04 / REPRODUCTORES ]</p>
+        <h2>Los reproductores más modernos y compatibles</h2>
+        <p class="muted">Diseñados para ofrecer la mejor experiencia de streaming en cualquier dispositivo.</p>
+      </div>
+      <div class="players">
+        {
+          PLAYERS.map((player, index) => (
+            <PlayerCard code={String(index + 1).padStart(2, '0')} {...player} />
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="band band--dark">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">[ 05 / PLANES ]</p>
+        <h2>Planes diseñados para tu éxito</h2>
+      </div>
+      <div class="grid-3">
+        {
+          planGroups.map((group) => (
+            <Module label={group.category.name} led="ok">
+              <p class="muted">{group.category.description}</p>
+              <p class="plan-from">
+                Desde <span class="mono">{formatCLP(minMonthly(group))}</span>/mes
+              </p>
+              <ConsoleButton variant="ghost" href="/planes">Ver {group.plans.length} planes</ConsoleButton>
+            </Module>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  {
+    clients.length > 0 && (
+      <section class="band band--panel">
+        <div class="container">
+          <div class="section-head">
+            <p class="eyebrow">[ 06 / CLIENTES ]</p>
+            <h2>Radios que confían en IPStream</h2>
+          </div>
+          <div class="clients">
+            {clients.map((client) => (
+              <a class="client" href={client.projectUrl ?? '/clientes'} target={client.projectUrl ? '_blank' : undefined} rel="noopener">
+                {client.imageUrl && <img src={client.imageUrl} alt={client.title} width="320" height="180" loading="lazy" />}
+                <span>{client.title}</span>
+              </a>
+            ))}
+          </div>
+          <div class="more"><ConsoleButton variant="quiet" href="/clientes">Ver todos los clientes</ConsoleButton></div>
+        </div>
+      </section>
+    )
+  }
+
+  {
+    latestNews.length > 0 && (
+      <section class="band band--paper">
+        <div class="container">
+          <div class="section-head">
+            <p class="eyebrow">[ 07 / NOTICIAS ]</p>
+            <h2>Últimas noticias</h2>
+          </div>
+          <div class="grid-3">
+            {latestNews.map((item) => (
+              <article class="news-card">
+                {item.image && <img src={item.image} alt={item.title} width="400" height="225" loading="lazy" />}
+                <p class="mono news-date">{formatDateShort(item.publishedAt)}</p>
+                <h3><a href={`/noticias/${item.slug}`}>{item.title}</a></h3>
+                <p class="muted">{item.excerpt}</p>
+              </article>
+            ))}
+          </div>
+          <div class="more"><ConsoleButton variant="quiet" href="/noticias">Ver todas las noticias</ConsoleButton></div>
+        </div>
+      </section>
+    )
+  }
+
+  <section class="band band--dark cta-band">
+    <div class="container cta-inner">
+      <div>
+        <p class="eyebrow">[ LISTO PARA EMITIR ]</p>
+        <h2 class="display">¿Listo para profesionalizar tu radio?</h2>
+      </div>
+      <div class="hero-actions">
+        <ConsoleButton href="/planes">Ver planes</ConsoleButton>
+        <ConsoleButton variant="ghost" href="/soporte">Contactar ventas</ConsoleButton>
+      </div>
+    </div>
+  </section>
+</SiteLayout>
+
+<style>
+  .hero {
+    position: relative;
+    overflow: hidden;
+    padding-block: var(--space-9) var(--space-8);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .hero-grid {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: var(--space-8);
+    align-items: center;
+  }
+
+  .hero-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-5);
+    min-width: 0;
+  }
+
+  .hero h1 {
+    font-size: clamp(2.25rem, 1.2rem + 5vw, 4.25rem);
+  }
+
+  .lede {
+    font-size: 1.125rem;
+    max-width: 34rem;
+    color: var(--steel);
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+
+  .hero-console {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 0;
+  }
+
+  .hero-image {
+    width: 100%;
+    max-width: 30rem;
+    height: auto;
+  }
+
+  .grid-3 {
+    display: grid;
+    gap: var(--space-5);
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  @media (min-width: 640px) {
+    .grid-3 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .grid-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .points {
+    list-style: none;
+    padding: 0;
+    margin-top: auto;
+    padding-top: var(--space-4);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .points li {
+    font-size: 0.8125rem;
+    color: var(--steel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: 0.2rem 0.5rem;
+  }
+
+  .pillar-media {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 16 / 9;
+    margin: calc(var(--space-5) * -1) calc(var(--space-5) * -1) var(--space-5);
+    padding: var(--space-4);
+    background: radial-gradient(120% 100% at 50% 0%, rgba(53, 214, 208, 0.1), transparent 70%);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .pillar-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 14px 26px rgba(0, 0, 0, 0.5));
+  }
+
+  .studio {
+    display: grid;
+    gap: var(--space-8);
+    align-items: center;
+  }
+
+  .studio h2 {
+    font-size: clamp(1.75rem, 1rem + 3vw, 3rem);
+    margin-block: var(--space-3);
+  }
+
+  .studio-lead {
+    max-width: 34rem;
+  }
+
+  /* Lista de canales estilo consola / tracklist */
+  .channels {
+    list-style: none;
+    padding: 0;
+    margin: var(--space-7) 0 0;
+    border-top: 1px solid var(--line-paper);
+  }
+
+  .channel {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: start;
+    gap: var(--space-4);
+    padding: var(--space-4) var(--space-2);
+    border-bottom: 1px solid var(--line-paper);
+    transition: background 0.15s ease, padding 0.15s ease;
+  }
+
+  .channel:hover {
+    background: color-mix(in srgb, var(--ink-text) 4%, transparent);
+    padding-inline: var(--space-4);
+  }
+
+  .channel__idx {
+    font-size: 0.6875rem;
+    letter-spacing: 0.2em;
+    color: var(--blue);
+    padding-top: 0.35rem;
+  }
+
+  .channel__text h3 {
+    font-size: 1.0625rem;
+    margin-bottom: var(--space-1);
+    transition: color 0.15s ease;
+  }
+
+  .channel:hover .channel__text h3 {
+    color: var(--blue);
+  }
+
+  .channel__text p {
+    font-size: 0.9375rem;
+    max-width: 32rem;
+  }
+
+  .channel__led {
+    width: 0.5rem;
+    height: 0.5rem;
+    margin-top: 0.5rem;
+    border-radius: 50%;
+    background: var(--line-paper);
+    transition: background 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .channel:hover .channel__led {
+    background: var(--blue);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--blue) 18%, transparent);
+  }
+
+  /* Monitor: la captura enmarcada como modulo de consola */
+  .monitor {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-panel);
+  }
+
+  .monitor__strip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-4);
+    border-bottom: 1px solid var(--line);
+    background: var(--panel-2);
+  }
+
+  .monitor__name {
+    font-size: 0.6875rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--steel);
+  }
+
+  .monitor img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .monitor__foot {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-5);
+    padding: var(--space-3) var(--space-4);
+    border-top: 1px solid var(--line);
+    background: var(--panel);
+  }
+
+  .monitor__foot .mono {
+    font-size: 0.625rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--signal);
+  }
+
+  .highlight-code {
+    font-size: 0.6875rem;
+    letter-spacing: 0.2em;
+    color: var(--steel);
+  }
+
+  .highlight {
+    display: flex;
+    flex-direction: column;
+    border-top: 2px solid var(--line);
+    padding-top: var(--space-5);
+    transition: border-color 0.15s ease;
+  }
+
+  .highlight:hover {
+    border-top-color: var(--signal);
+  }
+
+  .highlight__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+  }
+
+  .highlight__icon {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    color: var(--signal);
+    background: color-mix(in srgb, var(--signal) 6%, transparent);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, color 0.15s ease;
+  }
+
+  .highlight:hover .highlight__icon {
+    color: var(--signal-strong);
+    border-color: color-mix(in srgb, var(--signal) 45%, var(--line));
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--signal) 14%, transparent);
+  }
+
+  .highlight h3 {
+    margin-block: 0 var(--space-2);
+  }
+
+  .players {
+    display: grid;
+    gap: var(--space-5);
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+
+  .plan-from {
+    margin-block: var(--space-5);
+    font-size: 1.125rem;
+  }
+
+  .plan-from .mono {
+    color: var(--signal);
+    font-size: 1.25rem;
+  }
+
+  .clients {
+    display: grid;
+    gap: var(--space-4);
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  }
+
+  .client {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    background: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: var(--space-3);
+  }
+
+  .client img {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+  }
+
+  .client span {
+    font-size: 0.875rem;
+    color: var(--steel);
+  }
+
+  .news-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .news-card img {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-radius: var(--radius);
+  }
+
+  .news-date {
+    font-size: 0.6875rem;
+    letter-spacing: 0.16em;
+    color: var(--signal);
+  }
+
+  .news-card a:hover {
+    color: var(--blue);
+  }
+
+  .band--paper .news-card a:hover {
+    color: var(--blue);
+  }
+
+  .more {
+    margin-top: var(--space-7);
+  }
+
+  .cta-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-6);
+  }
+
+  @media (min-width: 900px) {
+    .hero-grid {
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: var(--space-7);
+    }
+
+    .hero-image {
+      max-width: none;
+    }
+
+    .studio {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+</style>

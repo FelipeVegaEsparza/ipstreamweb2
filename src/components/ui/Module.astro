@@ -1,0 +1,88 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  label?: string;
+  icon?: string;
+  led?: 'signal' | 'ok' | 'off';
+  as?: string;
+  class?: string;
+}
+
+const { label, icon, led = 'off', as: Tag = 'div', class: className = '' } = Astro.props;
+---
+
+<Tag class:list={['module', className]}>
+  <span class="module__strip">
+    <span class="module__lead">
+      {icon && <Icon name={icon} size={14} />}
+      {label && <span class="module__label mono">{label}</span>}
+    </span>
+    <span class:list={['module__led', `module__led--${led}`]} aria-hidden="true"></span>
+  </span>
+  <div class="module__body">
+    <slot />
+  </div>
+</Tag>
+
+<style>
+  .module {
+    display: flex;
+    flex-direction: column;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-panel);
+    overflow: hidden;
+    height: 100%;
+  }
+
+  .module__strip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-4);
+    border-bottom: 1px solid var(--line);
+    background: var(--panel-2);
+  }
+
+  .module__lead {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 0;
+    color: var(--signal);
+  }
+
+  .module__label {
+    font-size: 0.625rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--steel);
+  }
+
+  .module__led {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--line);
+  }
+
+  .module__led--signal {
+    background: var(--signal);
+    box-shadow: 0 0 10px rgba(53, 214, 208, 0.6);
+  }
+
+  .module__led--ok {
+    background: var(--ok);
+    box-shadow: 0 0 10px rgba(70, 209, 127, 0.5);
+  }
+
+  .module__body {
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-5);
+    flex: 1 1 auto;
+  }
+</style>

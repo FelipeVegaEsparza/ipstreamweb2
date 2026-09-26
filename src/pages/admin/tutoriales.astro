@@ -1,0 +1,164 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import ResultMessage from '../../components/admin/ResultMessage.astro';
+import { actions } from 'astro:actions';
+import { getDatabase } from '../../lib/db/client';
+import { listTutorialCategories, listTutorials } from '../../lib/db/repositories/tutorials';
+import { getAdminContext } from '../../lib/admin';
+
+const { csrf } = getAdminContext(Astro);
+const db = getDatabase();
+const categories = listTutorialCategories(db);
+const tutorials = listTutorials(db);
+
+const type = Astro.url.searchParams.get('type');
+const editId = Number(Astro.url.searchParams.get('id')) || null;
+const editingTutorial = type === 'tutorial' && editId ? tutorials.find((item) => item.id === editId) ?? null : null;
+const editingCategory = type === 'category' && editId ? categories.find((item) => item.id === editId) ?? null : null;
+
+const resultTutorial = Astro.getActionResult(actions.tutorial);
+const resultCategory = Astro.getActionResult(actions.tutorialCategory);
+---
+
+<AdminLayout title="Tutoriales">
+  <ResultMessage result={resultCategory} />
+
+  <div class="admin-card">
+    <h2>{editingCategory ? `Editar categoría: ${editingCategory.name}` : 'Nueva categoría de tutorial'}</h2>
+    <form method="POST" action={actions.tutorialCategory} class="form-grid">
+      <input type="hidden" name="csrf" value={csrf} />
+      <input type="hidden" name="intent" value={editingCategory ? 'update' : 'create'} />
+      {editingCategory && <input type="hidden" name="id" value={editingCategory.id} />}
+      <div class="field">
+        <label for="cat-name">Nombre</label>
+        <input class="input" id="cat-name" name="name" value={editingCategory?.name ?? ''} required />
+      </div>
+      <div class="field">
+        <label for="cat-slug">Slug</label>
+        <input class="input" id="cat-slug" name="slug" value={editingCategory?.slug ?? ''} />
+      </div>
+      <div class="field">
+        <label for="cat-color">Color</label>
+        <input class="input" id="cat-color" name="color" value={editingCategory?.color ?? 'blue'} />
+      </div>
+      <div class="field">
+        <label for="cat-order">Orden</label>
+        <input class="input" id="cat-order" name="displayOrder" type="number" value={editingCategory?.displayOrder ?? 0} />
+      </div>
+      <div class="field field--full">
+        <button class="btn-admin btn-admin--primary" type="submit">{editingCategory ? 'Guardar' : 'Crear categoría'}</button>
+      </div>
+    </form>
+    {editingCategory && <p class="hint" style="margin-top: 1rem;"><a href="/admin/tutoriales">Cancelar</a></p>}
+
+    <table class="admin-table" style="margin-top: 1.5rem;">
+      <thead><tr><th>Categoría</th><th>Slug</th><th>Orden</th><th>Acciones</th></tr></thead>
+      <tbody>
+        {categories.map((category) => (
+          <tr>
+            <td><strong>{category.name}</strong></td>
+            <td class="mono muted">{category.slug}</td>
+            <td class="mono">{category.displayOrder}</td>
+            <td>
+              <div class="admin-actions">
+                <a class="btn-admin" href={`/admin/tutoriales?type=category&id=${category.id}`}>Editar</a>
+                <form method="POST" action={actions.tutorialCategory}>
+                  <input type="hidden" name="csrf" value={csrf} />
+                  <input type="hidden" name="intent" value="delete" />
+                  <input type="hidden" name="id" value={category.id} />
+                  <button class="btn-admin btn-admin--danger" type="submit">Eliminar</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  <ResultMessage result={resultTutorial} />
+
+  <div class="admin-card">
+    <h2>{editingTutorial ? `Editar tutorial: ${editingTutorial.title}` : 'Nuevo tutorial'}</h2>
+    <form method="POST" action={actions.tutorial} class="form-grid">
+      <input type="hidden" name="csrf" value={csrf} />
+      <input type="hidden" name="intent" value={editingTutorial ? 'update' : 'create'} />
+      {editingTutorial && <input type="hidden" name="id" value={editingTutorial.id} />}
+      <div class="field">
+        <label for="tut-cat">Categoría</label>
+        <select class="select" id="tut-cat" name="categoryId" required>
+          {categories.map((category) => (
+            <option value={category.id} selected={editingTutorial?.categoryId === category.id}>{category.name}</option>
+          ))}
+        </select>
+      </div>
+      <div class="field">
+        <label for="tut-title">Título</label>
+        <input class="input" id="tut-title" name="title" value={editingTutorial?.title ?? ''} required />
+      </div>
+      <div class="field">
+        <label for="tut-slug">Slug</label>
+        <input class="input" id="tut-slug" name="slug" value={editingTutorial?.slug ?? ''} />
+      </div>
+      <div class="field">
+        <label for="tut-video">URL del video</label>
+        <input class="input" id="tut-video" name="videoUrl" value={editingTutorial?.videoUrl ?? ''} />
+      </div>
+      <div class="field">
+        <label for="tut-duration">Duración</label>
+        <input class="input" id="tut-duration" name="duration" value={editingTutorial?.duration ?? ''} />
+      </div>
+      <div class="field">
+        <label for="tut-difficulty">Dificultad</label>
+        <select class="select" id="tut-difficulty" name="difficulty">
+          <option value="beginner" selected={editingTutorial?.difficulty === 'beginner'}>Principiante</option>
+          <option value="intermediate" selected={editingTutorial?.difficulty === 'intermediate'}>Intermedio</option>
+          <option value="advanced" selected={editingTutorial?.difficulty === 'advanced'}>Avanzado</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="tut-order">Orden</label>
+        <input class="input" id="tut-order" name="displayOrder" type="number" value={editingTutorial?.displayOrder ?? 0} />
+      </div>
+      <div class="field field--full">
+        <label for="tut-description">Descripción</label>
+        <textarea class="textarea" id="tut-description" name="description">{editingTutorial?.description ?? ''}</textarea>
+      </div>
+      <div class="field field--full">
+        <button class="btn-admin btn-admin--primary" type="submit">{editingTutorial ? 'Guardar' : 'Crear tutorial'}</button>
+      </div>
+    </form>
+    {editingTutorial && <p class="hint" style="margin-top: 1rem;"><a href="/admin/tutoriales">Cancelar</a></p>}
+
+    <table class="admin-table" style="margin-top: 1.5rem;">
+      <thead><tr><th>Tutorial</th><th>Categoría</th><th>Estado</th><th>Acciones</th></tr></thead>
+      <tbody>
+        {tutorials.map((tutorial) => (
+          <tr>
+            <td><strong>{tutorial.title}</strong><br /><span class="muted mono">{tutorial.slug}</span></td>
+            <td>{categories.find((category) => category.id === tutorial.categoryId)?.name ?? '—'}</td>
+            <td><span class:list={['badge', { 'badge--on': tutorial.isActive }]}>{tutorial.isActive ? 'Activo' : 'Inactivo'}</span></td>
+            <td>
+              <div class="admin-actions">
+                <a class="btn-admin" href={`/admin/tutoriales?type=tutorial&id=${tutorial.id}`}>Editar</a>
+                <form method="POST" action={actions.tutorial}>
+                  <input type="hidden" name="csrf" value={csrf} />
+                  <input type="hidden" name="intent" value="toggle" />
+                  <input type="hidden" name="id" value={tutorial.id} />
+                  <input type="hidden" name="isActive" value={tutorial.isActive ? 'false' : 'true'} />
+                  <button class="btn-admin" type="submit">{tutorial.isActive ? 'Desactivar' : 'Activar'}</button>
+                </form>
+                <form method="POST" action={actions.tutorial}>
+                  <input type="hidden" name="csrf" value={csrf} />
+                  <input type="hidden" name="intent" value="delete" />
+                  <input type="hidden" name="id" value={tutorial.id} />
+                  <button class="btn-admin btn-admin--danger" type="submit">Eliminar</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</AdminLayout>

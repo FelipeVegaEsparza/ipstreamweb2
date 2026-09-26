@@ -1,0 +1,127 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import ResultMessage from '../../components/admin/ResultMessage.astro';
+import { actions } from 'astro:actions';
+import { getDatabase } from '../../lib/db/client';
+import { listCategories, listPlans } from '../../lib/db/repositories/plans';
+import { getAdminContext } from '../../lib/admin';
+import { formatCLP } from '../../lib/format';
+
+const { csrf } = getAdminContext(Astro);
+const db = getDatabase();
+const rows = listPlans(db);
+const categories = listCategories(db);
+const editId = Number(Astro.url.searchParams.get('id')) || null;
+const editing = editId ? rows.find((row) => row.plan.id === editId)?.plan ?? null : null;
+const result = Astro.getActionResult(actions.plan);
+---
+
+<AdminLayout title="Planes">
+  <ResultMessage result={result} />
+
+  <div class="admin-card">
+    <h2>{editing ? `Editar: ${editing.planName}` : 'Nuevo plan'}</h2>
+    <form method="POST" action={actions.plan} enctype="multipart/form-data" class="form-grid">
+      <input type="hidden" name="csrf" value={csrf} />
+      <input type="hidden" name="intent" value={editing ? 'update' : 'create'} />
+      {editing && <input type="hidden" name="id" value={editing.id} />}
+      {editing?.imageUrl && <input type="hidden" name="imageUrl" value={editing.imageUrl} />}
+
+      <div class="field">
+        <label for="planKey">Clave</label>
+        <input class="input" id="planKey" name="planKey" value={editing?.planKey ?? ''} required />
+      </div>
+      <div class="field">
+        <label for="planName">Nombre</label>
+        <input class="input" id="planName" name="planName" value={editing?.planName ?? ''} required />
+      </div>
+      <div class="field">
+        <label for="price">Precio base (CLP)</label>
+        <input class="input" id="price" name="price" type="number" min="0" value={editing?.price ?? ''} required />
+      </div>
+      <div class="field">
+        <label for="categoryId">Categoría</label>
+        <select class="select" id="categoryId" name="categoryId">
+          <option value="">Sin categoría</option>
+          {categories.map((category) => (
+            <option value={category.id} selected={editing?.categoryId === category.id}>{category.name}</option>
+          ))}
+        </select>
+      </div>
+      <div class="field">
+        <label for="monthlyPrice">Precio mensual</label>
+        <input class="input" id="monthlyPrice" name="monthlyPrice" type="number" min="0" value={editing?.monthlyPrice ?? ''} />
+      </div>
+      <div class="field">
+        <label for="annualPrice">Precio anual</label>
+        <input class="input" id="annualPrice" name="annualPrice" type="number" min="0" value={editing?.annualPrice ?? ''} />
+      </div>
+      <div class="field field--full">
+        <label for="title">Título visible</label>
+        <input class="input" id="title" name="title" value={editing?.title ?? ''} />
+      </div>
+      <div class="field field--full">
+        <label for="description">Descripción</label>
+        <textarea class="textarea" id="description" name="description">{editing?.description ?? ''}</textarea>
+      </div>
+      <div class="field field--full">
+        <label for="features">Características (una por línea)</label>
+        <textarea class="textarea" id="features" name="features">{(editing?.features ?? []).join('\n')}</textarea>
+      </div>
+      <div class="field field--full">
+        <label for="billingNote">Nota de facturación</label>
+        <input class="input" id="billingNote" name="billingNote" value={editing?.billingNote ?? ''} />
+      </div>
+      <div class="field">
+        <label for="demoUrl">URL de demo</label>
+        <input class="input" id="demoUrl" name="demoUrl" value={editing?.demoUrl ?? ''} />
+      </div>
+      <div class="field">
+        <label for="image">Imagen (reemplaza la actual)</label>
+        <input class="input" id="image" name="image" type="file" accept="image/*" />
+      </div>
+      <div class="field field--full">
+        <button class="btn-admin btn-admin--primary" type="submit">{editing ? 'Guardar cambios' : 'Crear plan'}</button>
+      </div>
+    </form>
+    {editing && <p class="hint" style="margin-top: 1rem;"><a href="/admin/planes">Cancelar edición</a></p>}
+  </div>
+
+  <div class="admin-card">
+    <h2>Planes ({rows.length})</h2>
+    <table class="admin-table">
+      <thead>
+        <tr><th>Imagen</th><th>Plan</th><th>Categoría</th><th>Mensual</th><th>Estado</th><th>Acciones</th></tr>
+      </thead>
+      <tbody>
+        {rows.map(({ plan, category }) => (
+          <tr>
+            <td>{plan.imageUrl ? <img src={plan.imageUrl} alt="" /> : <span class="muted">—</span>}</td>
+            <td><strong>{plan.planName}</strong><br /><span class="muted mono">{plan.planKey}</span></td>
+            <td>{category?.name ?? '—'}</td>
+            <td class="mono">{formatCLP(plan.monthlyPrice ?? plan.price)}</td>
+            <td><span class:list={['badge', { 'badge--on': plan.isActive }]}>{plan.isActive ? 'Activo' : 'Inactivo'}</span></td>
+            <td>
+              <div class="admin-actions">
+                <a class="btn-admin" href={`/admin/planes?id=${plan.id}`}>Editar</a>
+                <form method="POST" action={actions.plan}>
+                  <input type="hidden" name="csrf" value={csrf} />
+                  <input type="hidden" name="intent" value="toggle" />
+                  <input type="hidden" name="id" value={plan.id} />
+                  <input type="hidden" name="isActive" value={plan.isActive ? 'false' : 'true'} />
+                  <button class="btn-admin" type="submit">{plan.isActive ? 'Desactivar' : 'Activar'}</button>
+                </form>
+                <form method="POST" action={actions.plan}>
+                  <input type="hidden" name="csrf" value={csrf} />
+                  <input type="hidden" name="intent" value="delete" />
+                  <input type="hidden" name="id" value={plan.id} />
+                  <button class="btn-admin btn-admin--danger" type="submit">Eliminar</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</AdminLayout>

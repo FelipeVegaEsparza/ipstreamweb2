@@ -1,0 +1,63 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import Icon from '../components/ui/Icon.astro';
+import '../styles/admin.css';
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+const path = Astro.url.pathname;
+
+const nav = [
+  { href: '/admin', label: 'Resumen', icon: 'dashboard' },
+  { href: '/admin/planes', label: 'Planes', icon: 'layers' },
+  { href: '/admin/categorias', label: 'Categorías', icon: 'folder' },
+  { href: '/admin/noticias', label: 'Noticias', icon: 'news' },
+  { href: '/admin/tutoriales', label: 'Tutoriales', icon: 'book' },
+  { href: '/admin/clientes', label: 'Clientes', icon: 'users' },
+  { href: '/admin/comunidad', label: 'Comunidad', icon: 'radio' },
+  { href: '/admin/redes', label: 'Redes', icon: 'share' },
+];
+
+const isActive = (href: string) => (href === '/admin' ? path === '/admin' : path.startsWith(href));
+---
+
+<BaseLayout title={`${title} — Panel IPStream`} noindex>
+  <div class="admin">
+    <header class="admin-bar">
+      <a class="brand" href="/admin" aria-label="Panel IPStream">
+        <img src="/images/logos/logo.png" alt="IPStream" width="120" height="30" />
+      </a>
+      <div class="bar-actions">
+        <a href="/" target="_blank" rel="noopener">Ver sitio</a>
+        <a href="/admin/logout">Cerrar sesión</a>
+      </div>
+    </header>
+
+    <div class="admin-body">
+      <aside class="admin-nav">
+        <p class="admin-nav__label">Contenido del sitio</p>
+        <nav aria-label="Secciones del panel">
+          {
+            nav.map((item) => (
+              <a href={item.href} class:list={{ 'is-active': isActive(item.href) }} aria-current={isActive(item.href) ? 'page' : undefined}>
+                <Icon name={item.icon} size={15} />
+                {item.label}
+              </a>
+            ))
+          }
+        </nav>
+      </aside>
+
+      <main class="admin-main">
+        <div class="admin-head">
+          <p class="admin-eyebrow">[ Panel / {title} ]</p>
+          <h1 class="admin-title display">{title}</h1>
+        </div>
+        <slot />
+      </main>
+    </div>
+  </div>
+</BaseLayout>

@@ -1,0 +1,82 @@
+---
+interface Props {
+  href?: string;
+  type?: 'button' | 'submit';
+  variant?: 'primary' | 'ghost' | 'quiet';
+  disabled?: boolean;
+  class?: string;
+}
+
+const { href, type = 'button', variant = 'primary', disabled = false, class: className = '' } = Astro.props;
+const Tag = href ? 'a' : 'button';
+---
+
+<Tag
+  class:list={['btn', `btn--${variant}`, className]}
+  href={href}
+  type={href ? undefined : type}
+  disabled={href ? undefined : disabled}
+  aria-disabled={disabled ? 'true' : undefined}
+>
+  <slot />
+</Tag>
+
+<style>
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    min-height: 2.75rem;
+    padding: 0 var(--space-5);
+    border: 1px solid transparent;
+    border-radius: var(--radius);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+
+  .btn--primary {
+    background: var(--signal);
+    color: var(--ink);
+    border-color: var(--signal);
+  }
+
+  .btn--primary:hover {
+    background: var(--signal-strong);
+    border-color: var(--signal-strong);
+  }
+
+  .btn--ghost {
+    background: transparent;
+    color: var(--text);
+    border-color: var(--line);
+  }
+
+  .btn--ghost:hover {
+    border-color: var(--signal);
+    color: var(--signal);
+  }
+
+  .btn--quiet {
+    background: transparent;
+    color: var(--steel);
+    border-color: transparent;
+    padding-inline: var(--space-2);
+  }
+
+  .btn--quiet:hover {
+    color: var(--text);
+  }
+
+  .btn[disabled],
+  .btn[aria-disabled='true'] {
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+</style>
