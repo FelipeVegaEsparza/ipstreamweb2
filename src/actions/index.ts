@@ -41,6 +41,11 @@ import {
   setPortfolioActive,
   updatePortfolioItem,
 } from '../lib/db/repositories/portfolio';
+import {
+  createContactMessage,
+  deleteContactMessage,
+  setContactMessageRead,
+} from '../lib/db/repositories/contact';
 import { SOCIAL_KEYS, setSetting, setSocialLinks } from '../lib/db/repositories/settings';
 import { SEO_KEYS, SEO_PAGES } from '../lib/seo';
 import { slugify } from '../lib/utils/slug';
@@ -111,6 +116,15 @@ async function processImage(file: unknown, prefix: string): Promise<string | nul
 
 const fileField = z.instanceof(File).optional();
 
+const contactForm = z.object({
+  name: z.string().trim().min(2, 'Ingresa tu nombre').max(120, 'El nombre es demasiado largo'),
+  email: z.string().trim().pipe(z.email('El correo no es válido')),
+  phone: z.string().trim().max(40, 'El teléfono es demasiado largo').optional(),
+  subject: z.string().trim().max(160, 'El asunto es demasiado largo').optional(),
+  message: z.string().trim().min(10, 'El mensaje debe tener al menos 10 caracteres').max(5000, 'El mensaje es demasiado largo'),
+  website: z.string().optional(),
+});
+
 export const server = {
   login: defineAction({
     accept: 'form',
@@ -126,6 +140,42 @@ export const server = {
       );
       context.cookies.set(CSRF_COOKIE, createCsrfValue(), sessionCookieOptions());
       return { ok: true };
+    },
+  }),
+
+  contact: defineAction({
+    accept: 'form',
+    input: z.object({
+      name: z.string(),
+      email: z.string(),
+      phone: z.string().optional(),
+      subject: z.string().optional(),
+      message: z.string(),
+      website: z.string().optional(),
+    }),
+    handler: async (input) => {
+      const parsed = contactForm.safeParse(input);
+      if (!parsed.success) {
+        throw new ActionError({
+          code: 'BAD_REQUEST',
+          message: parsed.error.issues[0]?.message ?? 'Revisa los datos ingresados',
+        });
+      }
+      const success = { ok: true, message: '¡Gracias! Recibimos tu consulta y te contactaremos a la brevedad.' };
+      if (parsed.data.website?.trim()) return success;
+      const db = getDatabase();
+      try {
+        createContactMessage(db, {
+          name: parsed.data.name,
+          email: parsed.data.email,
+          phone: parsed.data.phone || null,
+          subject: parsed.data.subject || null,
+          message: parsed.data.message,
+        });
+        return success;
+      } catch (error) {
+        return fail(error);
+      }
     },
   }),
 
@@ -431,6 +481,31 @@ export const server = {
         }
         createPortfolioItem(db, data as Parameters<typeof createPortfolioItem>[1]);
         return { ok: true, message: 'Cliente creado' };
+      } catch (error) {
+        return fail(error);
+      }
+    },
+  }),
+
+  contactMessage: defineAction({
+    accept: 'form',
+    input: z.object({
+      csrf: z.string().optional(),
+      intent: z.enum(['toggle', 'delete']),
+      id: optionalNumber(),
+      isRead: z.boolean().optional(),
+    }),
+    handler: async (input, context) => {
+      guard(context, input.csrf);
+      const db = getDatabase();
+      try {
+        if (!input.id) throw new ValidationError('Falta el identificador');
+        if (input.intent === 'delete') {
+          deleteContactMessage(db, input.id);
+          return { ok: true, message: 'Mensaje eliminado' };
+        }
+        setContactMessageRead(db, input.id, Boolean(input.isRead));
+        return { ok: true, message: 'Estado actualizado' };
       } catch (error) {
         return fail(error);
       }

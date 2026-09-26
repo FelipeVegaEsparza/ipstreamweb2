@@ -6,6 +6,7 @@ import { listCategories, listPlans } from '../../lib/db/repositories/plans';
 import { listNews } from '../../lib/db/repositories/news';
 import { listTutorials, listTutorialCategories } from '../../lib/db/repositories/tutorials';
 import { listPortfolio } from '../../lib/db/repositories/portfolio';
+import { listContactMessages } from '../../lib/db/repositories/contact';
 
 const db = getDatabase();
 const cards = [
@@ -15,6 +16,12 @@ const cards = [
   { label: 'Tutoriales', value: listTutorials(db).length, href: '/admin/tutoriales', icon: 'book' },
   { label: 'Categorías de tutoriales', value: listTutorialCategories(db).length, href: '/admin/tutoriales', icon: 'list' },
   { label: 'Clientes', value: listPortfolio(db).length, href: '/admin/clientes', icon: 'users' },
+  {
+    label: 'Mensajes sin leer',
+    value: listContactMessages(db, { unreadOnly: true }).length,
+    href: '/admin/mensajes',
+    icon: 'mail',
+  },
 ];
 ---
 

@@ -145,6 +145,24 @@ export const communityRadios = sqliteTable(
   ],
 );
 
+export const contactMessages = sqliteTable(
+  'contact_messages',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    name: text('name').notNull(),
+    email: text('email').notNull(),
+    phone: text('phone'),
+    subject: text('subject'),
+    message: text('message').notNull(),
+    isRead: integer('is_read', { mode: 'boolean' }).notNull().default(false),
+    ...timestamps,
+  },
+  (table) => [
+    index('idx_contact_messages_created_at').on(table.createdAt),
+    index('idx_contact_messages_read').on(table.isRead),
+  ],
+);
+
 export const settings = sqliteTable('settings', {
   key: text('key').primaryKey(),
   value: text('value'),
@@ -159,4 +177,5 @@ export type Tutorial = typeof tutorials.$inferSelect;
 export type TutorialCategory = typeof tutorialCategories.$inferSelect;
 export type PortfolioItem = typeof clientPortfolio.$inferSelect;
 export type CommunityRadio = typeof communityRadios.$inferSelect;
+export type ContactMessage = typeof contactMessages.$inferSelect;
 export type Setting = typeof settings.$inferSelect;

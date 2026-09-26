@@ -9,6 +9,12 @@ import { createNews, listNews } from '../src/lib/db/repositories/news';
 import { createTutorial, createTutorialCategory, listTutorialsGroupedByCategory } from '../src/lib/db/repositories/tutorials';
 import { createPortfolioItem, listPortfolio } from '../src/lib/db/repositories/portfolio';
 import { createCommunityRadio, listCommunity } from '../src/lib/db/repositories/community';
+import {
+  createContactMessage,
+  deleteContactMessage,
+  listContactMessages,
+  setContactMessageRead,
+} from '../src/lib/db/repositories/contact';
 import { getSetting, setSetting } from '../src/lib/db/repositories/settings';
 
 let handle: DatabaseHandle;
@@ -25,7 +31,7 @@ afterAll(() => {
 });
 
 describe('esquema y migraciones', () => {
-  it('crea las 8 tablas de contenido', () => {
+  it('crea las 9 tablas de contenido', () => {
     const rows = handle.sqlite
       .prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '__drizzle%'")
       .all() as Array<{ name: string }>;
@@ -34,6 +40,7 @@ describe('esquema y migraciones', () => {
       [
         'client_portfolio',
         'community_radios',
+        'contact_messages',
         'news',
         'plan_categories',
         'plans',
@@ -168,6 +175,39 @@ describe('escrituras y validacion', () => {
     const radio = listCategories(handle.db).find((category) => category.name === 'Radio')!;
     expect(() => deleteCategory(handle.db, radio.id)).toThrow(ValidationError);
     expect(listCategories(handle.db).some((category) => category.id === radio.id)).toBe(true);
+  });
+});
+
+describe('mensajes de contacto', () => {
+  it('guarda, marca como leido, filtra no leidos y elimina', () => {
+    const first = createContactMessage(handle.db, {
+      name: 'Ana',
+      email: 'ana@example.com',
+      message: 'Hola, quiero informacion',
+    });
+    createContactMessage(handle.db, {
+      name: 'Beto',
+      email: 'beto@example.com',
+      subject: 'Soporte',
+      message: 'Necesito ayuda con mi radio',
+    });
+
+    expect(first.isRead).toBe(false);
+    expect(listContactMessages(handle.db).length).toBe(2);
+    expect(listContactMessages(handle.db, { unreadOnly: true }).length).toBe(2);
+
+    const read = setContactMessageRead(handle.db, first.id, true);
+    expect(read.isRead).toBe(true);
+    expect(listContactMessages(handle.db, { unreadOnly: true }).length).toBe(1);
+
+    deleteContactMessage(handle.db, first.id);
+    expect(listContactMessages(handle.db).length).toBe(1);
+  });
+
+  it('rechaza un correo invalido', () => {
+    expect(() =>
+      createContactMessage(handle.db, { name: 'X', email: 'no-es-correo', message: 'hola mundo' }),
+    ).toThrow();
   });
 });
 

@@ -1,0 +1,226 @@
+---
+import { actions } from 'astro:actions';
+import { SITE } from '../lib/site';
+
+const result = Astro.getActionResult(actions.contact);
+const success = result?.data as { ok?: boolean; message?: string } | undefined;
+const error = result?.error as { message?: string } | undefined;
+---
+
+<section class="band band--panel contact" id="contacto">
+  <div class="container contact-grid">
+    <div class="contact-copy">
+      <p class="eyebrow">[ 08 / CONTACTO ]</p>
+      <h2 class="display">Hablemos de tu radio</h2>
+      <p class="muted">
+        Cuéntanos qué necesitas y te contactamos a la brevedad. También puedes escribirnos directamente:
+      </p>
+      <ul class="contact-list">
+        <li>
+          <span class="contact-list__label mono">Correo</span>
+          <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
+        </li>
+        <li>
+          <span class="contact-list__label mono">Panel</span>
+          <a href={SITE.panelUrl} rel="noopener external">Ingresar al panel</a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="contact-panel">
+      {error && <p class="contact-msg contact-msg--error" role="alert">{error.message ?? 'No se pudo enviar la consulta'}</p>}
+      {!error && success?.ok && <p class="contact-msg" role="status">{success.message}</p>}
+
+      <form class="contact-form" method="POST" action={actions.contact}>
+        <div class="field">
+          <label for="contact-name">Nombre</label>
+          <input class="input" id="contact-name" name="name" type="text" autocomplete="name" required minlength="2" maxlength="120" />
+        </div>
+        <div class="field">
+          <label for="contact-email">Correo</label>
+          <input class="input" id="contact-email" name="email" type="email" autocomplete="email" required maxlength="160" />
+        </div>
+        <div class="field">
+          <label for="contact-phone">Teléfono <span class="optional mono">(opcional)</span></label>
+          <input class="input" id="contact-phone" name="phone" type="tel" autocomplete="tel" maxlength="40" />
+        </div>
+        <div class="field">
+          <label for="contact-subject">Asunto <span class="optional mono">(opcional)</span></label>
+          <input class="input" id="contact-subject" name="subject" type="text" maxlength="160" />
+        </div>
+        <div class="field field--full">
+          <label for="contact-message">Mensaje</label>
+          <textarea class="input textarea" id="contact-message" name="message" required minlength="10" maxlength="5000"></textarea>
+        </div>
+        <div class="honeypot" aria-hidden="true">
+          <label for="contact-website">No completar</label>
+          <input id="contact-website" name="website" type="text" tabindex="-1" autocomplete="off" />
+        </div>
+        <div class="field field--full">
+          <button class="contact-submit" type="submit">Enviar consulta</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<style>
+  .contact-grid {
+    display: grid;
+    gap: var(--space-7);
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .contact-copy h2 {
+    font-size: clamp(1.75rem, 1rem + 3vw, 3rem);
+    margin-bottom: var(--space-4);
+  }
+
+  .contact-list {
+    list-style: none;
+    padding: 0;
+    margin-top: var(--space-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .contact-list__label {
+    display: block;
+    font-size: 0.6875rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--steel);
+    margin-bottom: var(--space-1);
+  }
+
+  .contact-list a {
+    color: var(--signal);
+    font-size: 0.9375rem;
+  }
+
+  .contact-list a:hover {
+    color: var(--signal-strong);
+  }
+
+  .contact-panel {
+    background: linear-gradient(180deg, var(--panel), color-mix(in srgb, var(--panel) 88%, var(--ink)));
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: var(--space-5);
+    box-shadow: var(--shadow-panel);
+  }
+
+  .contact-form {
+    display: grid;
+    gap: var(--space-4);
+    grid-template-columns: 1fr;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .field--full {
+    grid-column: 1 / -1;
+  }
+
+  .field label {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--steel);
+  }
+
+  .optional {
+    text-transform: none;
+    letter-spacing: 0;
+    color: color-mix(in srgb, var(--steel) 70%, transparent);
+  }
+
+  .input {
+    width: 100%;
+    background: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    padding: 0.6rem 0.75rem;
+    font-size: 0.9375rem;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .input::placeholder {
+    color: color-mix(in srgb, var(--steel) 65%, transparent);
+  }
+
+  .input:focus {
+    outline: none;
+    border-color: var(--signal);
+    box-shadow: 0 0 0 3px rgba(53, 214, 208, 0.15);
+  }
+
+  .textarea {
+    min-height: 7rem;
+    resize: vertical;
+    font-family: var(--font-text);
+  }
+
+  .contact-submit {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink);
+    background: var(--signal);
+    border: 1px solid var(--signal);
+    border-radius: var(--radius);
+    padding: 0.7rem 1.2rem;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+
+  .contact-submit:hover {
+    background: var(--signal-strong);
+    border-color: var(--signal-strong);
+  }
+
+  .contact-msg {
+    border-radius: var(--radius);
+    padding: var(--space-3) var(--space-4);
+    margin-bottom: var(--space-5);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    border-left: 3px solid var(--ok);
+    background: rgba(70, 209, 127, 0.08);
+    color: var(--text);
+  }
+
+  .contact-msg--error {
+    border-left-color: var(--danger);
+    background: rgba(255, 91, 74, 0.08);
+  }
+
+  .honeypot {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  @media (min-width: 900px) {
+    .contact-grid {
+      grid-template-columns: 1fr 1.15fr;
+      gap: var(--space-8);
+    }
+
+    .contact-form {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+</style>

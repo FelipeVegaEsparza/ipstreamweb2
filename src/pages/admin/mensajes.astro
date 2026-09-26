@@ -1,0 +1,115 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import ResultMessage from '../../components/admin/ResultMessage.astro';
+import { actions } from 'astro:actions';
+import { getDatabase } from '../../lib/db/client';
+import { listContactMessages } from '../../lib/db/repositories/contact';
+import { getAdminContext } from '../../lib/admin';
+import { formatDate } from '../../lib/format';
+
+const { csrf } = getAdminContext(Astro);
+const db = getDatabase();
+const messages = listContactMessages(db);
+const unread = messages.filter((item) => !item.isRead).length;
+const result = Astro.getActionResult(actions.contactMessage);
+
+const replyHref = (item: (typeof messages)[number]) =>
+  `mailto:${item.email}${item.subject ? `?subject=${encodeURIComponent(`Re: ${item.subject}`)}` : ''}`;
+---
+
+<AdminLayout title="Mensajes">
+  <ResultMessage result={result} />
+
+  <p class="hint summary">{messages.length} mensaje(s) · {unread} sin leer</p>
+
+  {
+    messages.length === 0 && (
+      <div class="admin-card">
+        <p class="muted">Aún no hay consultas desde el formulario de contacto.</p>
+      </div>
+    )
+  }
+
+  {
+    messages.map((item) => (
+      <article class:list={['admin-card', 'message', { 'message--unread': !item.isRead }]}>
+        <div class="message__head">
+          <div class="message__who">
+            <strong>{item.name}</strong>
+            <a class="mono" href={`mailto:${item.email}`}>{item.email}</a>
+            {item.phone && <span class="mono muted">{item.phone}</span>}
+          </div>
+          <div class="message__meta">
+            <span class="mono muted">{formatDate(item.createdAt)}</span>
+            <span class:list={['badge', { 'badge--on': !item.isRead }]}>{item.isRead ? 'Leído' : 'Nuevo'}</span>
+          </div>
+        </div>
+        {item.subject && <p class="message__subject">{item.subject}</p>}
+        <p class="message__body">{item.message}</p>
+        <div class="admin-actions">
+          <form method="POST" action={actions.contactMessage}>
+            <input type="hidden" name="csrf" value={csrf} />
+            <input type="hidden" name="intent" value="toggle" />
+            <input type="hidden" name="id" value={item.id} />
+            <input type="hidden" name="isRead" value={item.isRead ? 'false' : 'true'} />
+            <button class="btn-admin" type="submit">{item.isRead ? 'Marcar como no leído' : 'Marcar como leído'}</button>
+          </form>
+          <a class="btn-admin" href={replyHref(item)}>Responder</a>
+          <form method="POST" action={actions.contactMessage}>
+            <input type="hidden" name="csrf" value={csrf} />
+            <input type="hidden" name="intent" value="delete" />
+            <input type="hidden" name="id" value={item.id} />
+            <button class="btn-admin btn-admin--danger" type="submit">Eliminar</button>
+          </form>
+        </div>
+      </article>
+    ))
+  }
+</AdminLayout>
+
+<style>
+  .summary {
+    margin-bottom: var(--space-4);
+  }
+
+  .message--unread {
+    border-left: 3px solid var(--signal);
+  }
+
+  .message__head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+  }
+
+  .message__who {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .message__who a {
+    color: var(--signal);
+    font-size: 0.8125rem;
+  }
+
+  .message__meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .message__subject {
+    font-weight: 600;
+    margin-bottom: var(--space-2);
+  }
+
+  .message__body {
+    white-space: pre-wrap;
+    color: var(--text);
+    margin-bottom: var(--space-4);
+  }
+</style>
