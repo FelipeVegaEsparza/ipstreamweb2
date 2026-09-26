@@ -1,6 +1,7 @@
 ---
-import { SESSION_COOKIE } from '../../lib/auth';
+import { CSRF_COOKIE, SESSION_COOKIE } from '../../lib/auth';
 
 Astro.cookies.delete(SESSION_COOKIE, { path: '/' });
+Astro.cookies.delete(CSRF_COOKIE, { path: '/' });
 return Astro.redirect('/admin/login');
 ---

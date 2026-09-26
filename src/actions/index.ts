@@ -4,11 +4,13 @@ import { ActionError, defineAction, type ActionAPIContext } from 'astro:actions'
 import { z } from 'zod';
 import sharp from 'sharp';
 import {
+  CSRF_COOKIE,
   SESSION_COOKIE,
   checkCredentials,
+  createCsrfValue,
   createSessionToken,
   sessionCookieOptions,
-  verifyCsrf,
+  verifyCsrfValue,
   verifySessionToken,
 } from '../lib/auth';
 import { getDatabase } from '../lib/db/client';
@@ -73,7 +75,7 @@ function guard(context: ActionAPIContext, csrf: unknown): void {
   if (!session) {
     throw new ActionError({ code: 'UNAUTHORIZED', message: 'Sesión no válida' });
   }
-  if (!verifyCsrf(token, csrf)) {
+  if (!verifyCsrfValue(context.cookies.get(CSRF_COOKIE)?.value, csrf)) {
     throw new ActionError({ code: 'FORBIDDEN', message: 'Token de seguridad inválido' });
   }
 }
@@ -127,6 +129,7 @@ export const server = {
         createSessionToken(context.request.headers.get('user-agent')),
         sessionCookieOptions(),
       );
+      context.cookies.set(CSRF_COOKIE, createCsrfValue(), sessionCookieOptions());
       return { ok: true };
     },
   }),

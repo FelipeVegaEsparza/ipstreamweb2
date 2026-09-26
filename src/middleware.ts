@@ -1,5 +1,12 @@
 import { defineMiddleware } from 'astro:middleware';
-import { SESSION_COOKIE, createSessionToken, sessionCookieOptions, verifySessionToken } from './lib/auth';
+import {
+  CSRF_COOKIE,
+  SESSION_COOKIE,
+  createCsrfValue,
+  createSessionToken,
+  sessionCookieOptions,
+  verifySessionToken,
+} from './lib/auth';
 
 const PUBLIC_ADMIN_PATHS = new Set(['/admin/login', '/admin/logout']);
 
@@ -16,6 +23,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   if (session) {
     context.cookies.set(SESSION_COOKIE, createSessionToken(userAgent), sessionCookieOptions());
+    if (!context.cookies.get(CSRF_COOKIE)?.value) {
+      context.cookies.set(CSRF_COOKIE, createCsrfValue(), sessionCookieOptions());
+    }
   } else if (!PUBLIC_ADMIN_PATHS.has(pathname)) {
     return context.redirect('/admin/login');
   }

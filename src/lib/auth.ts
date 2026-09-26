@@ -1,6 +1,7 @@
-import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
+import { createHash, createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
 
 export const SESSION_COOKIE = 'ipstream_admin';
+export const CSRF_COOKIE = 'ipstream_csrf';
 export const SESSION_MAX_AGE = 60 * 60 * 2;
 
 export interface SessionPayload {
@@ -72,13 +73,13 @@ export function sessionCookieOptions(maxAge = SESSION_MAX_AGE) {
   };
 }
 
-export function csrfToken(sessionToken: string): string {
-  return createHmac('sha256', getSecret()).update(`csrf:${sessionToken}`).digest('base64url');
+export function createCsrfValue(): string {
+  return randomBytes(32).toString('base64url');
 }
 
-export function verifyCsrf(sessionToken: string | undefined, token: unknown): boolean {
-  if (!sessionToken || typeof token !== 'string') return false;
-  return safeEqual(token, csrfToken(sessionToken));
+export function verifyCsrfValue(expected: string | undefined, token: unknown): boolean {
+  if (!expected || typeof token !== 'string' || token === '') return false;
+  return safeEqual(token, expected);
 }
 
 export function credentialsConfigured(): boolean {
