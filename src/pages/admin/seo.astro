@@ -3,26 +3,39 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
 import ResultMessage from '../../components/admin/ResultMessage.astro';
 import { actions } from 'astro:actions';
 import { getDatabase } from '../../lib/db/client';
-import { getSeoSettings, ROBOTS_OPTIONS } from '../../lib/seo';
+import { getSetting } from '../../lib/db/repositories/settings';
+import {
+  DEFAULT_ROBOTS_TXT,
+  getPageSeo,
+  getSeoSettings,
+  getSitemapIncludeNews,
+  ROBOTS_OPTIONS,
+  SEO_PAGES,
+} from '../../lib/seo';
 import { getAdminContext } from '../../lib/admin';
 
 const { csrf } = getAdminContext(Astro);
 const db = getDatabase();
 const seo = getSeoSettings(db);
-const result = Astro.getActionResult(actions.seo);
+const pages = SEO_PAGES.map((page) => ({ def: page, values: getPageSeo(db, page.key) }));
+
+const robotsCustom = getSetting(db, 'seo_robots_txt', '') ?? '';
+const sitemapExtra = getSetting(db, 'seo_sitemap_extra', '') ?? '';
+const sitemapIncludeNews = getSitemapIncludeNews(db);
+
+const resultGlobal = Astro.getActionResult(actions.seo);
+const resultPage = Astro.getActionResult(actions.seoPage);
+const resultRobots = Astro.getActionResult(actions.seoRobots);
+const resultSitemap = Astro.getActionResult(actions.seoSitemap);
 ---
 
 <AdminLayout title="SEO">
-  <ResultMessage result={result} />
-
+  <ResultMessage result={resultGlobal} />
   <div class="admin-card">
     <h2>Metadatos globales</h2>
-    <p class="hint">
-      Estos valores se aplican a todo el sitio como predeterminados. Cada página puede sobrescribir título y descripción.
-    </p>
+    <p class="hint">Predeterminados de todo el sitio. Cada página puede sobrescribirlos en la sección de abajo.</p>
     <form method="POST" action={actions.seo} class="form-grid" style="margin-top: 1rem;">
       <input type="hidden" name="csrf" value={csrf} />
-
       <div class="field">
         <label for="seo_site_name">Nombre del sitio</label>
         <input class="input" id="seo_site_name" name="seo_site_name" value={seo.siteName} />
@@ -31,22 +44,18 @@ const result = Astro.getActionResult(actions.seo);
         <label for="seo_twitter_handle">Usuario en X / Twitter</label>
         <input class="input" id="seo_twitter_handle" name="seo_twitter_handle" value={seo.twitterHandle} placeholder="@ipstream" />
       </div>
-
       <div class="field field--full">
         <label for="seo_default_description">Descripción por defecto</label>
         <textarea class="textarea" id="seo_default_description" name="seo_default_description">{seo.defaultDescription}</textarea>
       </div>
-
       <div class="field field--full">
         <label for="seo_default_image">Imagen para redes (ruta o URL)</label>
-        <input class="input" id="seo_default_image" name="seo_default_image" value={seo.defaultImage} placeholder="/images/og-default.png" />
+        <input class="input" id="seo_default_image" name="seo_default_image" value={seo.defaultImage} />
       </div>
-
       <div class="field field--full">
         <label for="seo_keywords">Palabras clave (separadas por coma)</label>
-        <input class="input" id="seo_keywords" name="seo_keywords" value={seo.keywords} placeholder="radio online, streaming, ipstream" />
+        <input class="input" id="seo_keywords" name="seo_keywords" value={seo.keywords} />
       </div>
-
       <div class="field">
         <label for="seo_robots">Indexación por buscadores</label>
         <select class="select" id="seo_robots" name="seo_robots">
@@ -55,17 +64,112 @@ const result = Astro.getActionResult(actions.seo);
       </div>
       <div class="field">
         <label for="seo_google_verification">Google Search Console (verificación)</label>
-        <input class="input" id="seo_google_verification" name="seo_google_verification" value={seo.googleVerification} placeholder="xxxxx" />
+        <input class="input" id="seo_google_verification" name="seo_google_verification" value={seo.googleVerification} />
       </div>
-
       <div class="field field--full">
-        <label for="seo_analytics_id">Analytics (GA4 <span class="mono">G-XXXX</span> o Tag Manager <span class="mono">GTM-XXXX</span>)</label>
+        <label for="seo_analytics_id">Analytics (GA4 G-XXXX o GTM-XXXX)</label>
         <input class="input" id="seo_analytics_id" name="seo_analytics_id" value={seo.analyticsId} placeholder="G-XXXXXXXXXX" />
       </div>
-
       <div class="field field--full">
-        <button class="btn-admin btn-admin--primary" type="submit">Guardar SEO</button>
+        <button class="btn-admin btn-admin--primary" type="submit">Guardar SEO global</button>
       </div>
     </form>
   </div>
+
+  <ResultMessage result={resultPage} />
+  <h2 class="seo-heading">SEO por página</h2>
+  <p class="hint">Deja un campo vacío para usar el valor por defecto de la página.</p>
+  {
+    pages.map(({ def, values }) => (
+      <details class="admin-card seo-page">
+        <summary>
+          <span class="mono">{def.path}</span>
+          <strong>{def.label}</strong>
+          {values.noindex && <span class="badge">noindex</span>}
+        </summary>
+        <form method="POST" action={actions.seoPage} class="form-grid" style="margin-top: 1rem;">
+          <input type="hidden" name="csrf" value={csrf} />
+          <input type="hidden" name="page" value={def.key} />
+          <div class="field field--full">
+            <label for={`${def.key}-title`}>Título SEO</label>
+            <input class="input" id={`${def.key}-title`} name="title" value={values.title} />
+          </div>
+          <div class="field field--full">
+            <label for={`${def.key}-description`}>Descripción SEO</label>
+            <textarea class="textarea" id={`${def.key}-description`} name="description">{values.description}</textarea>
+          </div>
+          <div class="field">
+            <label for={`${def.key}-image`}>Imagen para redes</label>
+            <input class="input" id={`${def.key}-image`} name="image" value={values.image} placeholder="(usa la global)" />
+          </div>
+          <label class="checkbox">
+            <input type="checkbox" name="noindex" value="true" checked={values.noindex} />
+            Ocultar de buscadores (noindex)
+          </label>
+          <div class="field field--full">
+            <button class="btn-admin btn-admin--primary" type="submit">Guardar {def.label}</button>
+          </div>
+        </form>
+      </details>
+    ))
+  }
+
+  <ResultMessage result={resultRobots} />
+  <div class="admin-card">
+    <h2>robots.txt</h2>
+    <p class="hint">Déjalo vacío para usar el valor por defecto. Usa <span class="mono">{'{SITE}'}</span> para el dominio.</p>
+    <form method="POST" action={actions.seoRobots} style="margin-top: 1rem;">
+      <input type="hidden" name="csrf" value={csrf} />
+      <div class="field field--full">
+        <textarea class="textarea" name="content" style="min-height: 9rem; font-family: var(--font-mono);" placeholder={DEFAULT_ROBOTS_TXT}>{robotsCustom}</textarea>
+      </div>
+      <button class="btn-admin btn-admin--primary" type="submit" style="margin-top: 0.75rem;">Guardar robots.txt</button>
+    </form>
+  </div>
+
+  <ResultMessage result={resultSitemap} />
+  <div class="admin-card">
+    <h2>sitemap.xml</h2>
+    <p class="hint">Se generan automáticamente las páginas del sitio y, opcionalmente, cada noticia.</p>
+    <form method="POST" action={actions.seoSitemap} style="margin-top: 1rem;">
+      <input type="hidden" name="csrf" value={csrf} />
+      <label class="checkbox">
+        <input type="checkbox" name="includeNews" value="true" checked={sitemapIncludeNews} />
+        Incluir las noticias publicadas
+      </label>
+      <div class="field field--full" style="margin-top: 1rem;">
+        <label for="extra">URLs adicionales (una por línea)</label>
+        <textarea class="textarea" id="extra" name="extra" style="font-family: var(--font-mono);" placeholder="/pagina-extra">{sitemapExtra}</textarea>
+      </div>
+      <button class="btn-admin btn-admin--primary" type="submit" style="margin-top: 0.75rem;">Guardar sitemap.xml</button>
+    </form>
+  </div>
 </AdminLayout>
+
+<style>
+  .seo-heading {
+    font-size: 1.125rem;
+    margin-bottom: var(--space-2);
+  }
+
+  .seo-page summary {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    list-style: none;
+  }
+
+  .seo-page summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .seo-page summary .mono {
+    font-size: 0.75rem;
+    color: var(--signal);
+  }
+
+  .seo-page summary strong {
+    font-weight: 600;
+  }
+</style>

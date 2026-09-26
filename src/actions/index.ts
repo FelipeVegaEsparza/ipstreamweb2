@@ -48,7 +48,7 @@ import {
   updateCommunityRadio,
 } from '../lib/db/repositories/community';
 import { SOCIAL_KEYS, setSetting, setSocialLinks } from '../lib/db/repositories/settings';
-import { SEO_KEYS } from '../lib/seo';
+import { SEO_KEYS, SEO_PAGES } from '../lib/seo';
 import { slugify } from '../lib/utils/slug';
 
 function optionalText() {
@@ -255,6 +255,10 @@ export const server = {
       publishedAt: optionalText(),
       imageUrl: optionalText(),
       image: fileField,
+      seoTitle: optionalText(),
+      seoDescription: optionalText(),
+      seoImageUrl: optionalText(),
+      seoImage: fileField,
     }),
     handler: async (input, context) => {
       guard(context, input.csrf);
@@ -271,6 +275,7 @@ export const server = {
           return { ok: true, message: 'Estado actualizado' };
         }
         const uploaded = await processImage(input.image, 'noticia');
+        const seoUploaded = await processImage(input.seoImage, 'noticia-seo');
         const data = prune({
           title: input.title,
           slug: input.slug,
@@ -279,6 +284,9 @@ export const server = {
           author: input.author ?? 'IPStream',
           publishedAt: input.publishedAt,
           image: uploaded ?? input.imageUrl ?? null,
+          seoTitle: input.seoTitle ?? null,
+          seoDescription: input.seoDescription ?? null,
+          seoImage: seoUploaded ?? input.seoImageUrl ?? null,
           isActive: input.isActive ?? true,
         });
         if (input.intent === 'update') {
@@ -539,6 +547,60 @@ export const server = {
         return fail(error);
       }
       return { ok: true, message: 'Configuración SEO guardada' };
+    },
+  }),
+
+  seoPage: defineAction({
+    accept: 'form',
+    input: z.object({
+      csrf: z.string().optional(),
+      page: z.string(),
+      title: optionalText(),
+      description: optionalText(),
+      image: optionalText(),
+      noindex: z.boolean().optional(),
+    }),
+    handler: async (input, context) => {
+      guard(context, input.csrf);
+      const key = input.page;
+      if (!SEO_PAGES.some((page) => page.key === key)) {
+        throw new ActionError({ code: 'BAD_REQUEST', message: 'Página no válida' });
+      }
+      const db = getDatabase();
+      setSetting(db, `seo_page_${key}_title`, input.title?.trim() ?? '');
+      setSetting(db, `seo_page_${key}_description`, input.description?.trim() ?? '');
+      setSetting(db, `seo_page_${key}_image`, input.image?.trim() ?? '');
+      setSetting(db, `seo_page_${key}_noindex`, input.noindex ? '1' : '0');
+      return { ok: true, message: 'SEO de la página guardado' };
+    },
+  }),
+
+  seoRobots: defineAction({
+    accept: 'form',
+    input: z.object({
+      csrf: z.string().optional(),
+      content: optionalText(),
+    }),
+    handler: async (input, context) => {
+      guard(context, input.csrf);
+      setSetting(getDatabase(), 'seo_robots_txt', input.content ?? '');
+      return { ok: true, message: 'robots.txt guardado' };
+    },
+  }),
+
+  seoSitemap: defineAction({
+    accept: 'form',
+    input: z.object({
+      csrf: z.string().optional(),
+      extra: optionalText(),
+      includeNews: z.boolean().optional(),
+    }),
+    handler: async (input, context) => {
+      guard(context, input.csrf);
+      const db = getDatabase();
+      setSetting(db, 'seo_sitemap_extra', input.extra ?? '');
+      setSetting(db, 'seo_sitemap_include_news', input.includeNews ? '1' : '0');
+      return { ok: true, message: 'sitemap.xml guardado' };
     },
   }),
 };

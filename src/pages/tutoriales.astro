@@ -11,7 +11,7 @@ const groups = listTutorialsGroupedByCategory(db, { activeOnly: true });
 const total = groups.reduce((sum, group) => sum + group.tutorials.length, 0);
 ---
 
-<SiteLayout title="Tutoriales — IPStream" description="Guías paso a paso y videos para aprender a usar todas las herramientas de IPStream.">
+<SiteLayout page="tutoriales" title="Tutoriales — IPStream" description="Guías paso a paso y videos para aprender a usar todas las herramientas de IPStream.">
   <section class="band band--dark hero-band">
     <HeroBackground />
     <div class="container">

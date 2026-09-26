@@ -26,6 +26,7 @@ const toInput = (value: string | null | undefined) => (value ? value.replace(' '
       <input type="hidden" name="intent" value={editing ? 'update' : 'create'} />
       {editing && <input type="hidden" name="id" value={editing.id} />}
       {editing?.image && <input type="hidden" name="imageUrl" value={editing.image} />}
+      {editing?.seoImage && <input type="hidden" name="seoImageUrl" value={editing.seoImage} />}
 
       <div class="field field--full">
         <label for="title">Título</label>
@@ -54,6 +55,19 @@ const toInput = (value: string | null | undefined) => (value ? value.replace(' '
       <div class="field field--full">
         <label for="content">Contenido (HTML permitido)</label>
         <textarea class="textarea" id="content" name="content" style="min-height: 12rem;" required>{editing?.content ?? ''}</textarea>
+      </div>
+
+      <div class="field field--full">
+        <label for="seoTitle">SEO · título (opcional)</label>
+        <input class="input" id="seoTitle" name="seoTitle" value={editing?.seoTitle ?? ''} placeholder="Si se deja vacío se usa el título" />
+      </div>
+      <div class="field field--full">
+        <label for="seoDescription">SEO · descripción (opcional)</label>
+        <textarea class="textarea" id="seoDescription" name="seoDescription" placeholder="Si se deja vacío se usa el resumen">{editing?.seoDescription ?? ''}</textarea>
+      </div>
+      <div class="field">
+        <label for="seoImage">SEO · imagen para redes</label>
+        <input class="input" id="seoImage" name="seoImage" type="file" accept="image/*" />
       </div>
       <label class="checkbox">
         <input type="checkbox" name="isActive" value="true" checked={editing ? editing.isActive : true} />

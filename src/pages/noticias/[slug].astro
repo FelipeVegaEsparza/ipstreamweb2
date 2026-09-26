@@ -30,9 +30,9 @@ const jsonLd = article
 ---
 
 <SiteLayout
-  title={article ? `${article.title} — IPStream` : 'Noticia no encontrada — IPStream'}
-  description={article?.excerpt ?? 'La noticia que buscas no existe o fue eliminada.'}
-  image={article?.image ?? undefined}
+  title={article ? article.seoTitle ?? `${article.title} — IPStream` : 'Noticia no encontrada — IPStream'}
+  description={article?.seoDescription ?? article?.excerpt ?? 'La noticia que buscas no existe o fue eliminada.'}
+  image={article?.seoImage ?? article?.image ?? undefined}
   canonical={article ? `/noticias/${article.slug}` : undefined}
   noindex={!article}
 >

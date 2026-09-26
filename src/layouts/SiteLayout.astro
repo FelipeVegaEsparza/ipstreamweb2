@@ -4,7 +4,7 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { getDatabase } from '../lib/db/client';
 import { getSocialLinks } from '../lib/db/repositories/settings';
-import { DEFAULT_SEO, getSeoSettings, type SeoSettings } from '../lib/seo';
+import { DEFAULT_SEO, getPageSeo, getSeoSettings, type SeoSettings } from '../lib/seo';
 
 interface Props {
   title: string;
@@ -14,16 +14,32 @@ interface Props {
   noindex?: boolean;
   social?: Record<string, string> | null;
   seo?: SeoSettings | null;
+  page?: string;
 }
 
-const { social: socialProp, seo: seoProp, ...baseProps } = Astro.props;
+const { social: socialProp, seo: seoProp, page, ...rest } = Astro.props;
 const useDatabase = socialProp === undefined;
-const social = useDatabase ? getSocialLinks(getDatabase()) : socialProp;
-const seo = seoProp ?? (useDatabase ? getSeoSettings(getDatabase()) : DEFAULT_SEO);
+const db = useDatabase ? getDatabase() : null;
+const social = db ? getSocialLinks(db) : socialProp;
+const seo = seoProp ?? (db ? getSeoSettings(db) : DEFAULT_SEO);
+const pageSeo = db && page ? getPageSeo(db, page) : null;
 const sameAs = social ? Object.values(social).filter((value) => value && value !== '#') : [];
+
+const title = pageSeo?.title || rest.title;
+const description = pageSeo?.description || rest.description;
+const image = pageSeo?.image || rest.image;
+const noindex = rest.noindex || pageSeo?.noindex || false;
 ---
 
-<BaseLayout {...baseProps} seo={seo} sameAs={sameAs}>
+<BaseLayout
+  title={title}
+  description={description}
+  image={image}
+  noindex={noindex}
+  canonical={rest.canonical}
+  seo={seo}
+  sameAs={sameAs}
+>
   <a class="skip-link" href="#contenido">Saltar al contenido</a>
   <Header />
   <main id="contenido"><slot /></main>
