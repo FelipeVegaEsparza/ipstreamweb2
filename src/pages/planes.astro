@@ -6,7 +6,7 @@ import OnAirBadge from '../components/ui/OnAirBadge.astro';
 import HeroBackground from '../components/HeroBackground.astro';
 import { getDatabase } from '../lib/db/client';
 import { listPlansGroupedByCategory } from '../lib/db/repositories/plans';
-import { formatCLP } from '../lib/format';
+import { formatCLP, formatUSD } from '../lib/format';
 
 const db = getDatabase();
 const groups = listPlansGroupedByCategory(db, { activeOnly: true });
@@ -59,6 +59,12 @@ const groups = listPlansGroupedByCategory(db, { activeOnly: true });
                       <div>
                         <dt class="mono">Anual</dt>
                         <dd class="mono price">{formatCLP(plan.annualPrice)}</dd>
+                      </div>
+                    )}
+                    {plan.usdPrice != null && (
+                      <div>
+                        <dt class="mono">USD</dt>
+                        <dd class="mono price">{formatUSD(plan.usdPrice)}</dd>
                       </div>
                     )}
                   </dl>

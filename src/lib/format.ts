@@ -4,9 +4,21 @@ const clp = new Intl.NumberFormat('es-CL', {
   maximumFractionDigits: 0,
 });
 
+const usd = new Intl.NumberFormat('es-CL', {
+  style: 'currency',
+  currency: 'USD',
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 2,
+});
+
 export function formatCLP(value: number | null | undefined): string {
   if (value === null || value === undefined) return '';
   return clp.format(value);
+}
+
+export function formatUSD(value: number | null | undefined): string {
+  if (value === null || value === undefined) return '';
+  return usd.format(value);
 }
 
 export function formatDate(value: string | Date | null | undefined): string {

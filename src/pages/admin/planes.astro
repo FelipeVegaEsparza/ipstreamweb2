@@ -5,7 +5,7 @@ import { actions } from 'astro:actions';
 import { getDatabase } from '../../lib/db/client';
 import { listCategories, listPlans } from '../../lib/db/repositories/plans';
 import { getAdminContext } from '../../lib/admin';
-import { formatCLP } from '../../lib/format';
+import { formatCLP, formatUSD } from '../../lib/format';
 
 const { csrf } = getAdminContext(Astro);
 const db = getDatabase();
@@ -56,6 +56,10 @@ const result = Astro.getActionResult(actions.plan);
         <label for="annualPrice">Precio anual</label>
         <input class="input" id="annualPrice" name="annualPrice" type="number" min="0" value={editing?.annualPrice ?? ''} />
       </div>
+      <div class="field">
+        <label for="usdPrice">Precio en USD (opcional)</label>
+        <input class="input" id="usdPrice" name="usdPrice" type="number" min="0" step="0.01" value={editing?.usdPrice ?? ''} />
+      </div>
       <div class="field field--full">
         <label for="title">Título visible</label>
         <input class="input" id="title" name="title" value={editing?.title ?? ''} />
@@ -91,7 +95,7 @@ const result = Astro.getActionResult(actions.plan);
     <h2>Planes ({rows.length})</h2>
     <table class="admin-table">
       <thead>
-        <tr><th>Imagen</th><th>Plan</th><th>Categoría</th><th>Mensual</th><th>Estado</th><th>Acciones</th></tr>
+        <tr><th>Imagen</th><th>Plan</th><th>Categoría</th><th>Mensual</th><th>USD</th><th>Estado</th><th>Acciones</th></tr>
       </thead>
       <tbody>
         {rows.map(({ plan, category }) => (
@@ -100,6 +104,7 @@ const result = Astro.getActionResult(actions.plan);
             <td><strong>{plan.planName}</strong><br /><span class="muted mono">{plan.planKey}</span></td>
             <td>{category?.name ?? '—'}</td>
             <td class="mono">{formatCLP(plan.monthlyPrice ?? plan.price)}</td>
+            <td class="mono">{plan.usdPrice != null ? formatUSD(plan.usdPrice) : '—'}</td>
             <td><span class:list={['badge', { 'badge--on': plan.isActive }]}>{plan.isActive ? 'Activo' : 'Inactivo'}</span></td>
             <td>
               <div class="admin-actions">

@@ -11,7 +11,7 @@ import { listPlansGroupedByCategory } from '../lib/db/repositories/plans';
 import { listNews } from '../lib/db/repositories/news';
 import { listPortfolio } from '../lib/db/repositories/portfolio';
 import { PILLARS, HIGHLIGHTS, STUDIO_FEATURES, PLAYERS } from '../lib/content';
-import { formatCLP, formatDateShort } from '../lib/format';
+import { formatCLP, formatUSD, formatDateShort } from '../lib/format';
 
 const db = getDatabase();
 const planGroups = listPlansGroupedByCategory(db, { activeOnly: true });
@@ -20,6 +20,11 @@ const clients = listPortfolio(db, { activeOnly: true }).slice(0, 8);
 
 const minMonthly = (group: (typeof planGroups)[number]) =>
   Math.min(...group.plans.map((plan) => plan.monthlyPrice ?? plan.price));
+
+const minUsd = (group: (typeof planGroups)[number]) => {
+  const values = group.plans.map((plan) => plan.usdPrice).filter((value): value is number => value != null);
+  return values.length > 0 ? Math.min(...values) : null;
+};
 ---
 
 <SiteLayout title="IPStream — Crea tu propia radio online" description="Sitio web profesional, reproductor, app PWA y panel de administración para tu radio online. Transmite con IPStream.">
@@ -183,6 +188,7 @@ const minMonthly = (group: (typeof planGroups)[number]) =>
               <p class="plan-from">
                 Desde <span class="mono">{formatCLP(minMonthly(group))}</span>/mes
               </p>
+              {minUsd(group) != null && <p class="plan-usd mono">≈ {formatUSD(minUsd(group))}/mes</p>}
               <ConsoleButton variant="ghost" href="/planes">Ver {group.plans.length} planes</ConsoleButton>
             </Module>
           ))
@@ -538,13 +544,19 @@ const minMonthly = (group: (typeof planGroups)[number]) =>
   }
 
   .plan-from {
-    margin-block: var(--space-5);
+    margin-block: var(--space-5) var(--space-1);
     font-size: 1.125rem;
   }
 
   .plan-from .mono {
     color: var(--signal);
     font-size: 1.25rem;
+  }
+
+  .plan-usd {
+    margin-bottom: var(--space-5);
+    font-size: 0.875rem;
+    color: var(--steel);
   }
 
   .clients {

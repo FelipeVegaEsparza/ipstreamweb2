@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { index, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { index, integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
 const timestamps = {
   createdAt: text('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
@@ -35,6 +35,7 @@ export const plans = sqliteTable(
     features: text('features', { mode: 'json' }).$type<string[]>(),
     monthlyPrice: integer('monthly_price'),
     annualPrice: integer('annual_price'),
+    usdPrice: real('usd_price'),
     billingNote: text('billing_note'),
     demoUrl: text('demo_url'),
     categoryId: integer('category_id').references(() => planCategories.id, { onDelete: 'set null' }),

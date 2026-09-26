@@ -28,6 +28,7 @@ const planInput = z.object({
   features: z.array(z.string()).default([]),
   monthlyPrice: z.number().int().nonnegative().nullish(),
   annualPrice: z.number().int().nonnegative().nullish(),
+  usdPrice: z.number().nonnegative().nullish(),
   billingNote: z.string().nullish(),
   demoUrl: z.string().nullish(),
   categoryId: z.number().int().nullish(),

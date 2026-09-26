@@ -1,0 +1,1 @@
+ALTER TABLE `plans` ADD `usd_price` real;
