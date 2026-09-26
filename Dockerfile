@@ -6,11 +6,11 @@ RUN apt-get update \
   && apt-get install -y --no-install-recommends python3 make g++ \
   && rm -rf /var/lib/apt/lists/*
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm ci --omit=dev
 COPY . .
 ARG SITE_URL=https://ipstream.cl
 ENV SITE_URL=$SITE_URL
-RUN npm run build && npm prune --omit=dev
+RUN npm run build
 
 FROM node:24-bookworm-slim AS runtime
 WORKDIR /app
