@@ -4,10 +4,20 @@ interface Props {
   type?: 'button' | 'submit';
   variant?: 'primary' | 'ghost' | 'quiet';
   disabled?: boolean;
+  target?: string;
+  rel?: string;
   class?: string;
 }
 
-const { href, type = 'button', variant = 'primary', disabled = false, class: className = '' } = Astro.props;
+const {
+  href,
+  type = 'button',
+  variant = 'primary',
+  disabled = false,
+  target,
+  rel,
+  class: className = '',
+} = Astro.props;
 const Tag = href ? 'a' : 'button';
 ---
 
@@ -16,6 +26,8 @@ const Tag = href ? 'a' : 'button';
   href={href}
   type={href ? undefined : type}
   disabled={href ? undefined : disabled}
+  target={href ? target : undefined}
+  rel={href ? rel : undefined}
   aria-disabled={disabled ? 'true' : undefined}
 >
   <slot />

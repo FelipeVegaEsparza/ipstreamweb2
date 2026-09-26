@@ -81,6 +81,10 @@ const result = Astro.getActionResult(actions.plan);
         <input class="input" id="demoUrl" name="demoUrl" value={editing?.demoUrl ?? ''} />
       </div>
       <div class="field">
+        <label for="contractUrl">URL del botón Contratar</label>
+        <input class="input" id="contractUrl" name="contractUrl" value={editing?.contractUrl ?? ''} placeholder="https://... o /soporte" />
+      </div>
+      <div class="field">
         <label for="image">Imagen (reemplaza la actual)</label>
         <input class="input" id="image" name="image" type="file" accept="image/*" />
       </div>

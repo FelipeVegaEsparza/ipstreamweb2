@@ -38,6 +38,7 @@ export const plans = sqliteTable(
     usdPrice: real('usd_price'),
     billingNote: text('billing_note'),
     demoUrl: text('demo_url'),
+    contractUrl: text('contract_url'),
     categoryId: integer('category_id').references(() => planCategories.id, { onDelete: 'set null' }),
     isActive: integer('is_active', { mode: 'boolean' }).notNull().default(true),
     ...timestamps,

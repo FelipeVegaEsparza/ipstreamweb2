@@ -31,6 +31,7 @@ const planInput = z.object({
   usdPrice: z.number().nonnegative().nullish(),
   billingNote: z.string().nullish(),
   demoUrl: z.string().nullish(),
+  contractUrl: z.string().nullish(),
   categoryId: z.number().int().nullish(),
   isActive: z.boolean().default(true),
 });

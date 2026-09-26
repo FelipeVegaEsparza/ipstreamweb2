@@ -78,9 +78,15 @@ const groups = listPlansGroupedByCategory(db, { activeOnly: true });
                   {plan.billingNote && <p class="note mono">{plan.billingNote}</p>}
 
                   <div class="plan-actions">
-                    <ConsoleButton href="/soporte">Contratar</ConsoleButton>
+                    <ConsoleButton
+                      href={plan.contractUrl?.trim() || '/soporte'}
+                      target={/^https?:\/\//i.test(plan.contractUrl?.trim() ?? '') ? '_blank' : undefined}
+                      rel={/^https?:\/\//i.test(plan.contractUrl?.trim() ?? '') ? 'noopener' : undefined}
+                    >
+                      Contratar
+                    </ConsoleButton>
                     {plan.demoUrl && (
-                      <ConsoleButton variant="ghost" href={plan.demoUrl}>Ver demo</ConsoleButton>
+                      <ConsoleButton variant="ghost" href={plan.demoUrl} target="_blank" rel="noopener">Ver demo</ConsoleButton>
                     )}
                   </div>
                 </Module>

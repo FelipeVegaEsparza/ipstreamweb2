@@ -1,0 +1,1 @@
+ALTER TABLE `plans` ADD `contract_url` text;
