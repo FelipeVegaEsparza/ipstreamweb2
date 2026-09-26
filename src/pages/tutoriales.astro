@@ -5,6 +5,7 @@ import OnAirBadge from '../components/ui/OnAirBadge.astro';
 import HeroBackground from '../components/HeroBackground.astro';
 import { getDatabase } from '../lib/db/client';
 import { listTutorialsGroupedByCategory } from '../lib/db/repositories/tutorials';
+import { SITE } from '../lib/site';
 
 const db = getDatabase();
 const groups = listTutorialsGroupedByCategory(db, { activeOnly: true });
@@ -32,7 +33,7 @@ const total = groups.reduce((sum, group) => sum + group.tutorials.length, 0);
           <p class="muted">
             Estamos preparando las guías. Mientras tanto, escríbenos a soporte y te ayudamos directamente.
           </p>
-          <a class="link mono" href="/soporte">Ir a soporte</a>
+          <a class="link mono" href={`mailto:${SITE.email}`}>Escríbenos</a>
         </div>
       </section>
     ) : (

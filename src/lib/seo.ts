@@ -55,8 +55,6 @@ export const SEO_PAGES: SeoPageDef[] = [
   { key: 'tutoriales', label: 'Tutoriales', path: '/tutoriales' },
   { key: 'noticias', label: 'Noticias', path: '/noticias' },
   { key: 'clientes', label: 'Clientes', path: '/clientes' },
-  { key: 'comunidad', label: 'Comunidad', path: '/comunidad' },
-  { key: 'soporte', label: 'Soporte', path: '/soporte' },
 ];
 
 export interface PageSeo {

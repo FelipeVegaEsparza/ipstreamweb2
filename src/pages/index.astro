@@ -10,6 +10,7 @@ import { getDatabase } from '../lib/db/client';
 import { listPlansGroupedByCategory } from '../lib/db/repositories/plans';
 import { listNews } from '../lib/db/repositories/news';
 import { listPortfolio } from '../lib/db/repositories/portfolio';
+import { SITE } from '../lib/site';
 import { PILLARS, HIGHLIGHTS, STUDIO_FEATURES, PLAYERS } from '../lib/content';
 import { formatCLP, formatUSD, formatDateShort } from '../lib/format';
 
@@ -40,7 +41,7 @@ const minUsd = (group: (typeof planGroups)[number]) => {
         </p>
         <div class="hero-actions">
           <ConsoleButton href="/planes">Ver planes</ConsoleButton>
-          <ConsoleButton variant="ghost" href="/soporte">Hablar con ventas</ConsoleButton>
+          <ConsoleButton variant="ghost" href={`mailto:${SITE.email}`}>Hablar con ventas</ConsoleButton>
         </div>
       </div>
 
@@ -251,7 +252,7 @@ const minUsd = (group: (typeof planGroups)[number]) => {
       </div>
       <div class="hero-actions">
         <ConsoleButton href="/planes">Ver planes</ConsoleButton>
-        <ConsoleButton variant="ghost" href="/soporte">Contactar ventas</ConsoleButton>
+        <ConsoleButton variant="ghost" href={`mailto:${SITE.email}`}>Contactar ventas</ConsoleButton>
       </div>
     </div>
   </section>

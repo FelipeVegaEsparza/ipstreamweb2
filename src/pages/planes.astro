@@ -7,6 +7,7 @@ import HeroBackground from '../components/HeroBackground.astro';
 import { getDatabase } from '../lib/db/client';
 import { listPlansGroupedByCategory } from '../lib/db/repositories/plans';
 import { formatCLP, formatUSD } from '../lib/format';
+import { SITE } from '../lib/site';
 
 const db = getDatabase();
 const groups = listPlansGroupedByCategory(db, { activeOnly: true });
@@ -79,7 +80,7 @@ const groups = listPlansGroupedByCategory(db, { activeOnly: true });
 
                   <div class="plan-actions">
                     <ConsoleButton
-                      href={plan.contractUrl?.trim() || '/soporte'}
+                      href={plan.contractUrl?.trim() || `mailto:${SITE.email}`}
                       target={/^https?:\/\//i.test(plan.contractUrl?.trim() ?? '') ? '_blank' : undefined}
                       rel={/^https?:\/\//i.test(plan.contractUrl?.trim() ?? '') ? 'noopener' : undefined}
                     >
@@ -105,7 +106,7 @@ const groups = listPlansGroupedByCategory(db, { activeOnly: true });
         <h2 class="display">¿Qué esperas para tener tu radio online?</h2>
         <p class="muted">Transmite con todas las herramientas incluidas desde el primer día.</p>
       </div>
-      <ConsoleButton href="/soporte">Contactar ventas</ConsoleButton>
+      <ConsoleButton href={`mailto:${SITE.email}`}>Contactar ventas</ConsoleButton>
     </div>
   </section>
 </SiteLayout>

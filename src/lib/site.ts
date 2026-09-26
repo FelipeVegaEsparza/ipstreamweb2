@@ -18,8 +18,6 @@ export const NAV: NavItem[] = [
   { label: 'Tutoriales', href: '/tutoriales' },
   { label: 'Noticias', href: '/noticias' },
   { label: 'Clientes', href: '/clientes' },
-  { label: 'Comunidad', href: '/comunidad' },
-  { label: 'Soporte', href: '/soporte' },
 ];
 
 export const SOCIAL_LABELS: Record<string, string> = {

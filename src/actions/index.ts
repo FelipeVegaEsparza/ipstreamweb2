@@ -41,12 +41,6 @@ import {
   setPortfolioActive,
   updatePortfolioItem,
 } from '../lib/db/repositories/portfolio';
-import {
-  createCommunityRadio,
-  deleteCommunityRadio,
-  setCommunityActive,
-  updateCommunityRadio,
-} from '../lib/db/repositories/community';
 import { SOCIAL_KEYS, setSetting, setSocialLinks } from '../lib/db/repositories/settings';
 import { SEO_KEYS, SEO_PAGES } from '../lib/seo';
 import { slugify } from '../lib/utils/slug';
@@ -437,55 +431,6 @@ export const server = {
         }
         createPortfolioItem(db, data as Parameters<typeof createPortfolioItem>[1]);
         return { ok: true, message: 'Cliente creado' };
-      } catch (error) {
-        return fail(error);
-      }
-    },
-  }),
-
-  community: defineAction({
-    accept: 'form',
-    input: z.object({
-      ...baseFields,
-      name: optionalText(),
-      slug: optionalText(),
-      description: optionalText(),
-      siteUrl: optionalText(),
-      displayOrder: optionalNumber(),
-      logoUrl: optionalText(),
-      image: fileField,
-    }),
-    handler: async (input, context) => {
-      guard(context, input.csrf);
-      const db = getDatabase();
-      try {
-        if (input.intent === 'delete') {
-          if (!input.id) throw new ValidationError('Falta el identificador');
-          deleteCommunityRadio(db, input.id);
-          return { ok: true, message: 'Radio eliminada' };
-        }
-        if (input.intent === 'toggle') {
-          if (!input.id) throw new ValidationError('Falta el identificador');
-          setCommunityActive(db, input.id, Boolean(input.isActive));
-          return { ok: true, message: 'Estado actualizado' };
-        }
-        const uploaded = await processImage(input.image, 'comunidad');
-        const data = prune({
-          name: input.name,
-          slug: input.slug,
-          description: input.description ?? null,
-          siteUrl: input.siteUrl,
-          displayOrder: input.displayOrder ?? 0,
-          logoUrl: uploaded ?? input.logoUrl ?? null,
-          isActive: input.isActive ?? true,
-        });
-        if (input.intent === 'update') {
-          if (!input.id) throw new ValidationError('Falta el identificador');
-          updateCommunityRadio(db, input.id, data);
-          return { ok: true, message: 'Radio actualizada' };
-        }
-        createCommunityRadio(db, data as Parameters<typeof createCommunityRadio>[1]);
-        return { ok: true, message: 'Radio creada' };
       } catch (error) {
         return fail(error);
       }

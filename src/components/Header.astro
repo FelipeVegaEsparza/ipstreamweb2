@@ -27,7 +27,7 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
 
     <div class="actions">
       <a class="panel-link" href={SITE.panelUrl} rel="noopener external">Ingresar</a>
-      <a class="cta" href="/soporte">Contactar</a>
+      <a class="cta" href={`mailto:${SITE.email}`}>Contactar</a>
     </div>
 
     <details class="nav-mobile">
@@ -35,7 +35,7 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
       <nav aria-label="Navegación móvil">
         {NAV.map((item) => <a href={item.href}>{item.label}</a>)}
         <a href={SITE.panelUrl} rel="noopener external">Ingresar al panel</a>
-        <a href="/soporte">Contactar</a>
+        <a href={`mailto:${SITE.email}`}>Contactar</a>
       </nav>
     </details>
   </div>
