@@ -45,7 +45,7 @@ const groups = listPlansGroupedByCategory(db, { activeOnly: true });
               {group.plans.map((plan) => (
                 <Module label={plan.planKey} led={plan.isActive ? 'signal' : 'off'}>
                   {plan.imageUrl && (
-                    <img class="plan-image" src={plan.imageUrl} alt={plan.planName} width="480" height="270" loading="lazy" />
+                    <img class="plan-image" src={plan.imageUrl} alt={plan.planName} loading="lazy" />
                   )}
                   <h3>{plan.title ?? plan.planName}</h3>
                   {plan.description && <p class="muted">{plan.description}</p>}
@@ -119,8 +119,6 @@ const groups = listPlansGroupedByCategory(db, { activeOnly: true });
   .plan-image {
     width: 100%;
     height: auto;
-    aspect-ratio: 16 / 9;
-    object-fit: cover;
     border-radius: var(--radius-sm);
     margin-bottom: var(--space-4);
     border: 1px solid var(--line);
