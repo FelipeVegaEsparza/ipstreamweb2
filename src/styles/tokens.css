@@ -31,6 +31,9 @@
   --danger: #ff5b4a;
   --ok: #46d17f;
 
+  /* Afecto (corazón del footer) */
+  --heart: #ff2d2d;
+
   /* Gradiente de senal (unico permitido) */
   --signal-gradient: linear-gradient(90deg, var(--signal-strong), var(--blue));
   --signal-gradient-v: linear-gradient(180deg, var(--signal-strong), var(--blue));
