@@ -20,6 +20,10 @@ const groups = listPlansGroupedByCategory(db, { activeOnly: true });
       <p class="eyebrow">[ PLANES / PRECIOS ]</p>
       <h1 class="display">Planes y precios</h1>
       <p class="lede muted">Elige el plan que mejor se adapte a tus necesidades y comienza a transmitir hoy mismo.</p>
+      <p class="hero-trial">
+        <span class="hero-trial__tag mono">7 DÍAS GRATIS</span>
+        Prueba cualquier plan sin costo y sin compromiso. Solo pagas si te quedas.
+      </p>
     </div>
   </section>
 
@@ -118,6 +122,31 @@ const groups = listPlansGroupedByCategory(db, { activeOnly: true });
   .lede {
     margin-top: var(--space-4);
     max-width: 40rem;
+  }
+
+  .hero-trial {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-top: var(--space-5);
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--signal);
+    border-radius: var(--radius);
+    background: rgba(53, 214, 208, 0.08);
+    color: var(--text);
+    max-width: 40rem;
+  }
+
+  .hero-trial__tag {
+    padding: var(--space-1) var(--space-3);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    color: var(--ink);
+    background: var(--signal);
+    border-radius: var(--radius-sm);
+    white-space: nowrap;
   }
 
   .plans {
