@@ -208,44 +208,33 @@ const minUsd = (group: (typeof planGroups)[number]) => {
             <p class="eyebrow">[ 06 / CLIENTES ]</p>
             <h2>Radios que confían en IPStream</h2>
           </div>
-          <div class="clients-carousel">
-            <div class="clients-viewport" data-carousel tabindex="0" role="region" aria-label="Clientes de IPStream">
-              <ul class="clients-track">
-                {carouselClients.map((client, index) => {
-                  const isClone = index >= clients.length;
-                  return (
-                    <li class="client-slide" aria-hidden={isClone ? 'true' : undefined}>
-                      <a
-                        class="client"
-                        href={client.projectUrl ?? '/clientes'}
-                        target={client.projectUrl ? '_blank' : undefined}
-                        rel="noopener"
-                        tabindex={isClone ? -1 : undefined}
-                      >
-                        <span class="client-media">
-                          {client.imageUrl ? (
-                            <img src={client.imageUrl} alt={isClone ? '' : client.title} loading="lazy" />
-                          ) : (
-                            <span class="placeholder" aria-hidden="true" />
-                          )}
-                        </span>
-                        <span class="client-name">{client.title}</span>
-                      </a>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-            <div class="carousel-controls">
-              <button type="button" class="carousel-btn" data-carousel-prev aria-label="Ver clientes anteriores">
-                <Icon name="chevron-left" size={18} />
-              </button>
-              <button type="button" class="carousel-btn" data-carousel-next aria-label="Ver más clientes">
-                <Icon name="chevron-right" size={18} />
-              </button>
-            </div>
+          <div class="clients-viewport" data-carousel tabindex="0" role="region" aria-label="Clientes de IPStream">
+            <ul class="clients-track">
+              {carouselClients.map((client, index) => {
+                const isClone = index >= clients.length;
+                return (
+                  <li class="client-slide" aria-hidden={isClone ? 'true' : undefined}>
+                    <a
+                      class="client"
+                      href={client.projectUrl ?? '/clientes'}
+                      target={client.projectUrl ? '_blank' : undefined}
+                      rel="noopener"
+                      tabindex={isClone ? -1 : undefined}
+                    >
+                      <span class="client-media">
+                        {client.imageUrl ? (
+                          <img src={client.imageUrl} alt={isClone ? '' : client.title} loading="lazy" />
+                        ) : (
+                          <span class="placeholder" aria-hidden="true" />
+                        )}
+                      </span>
+                      <span class="client-name">{client.title}</span>
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
           </div>
-          <div class="more"><ConsoleButton variant="quiet" href="/clientes">Ver todos los clientes</ConsoleButton></div>
         </div>
       </section>
     )
@@ -295,29 +284,6 @@ const minUsd = (group: (typeof planGroups)[number]) => {
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   document.querySelectorAll<HTMLElement>('[data-carousel]').forEach((viewport) => {
-    const root = viewport.closest('.clients-carousel');
-    if (!root) return;
-
-    const prev = root.querySelector<HTMLButtonElement>('[data-carousel-prev]');
-    const next = root.querySelector<HTMLButtonElement>('[data-carousel-next]');
-    const slides = viewport.querySelectorAll<HTMLElement>('.client-slide');
-
-    const stepSize = () => {
-      if (slides.length > 1) return slides[1].offsetLeft - slides[0].offsetLeft;
-      return slides[0]?.offsetWidth ?? viewport.clientWidth;
-    };
-
-    const update = () => {
-      const max = viewport.scrollWidth - viewport.clientWidth;
-      if (prev) prev.disabled = viewport.scrollLeft <= 1;
-      if (next) next.disabled = viewport.scrollLeft >= max - 1;
-    };
-
-    prev?.addEventListener('click', () => viewport.scrollBy({ left: -stepSize(), behavior: 'smooth' }));
-    next?.addEventListener('click', () => viewport.scrollBy({ left: stepSize(), behavior: 'smooth' }));
-    viewport.addEventListener('scroll', update, { passive: true });
-    window.addEventListener('resize', update);
-
     let paused = reduceMotion;
     let hovered = false;
     let resumeTimer: number | undefined;
@@ -329,11 +295,11 @@ const minUsd = (group: (typeof planGroups)[number]) => {
       paused = false;
     };
 
-    root.addEventListener('mouseenter', () => {
+    viewport.addEventListener('mouseenter', () => {
       hovered = true;
       pause();
     });
-    root.addEventListener('mouseleave', () => {
+    viewport.addEventListener('mouseleave', () => {
       hovered = false;
       resume();
     });
@@ -358,8 +324,6 @@ const minUsd = (group: (typeof planGroups)[number]) => {
       };
       requestAnimationFrame(tick);
     }
-
-    update();
   });
 </script>
 
@@ -665,12 +629,6 @@ const minUsd = (group: (typeof planGroups)[number]) => {
     color: var(--steel);
   }
 
-  .clients-carousel {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-5);
-  }
-
   .clients-viewport {
     overflow-x: auto;
     overflow-y: hidden;
@@ -695,10 +653,6 @@ const minUsd = (group: (typeof planGroups)[number]) => {
     padding: 0;
     margin: 0;
     width: max-content;
-  }
-
-  .client-slide {
-    scroll-snap-align: start;
   }
 
   .client {
@@ -748,37 +702,8 @@ const minUsd = (group: (typeof planGroups)[number]) => {
     color: var(--text);
   }
 
-  .carousel-controls {
-    display: flex;
-    gap: var(--space-3);
-  }
-
-  .carousel-btn {
-    display: grid;
-    place-items: center;
-    width: 2.5rem;
-    height: 2.5rem;
-    color: var(--text);
-    background: var(--panel-2);
-    border: 1px solid var(--line);
-    border-radius: var(--radius);
-    cursor: pointer;
-    transition: border-color 0.15s ease, color 0.15s ease;
-  }
-
-  .carousel-btn:hover:not([disabled]) {
-    border-color: var(--signal);
-    color: var(--signal);
-  }
-
-  .carousel-btn[disabled] {
-    opacity: 0.4;
-    cursor: default;
-  }
-
   @media (prefers-reduced-motion: reduce) {
-    .client,
-    .carousel-btn {
+    .client {
       transition: none;
     }
 
