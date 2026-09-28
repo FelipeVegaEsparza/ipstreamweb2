@@ -19,6 +19,7 @@ const db = getDatabase();
 const planGroups = listPlansGroupedByCategory(db, { activeOnly: true });
 const latestNews = listNews(db, { activeOnly: true, limit: 3 });
 const clients = listPortfolio(db, { activeOnly: true }).slice(0, 8);
+const carouselClients = [...clients, ...clients];
 
 const minMonthly = (group: (typeof planGroups)[number]) =>
   Math.min(...group.plans.map((plan) => plan.monthlyPrice ?? plan.price));
@@ -210,20 +211,29 @@ const minUsd = (group: (typeof planGroups)[number]) => {
           <div class="clients-carousel">
             <div class="clients-viewport" data-carousel tabindex="0" role="region" aria-label="Clientes de IPStream">
               <ul class="clients-track">
-                {clients.map((client) => (
-                  <li class="client-slide">
-                    <a class="client" href={client.projectUrl ?? '/clientes'} target={client.projectUrl ? '_blank' : undefined} rel="noopener">
-                      <span class="client-media">
-                        {client.imageUrl ? (
-                          <img src={client.imageUrl} alt={client.title} loading="lazy" />
-                        ) : (
-                          <span class="placeholder" aria-hidden="true" />
-                        )}
-                      </span>
-                      <span class="client-name">{client.title}</span>
-                    </a>
-                  </li>
-                ))}
+                {carouselClients.map((client, index) => {
+                  const isClone = index >= clients.length;
+                  return (
+                    <li class="client-slide" aria-hidden={isClone ? 'true' : undefined}>
+                      <a
+                        class="client"
+                        href={client.projectUrl ?? '/clientes'}
+                        target={client.projectUrl ? '_blank' : undefined}
+                        rel="noopener"
+                        tabindex={isClone ? -1 : undefined}
+                      >
+                        <span class="client-media">
+                          {client.imageUrl ? (
+                            <img src={client.imageUrl} alt={isClone ? '' : client.title} loading="lazy" />
+                          ) : (
+                            <span class="placeholder" aria-hidden="true" />
+                          )}
+                        </span>
+                        <span class="client-name">{client.title}</span>
+                      </a>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
             <div class="carousel-controls">
@@ -282,6 +292,8 @@ const minUsd = (group: (typeof planGroups)[number]) => {
 </SiteLayout>
 
 <script>
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   document.querySelectorAll<HTMLElement>('[data-carousel]').forEach((viewport) => {
     const root = viewport.closest('.clients-carousel');
     if (!root) return;
@@ -305,6 +317,48 @@ const minUsd = (group: (typeof planGroups)[number]) => {
     next?.addEventListener('click', () => viewport.scrollBy({ left: stepSize(), behavior: 'smooth' }));
     viewport.addEventListener('scroll', update, { passive: true });
     window.addEventListener('resize', update);
+
+    let paused = reduceMotion;
+    let hovered = false;
+    let resumeTimer: number | undefined;
+    const pause = () => {
+      paused = true;
+      window.clearTimeout(resumeTimer);
+    };
+    const resume = () => {
+      paused = false;
+    };
+
+    root.addEventListener('mouseenter', () => {
+      hovered = true;
+      pause();
+    });
+    root.addEventListener('mouseleave', () => {
+      hovered = false;
+      resume();
+    });
+    viewport.addEventListener('focusin', pause);
+    viewport.addEventListener('focusout', resume);
+    viewport.addEventListener('pointerdown', pause);
+    viewport.addEventListener('pointerup', () => {
+      window.clearTimeout(resumeTimer);
+      resumeTimer = window.setTimeout(() => {
+        if (!hovered) resume();
+      }, 2000);
+    });
+
+    if (!reduceMotion) {
+      const tick = () => {
+        const loopPoint = viewport.scrollWidth / 2;
+        if (!paused && loopPoint > viewport.clientWidth) {
+          viewport.scrollLeft += 0.6;
+          if (viewport.scrollLeft >= loopPoint) viewport.scrollLeft -= loopPoint;
+        }
+        requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    }
+
     update();
   });
 </script>
@@ -620,7 +674,6 @@ const minUsd = (group: (typeof planGroups)[number]) => {
   .clients-viewport {
     overflow-x: auto;
     overflow-y: hidden;
-    scroll-snap-type: x mandatory;
     scrollbar-width: none;
     -ms-overflow-style: none;
   }
@@ -636,11 +689,12 @@ const minUsd = (group: (typeof planGroups)[number]) => {
   .clients-track {
     display: grid;
     grid-auto-flow: column;
-    grid-auto-columns: minmax(200px, 240px);
+    grid-auto-columns: 240px;
     gap: var(--space-4);
     list-style: none;
     padding: 0;
     margin: 0;
+    width: max-content;
   }
 
   .client-slide {
@@ -730,6 +784,12 @@ const minUsd = (group: (typeof planGroups)[number]) => {
 
     .client:hover {
       transform: none;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .clients-track {
+      grid-auto-columns: 200px;
     }
   }
 
