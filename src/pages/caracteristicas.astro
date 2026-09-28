@@ -75,10 +75,7 @@ import { PILLARS, HIGHLIGHTS, STUDIO_FEATURES, PLAYERS } from '../lib/content';
     <div class="container studio">
       <div>
         <p class="eyebrow">[ 03 / TRANSMISOR ]</p>
-        <div class="studio-title">
-          <h2 class="display">IPStreamStudio</h2>
-          <ComingSoonBadge />
-        </div>
+        <h2 class="display">IPStreamStudio</h2>
         <p class="muted">
           Software de transmisión de audio desarrollado por IPStream. Incluido en todos los planes, sin costo adicional:
           transmisión en vivo, locución de hora y temperatura, gestión de playlist y automatización 24/7.
@@ -95,7 +92,10 @@ import { PILLARS, HIGHLIGHTS, STUDIO_FEATURES, PLAYERS } from '../lib/content';
           }
         </div>
       </div>
-      <img src="/images/estudio/1.png" alt="IPStreamStudio" width="640" height="480" loading="lazy" />
+      <div class="studio-screen">
+        <img src="/images/estudio/1.png" alt="IPStreamStudio" width="640" height="480" loading="lazy" />
+        <ComingSoonBadge overlay />
+      </div>
     </div>
   </section>
 
@@ -213,13 +213,6 @@ import { PILLARS, HIGHLIGHTS, STUDIO_FEATURES, PLAYERS } from '../lib/content';
     margin-block: var(--space-3);
   }
 
-  .studio-title {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: var(--space-3);
-  }
-
   .studio-grid {
     display: grid;
     gap: var(--space-5);
@@ -230,6 +223,12 @@ import { PILLARS, HIGHLIGHTS, STUDIO_FEATURES, PLAYERS } from '../lib/content';
   .studio img {
     width: 100%;
     height: auto;
+  }
+
+  .studio-screen {
+    position: relative;
+    display: block;
+    line-height: 0;
   }
 
   .players {

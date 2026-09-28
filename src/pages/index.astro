@@ -93,10 +93,7 @@ const minUsd = (group: (typeof planGroups)[number]) => {
     <div class="container studio">
       <div class="studio-copy">
         <p class="eyebrow">[ 02 / IPSTREAMSTUDIO ]</p>
-        <div class="studio-title">
-          <h2 class="display">Tu transmisor de audio profesional</h2>
-          <ComingSoonBadge />
-        </div>
+        <h2 class="display">Tu transmisor de audio profesional</h2>
         <p class="studio-lead muted">
           Software de transmisión desarrollado por IPStream. Enlaza tu estudio, programa cuñas y mantén tu radio al aire
           24/7. Incluido en todos los planes, sin costo adicional.
@@ -122,13 +119,16 @@ const minUsd = (group: (typeof planGroups)[number]) => {
           <span class="mono monitor__name">IPStreamStudio</span>
           <OnAirBadge label="ON AIR" />
         </span>
-        <img
-          src="/images/estudio/1.png"
-          alt="IPStreamStudio, software de transmisión de audio"
-          width="1276"
-          height="780"
-          loading="lazy"
-        />
+        <div class="monitor__screen">
+          <img
+            src="/images/estudio/1.png"
+            alt="IPStreamStudio, software de transmisión de audio"
+            width="1276"
+            height="780"
+            loading="lazy"
+          />
+          <ComingSoonBadge overlay />
+        </div>
         <figcaption class="monitor__foot">
           <span class="mono">24/7</span>
           <span class="mono">Auto-DJ</span>
@@ -449,13 +449,6 @@ const minUsd = (group: (typeof planGroups)[number]) => {
     margin-block: var(--space-3);
   }
 
-  .studio-title {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: var(--space-3);
-  }
-
   .studio-lead {
     max-width: 34rem;
   }
@@ -552,6 +545,12 @@ const minUsd = (group: (typeof planGroups)[number]) => {
     display: block;
     width: 100%;
     height: auto;
+  }
+
+  .monitor__screen {
+    position: relative;
+    display: block;
+    line-height: 0;
   }
 
   .monitor__foot {

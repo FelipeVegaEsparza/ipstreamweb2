@@ -1,12 +1,13 @@
 ---
 interface Props {
   label?: string;
+  overlay?: boolean;
 }
 
-const { label = 'PRÓXIMAMENTE' } = Astro.props;
+const { label = 'PRÓXIMAMENTE', overlay = false } = Astro.props;
 ---
 
-<span class="soon mono">
+<span class:list={['soon', 'mono', { 'soon--overlay': overlay }]}>
   <span class="soon__dot" aria-hidden="true"></span>
   <span>{label}</span>
 </span>
@@ -32,5 +33,48 @@ const { label = 'PRÓXIMAMENTE' } = Astro.props;
     height: 0.5rem;
     border-radius: 50%;
     background: var(--steel);
+  }
+
+  .soon--overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-4deg);
+    gap: var(--space-4);
+    padding: var(--space-4) var(--space-7);
+    border: 2px solid var(--signal);
+    border-radius: var(--radius);
+    font-size: clamp(1.125rem, 0.5rem + 2.4vw, 2.25rem);
+    letter-spacing: 0.3em;
+    color: var(--signal-strong);
+    background: color-mix(in srgb, var(--ink) 78%, transparent);
+    backdrop-filter: blur(3px);
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--signal) 14%, transparent);
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .soon--overlay .soon__dot {
+    width: 0.75rem;
+    height: 0.75rem;
+    background: var(--signal);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--signal) 22%, transparent);
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.35;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .soon--overlay .soon__dot {
+      animation: none;
+    }
   }
 </style>
