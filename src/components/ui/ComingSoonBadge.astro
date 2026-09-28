@@ -1,0 +1,36 @@
+---
+interface Props {
+  label?: string;
+}
+
+const { label = 'PRÓXIMAMENTE' } = Astro.props;
+---
+
+<span class="soon mono">
+  <span class="soon__dot" aria-hidden="true"></span>
+  <span>{label}</span>
+</span>
+
+<style>
+  .soon {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-1) var(--space-3);
+    border: 1px dashed var(--line-paper);
+    border-radius: var(--radius-sm);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--steel);
+    vertical-align: middle;
+  }
+
+  .soon__dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--steel);
+  }
+</style>

@@ -2,6 +2,7 @@
 import SiteLayout from '../layouts/SiteLayout.astro';
 import ConsoleButton from '../components/ui/ConsoleButton.astro';
 import OnAirBadge from '../components/ui/OnAirBadge.astro';
+import ComingSoonBadge from '../components/ui/ComingSoonBadge.astro';
 import Module from '../components/ui/Module.astro';
 import Icon from '../components/ui/Icon.astro';
 import PlayerCard from '../components/PlayerCard.astro';
@@ -92,7 +93,10 @@ const minUsd = (group: (typeof planGroups)[number]) => {
     <div class="container studio">
       <div class="studio-copy">
         <p class="eyebrow">[ 02 / IPSTREAMSTUDIO ]</p>
-        <h2 class="display">Tu transmisor de audio profesional</h2>
+        <div class="studio-title">
+          <h2 class="display">Tu transmisor de audio profesional</h2>
+          <ComingSoonBadge />
+        </div>
         <p class="studio-lead muted">
           Software de transmisión desarrollado por IPStream. Enlaza tu estudio, programa cuñas y mantén tu radio al aire
           24/7. Incluido en todos los planes, sin costo adicional.
@@ -443,6 +447,13 @@ const minUsd = (group: (typeof planGroups)[number]) => {
   .studio h2 {
     font-size: clamp(1.75rem, 1rem + 3vw, 3rem);
     margin-block: var(--space-3);
+  }
+
+  .studio-title {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-3);
   }
 
   .studio-lead {

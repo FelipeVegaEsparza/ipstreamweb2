@@ -4,6 +4,7 @@ import ConsoleButton from '../components/ui/ConsoleButton.astro';
 import Module from '../components/ui/Module.astro';
 import Icon from '../components/ui/Icon.astro';
 import FrequencyStrip from '../components/ui/FrequencyStrip.astro';
+import ComingSoonBadge from '../components/ui/ComingSoonBadge.astro';
 import PlayerCard from '../components/PlayerCard.astro';
 import HeroBackground from '../components/HeroBackground.astro';
 import { PILLARS, HIGHLIGHTS, STUDIO_FEATURES, PLAYERS } from '../lib/content';
@@ -74,7 +75,10 @@ import { PILLARS, HIGHLIGHTS, STUDIO_FEATURES, PLAYERS } from '../lib/content';
     <div class="container studio">
       <div>
         <p class="eyebrow">[ 03 / TRANSMISOR ]</p>
-        <h2 class="display">IPStreamStudio</h2>
+        <div class="studio-title">
+          <h2 class="display">IPStreamStudio</h2>
+          <ComingSoonBadge />
+        </div>
         <p class="muted">
           Software de transmisión de audio desarrollado por IPStream. Incluido en todos los planes, sin costo adicional:
           transmisión en vivo, locución de hora y temperatura, gestión de playlist y automatización 24/7.
@@ -207,6 +211,13 @@ import { PILLARS, HIGHLIGHTS, STUDIO_FEATURES, PLAYERS } from '../lib/content';
 
   .studio h2 {
     margin-block: var(--space-3);
+  }
+
+  .studio-title {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-3);
   }
 
   .studio-grid {
