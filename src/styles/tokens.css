@@ -12,9 +12,9 @@
   --panel-2: #1d232b;
   --line: #262d35;
 
-  /* Superficie clara (bandas editoriales) */
-  --paper: #f3f5f7;
-  --line-paper: #d8dde2;
+  /* Superficie alterna (bandas de ritmo) — oscura, no usar blancos */
+  --paper: #12171d;
+  --line-paper: #2a323c;
 
   /* Acento de marca */
   --signal: #35d6d0;
@@ -24,8 +24,8 @@
   /* Texto */
   --text: #e9ebed;
   --steel: #a0a6ad;
-  --ink-text: #10151a;
-  --muted-on-paper: #5b646d;
+  --ink-text: #e9ebed;
+  --muted-on-paper: #a0a6ad;
 
   /* Estados */
   --danger: #ff5b4a;
@@ -59,7 +59,7 @@
   /* Filetes y sombras discretas */
   --shadow-panel: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 14px 34px -22px rgba(0, 0, 0, 0.85);
   --focus-ring: 0 0 0 2px var(--ink), 0 0 0 4px var(--signal);
-  --focus-ring-paper: 0 0 0 2px var(--paper), 0 0 0 4px var(--blue);
+  --focus-ring-paper: 0 0 0 2px var(--paper), 0 0 0 4px var(--signal);
 
   /* Layout */
   --maxw: 1200px;

@@ -14,12 +14,12 @@ superficie, texto y acento sale de aquí.
 | `--ink` | `#0f1114` | fondo base grafito |
 | `--panel` / `--panel-2` | `#171c22` / `#1d232b` | módulos de consola |
 | `--line` | `#262d35` | filetes y bordes |
-| `--paper` | `#f3f5f7` | bandas claras editoriales |
+| `--paper` | `#12171d` | superficie alterna oscura (ritmo de bandas) |
 | `--signal` / `--signal-strong` | `#35d6d0` / `#5fe0e0` | acento único de marca |
-| `--blue` | `#1a5fc8` | azul de marca (links / CTA sobre claro) |
+| `--blue` | `#1a5fc8` | azul de marca (solo en el degradado de señal) |
 | `--steel` | `#a0a6ad` | metadata |
 | `--text` | `#e9ebed` | texto sobre oscuro |
-| `--ink-text` | `#10151a` | texto sobre `--paper` |
+| `--ink-text` | `#e9ebed` | texto sobre `--paper` |
 | `--danger` / `--ok` | `#ff5b4a` / `#46d17f` | estados |
 
 Escala espacial `--space-1..9` (base 4px), radios contenidos (`--radius-sm/--radius/--radius-lg`)
@@ -63,5 +63,5 @@ de los generadores). El test `tests/design-system.test.ts` lo verifica.
 
 ## Página de referencia
 
-`/estilo` muestra todos los componentes sobre fondo oscuro y claro. Es `noindex`
-y no entra al sitemap; sirve para QA visual.
+`/estilo` muestra todos los componentes sobre las superficies oscuras del
+sistema. Es `noindex` y no entra al sitemap; sirve para QA visual.

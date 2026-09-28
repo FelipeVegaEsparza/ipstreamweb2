@@ -38,7 +38,7 @@ const pairs: Array<[string, string]> = [
   ['steel', 'panel'],
   ['signal', 'ink'],
   ['signal-strong', 'ink'],
-  ['blue', 'paper'],
+  ['signal', 'paper'],
   ['ink-text', 'paper'],
   ['muted-on-paper', 'paper'],
   ['danger', 'ink'],
