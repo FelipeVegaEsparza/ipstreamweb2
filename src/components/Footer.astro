@@ -1,5 +1,6 @@
 ---
 import { NAV, SITE, SOCIAL_LABELS } from '../lib/site';
+import Icon from './ui/Icon.astro';
 
 interface Props {
   social?: Record<string, string> | null;
@@ -61,7 +62,9 @@ const year = new Date().getFullYear();
 
   <div class="container footer-bottom">
     <p class="mono">© {year} {SITE.name}. Todos los derechos reservados.</p>
-    <p class="mono muted">Hecho en Chile</p>
+    <p class="mono muted made-in">
+      Hecho en Chile con <Icon name="heart" size={13} class="made-in__heart" /> para todo el mundo
+    </p>
   </div>
 </footer>
 
@@ -128,6 +131,16 @@ const year = new Date().getFullYear();
     padding-block: var(--space-5);
     border-top: 1px solid var(--line);
     font-size: 0.75rem;
+  }
+
+  .made-in {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
+
+  .made-in__heart {
+    color: var(--danger);
   }
 
   @media (min-width: 720px) {
