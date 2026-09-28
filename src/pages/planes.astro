@@ -45,13 +45,14 @@ const groups = listPlansGroupedByCategory(db, { activeOnly: true });
             <div class="plans">
               {group.plans.map((plan) => (
                 <Module label={plan.planKey} led={plan.isActive ? 'signal' : 'off'}>
-                  {plan.imageUrl && (
-                    <img class="plan-image" src={plan.imageUrl} alt={plan.planName} loading="lazy" />
-                  )}
+                  <div class:list={['plan-media', { 'plan-media--bare': !plan.imageUrl }]}>
+                    {plan.imageUrl && (
+                      <img class="plan-image" src={plan.imageUrl} alt={plan.planName} loading="lazy" />
+                    )}
+                    <span class="trial mono">7 DÍAS GRATIS</span>
+                  </div>
                   <h3>{plan.title ?? plan.planName}</h3>
                   {plan.description && <p class="muted">{plan.description}</p>}
-
-                  <p class="trial mono">[ PRIMEROS 7 DÍAS GRATIS ]</p>
 
                   <dl class="prices">
                     <div>
@@ -125,28 +126,41 @@ const groups = listPlansGroupedByCategory(db, { activeOnly: true });
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   }
 
+  .plan-media {
+    position: relative;
+    margin-bottom: var(--space-4);
+  }
+
   .plan-image {
+    display: block;
     width: 100%;
     height: auto;
     border-radius: var(--radius-sm);
-    margin-bottom: var(--space-4);
     border: 1px solid var(--line);
   }
 
   .trial {
-    display: inline-block;
-    margin-top: var(--space-4);
+    position: absolute;
+    top: var(--space-3);
+    right: var(--space-3);
     padding: var(--space-1) var(--space-3);
     font-size: 0.6875rem;
-    letter-spacing: 0.16em;
-    color: var(--signal);
-    border: 1px solid var(--line);
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink);
+    background: var(--signal);
     border-radius: var(--radius-sm);
+    box-shadow: 0 8px 20px -10px rgba(53, 214, 208, 0.9);
   }
 
-  .band--paper .trial {
-    color: var(--blue);
-    border-color: var(--line-paper);
+  .plan-media--bare .trial {
+    position: static;
+    display: inline-block;
+    color: var(--signal);
+    background: transparent;
+    border: 1px solid var(--line);
+    box-shadow: none;
   }
 
   .prices {
