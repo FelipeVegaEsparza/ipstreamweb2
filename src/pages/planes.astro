@@ -4,16 +4,14 @@ import ConsoleButton from '../components/ui/ConsoleButton.astro';
 import Module from '../components/ui/Module.astro';
 import OnAirBadge from '../components/ui/OnAirBadge.astro';
 import HeroBackground from '../components/HeroBackground.astro';
-import { getDatabase } from '../lib/db/client';
-import { listPlansGroupedByCategory } from '../lib/db/repositories/plans';
-import { formatCLP, formatUSD } from '../lib/format';
+import { getPanelPlanGroups } from '../lib/panel-plans';
+import { formatUSD } from '../lib/format';
 import { SITE } from '../lib/site';
 
-const db = getDatabase();
-const groups = listPlansGroupedByCategory(db, { activeOnly: true });
+const groups = await getPanelPlanGroups();
 ---
 
-<SiteLayout page="planes" title="Planes y precios — IPStream" description="Elige el plan que mejor se adapte a tu radio online. Planes de streaming de audio, video y combinados.">
+<SiteLayout page="planes" title="Planes y precios — CasterFly" description="Elige el plan que mejor se adapte a tu radio online. Planes de streaming de audio, video y combinados.">
   <section class="band band--dark hero-band">
     <HeroBackground />
     <div class="container">
@@ -41,40 +39,28 @@ const groups = listPlansGroupedByCategory(db, { activeOnly: true });
         <section class:list={['band', index % 2 === 0 ? 'band--panel' : 'band--paper']}>
           <div class="container">
             <div class="section-head">
-              <p class="eyebrow">[ {String(index + 1).padStart(2, '0')} / {group.category.name.toUpperCase()} ]</p>
-              <h2>{group.category.name}</h2>
-              {group.category.description && <p class="muted">{group.category.description}</p>}
+              <p class="eyebrow">[ {String(index + 1).padStart(2, '0')} / {group.label.toUpperCase()} ]</p>
+              <h2>{group.label}</h2>
+              {group.description && <p class="muted">{group.description}</p>}
             </div>
 
             <div class="plans">
-              {group.plans.map((plan) => (
-                <Module label={plan.planKey} led={plan.isActive ? 'signal' : 'off'}>
+              {group.plans.map((plan, planIndex) => (
+                <Module label={String(planIndex + 1).padStart(2, '0')} led="signal">
                   <div class:list={['plan-media', { 'plan-media--bare': !plan.imageUrl }]}>
                     {plan.imageUrl && (
-                      <img class="plan-image" src={plan.imageUrl} alt={plan.planName} loading="lazy" />
+                      <img class="plan-image" src={plan.imageUrl} alt={plan.name} loading="lazy" />
                     )}
                     <span class="trial mono">7 DÍAS GRATIS</span>
                   </div>
-                  <h3>{plan.title ?? plan.planName}</h3>
+                  <h3>{plan.name}</h3>
                   {plan.description && <p class="muted">{plan.description}</p>}
 
                   <dl class="prices">
                     <div>
-                      <dt class="mono">Mensual</dt>
-                      <dd class="mono price">{formatCLP(plan.monthlyPrice ?? plan.price)}</dd>
+                      <dt class="mono">USD</dt>
+                      <dd class="mono price">{formatUSD(plan.usdAmount)}<span class="per">/{plan.interval === 'yearly' ? 'año' : 'mes'}</span></dd>
                     </div>
-                    {plan.annualPrice != null && (
-                      <div>
-                        <dt class="mono">Anual</dt>
-                        <dd class="mono price">{formatCLP(plan.annualPrice)}</dd>
-                      </div>
-                    )}
-                    {plan.usdPrice != null && (
-                      <div>
-                        <dt class="mono">USD</dt>
-                        <dd class="mono price">{formatUSD(plan.usdPrice)}</dd>
-                      </div>
-                    )}
                   </dl>
 
                   {plan.features && plan.features.length > 0 && (
@@ -82,8 +68,6 @@ const groups = listPlansGroupedByCategory(db, { activeOnly: true });
                       {plan.features.map((feature) => <li>{feature}</li>)}
                     </ul>
                   )}
-
-                  {plan.billingNote && <p class="note mono">{plan.billingNote}</p>}
 
                   <div class="plan-actions">
                     <ConsoleButton
@@ -214,6 +198,12 @@ const groups = listPlansGroupedByCategory(db, { activeOnly: true });
   .price {
     font-size: 1.375rem;
     color: var(--signal);
+  }
+
+  .per {
+    margin-left: 0.15rem;
+    font-size: 0.75rem;
+    color: var(--steel);
   }
 
   .features {

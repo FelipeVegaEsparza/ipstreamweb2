@@ -1,6 +1,6 @@
-# IPStream — sitio web
+# CasterFly — sitio web
 
-Nueva versión del sitio de [ipstream.cl](https://ipstream.cl): Astro SSR con
+Sitio público de [casterfly.com](https://casterfly.com): Astro SSR con
 backend JavaScript y SQLite, más un panel interno `/admin` para administrar
 planes y contenido. Rediseño bajo el concepto **"Al Aire"** (estética de consola
 de broadcast, paleta derivada del logo).
@@ -28,7 +28,7 @@ src/
   middleware.ts       protegido de /admin
   pages/              sitio público + /admin + endpoint /api/health
 scripts/
-  migrate-content.ts  migración idempotente desde ipstream.cl
+  migrate-content.ts  migración idempotente desde el sitio anterior
 drizzle/              migraciones SQL (se aplican al arrancar)
 ```
 

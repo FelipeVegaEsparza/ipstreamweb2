@@ -13,7 +13,7 @@ const newsInput = z.object({
   seoTitle: z.string().nullish(),
   seoDescription: z.string().nullish(),
   seoImage: z.string().nullish(),
-  author: z.string().min(1).default('IPStream'),
+  author: z.string().min(1).default('CasterFly'),
   publishedAt: z.string().min(1).optional(),
   isActive: z.boolean().default(true),
 });

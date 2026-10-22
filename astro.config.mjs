@@ -3,7 +3,7 @@ import { defineConfig } from 'astro/config';
 import node from '@astrojs/node';
 
 export default defineConfig({
-  site: process.env.SITE_URL || 'https://ipstream.cl',
+  site: process.env.SITE_URL || 'https://casterfly.com',
   output: 'server',
   // Detras de un proxy TLS (Traefik/Dokploy) el `Origin` del navegador es https
   // pero el adapter Node calcula url.origin como http, y el chequeo falla.

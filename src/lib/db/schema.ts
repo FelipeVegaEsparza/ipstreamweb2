@@ -61,7 +61,7 @@ export const news = sqliteTable(
     seoTitle: text('seo_title'),
     seoDescription: text('seo_description'),
     seoImage: text('seo_image'),
-    author: text('author').notNull().default('IPStream'),
+    author: text('author').notNull().default('CasterFly'),
     publishedAt: text('published_at').notNull().default(sql`CURRENT_TIMESTAMP`),
     isActive: integer('is_active', { mode: 'boolean' }).notNull().default(true),
     ...timestamps,

@@ -13,7 +13,7 @@ embebida. No requiere base de datos externa ni PHP.
 | `SITE_URL` | URL pública del sitio (canónicas, sitemap) |
 | `DATABASE_PATH` | Ruta del archivo SQLite (en contenedor: `/data/app.db`) |
 | `UPLOADS_DIR` | Directorio de imágenes subidas (en contenedor: `/app/uploads`) |
-| `PORT` / `HOST` | Puerto y host del servidor Node (`4321` / `0.0.0.0`) |
+| `PORT` / `HOST` | Puerto y host del servidor Node (`80` / `0.0.0.0`) |
 
 Copia `.env.example` como `.env` para desarrollo.
 
@@ -22,20 +22,20 @@ Copia `.env.example` como `.env` para desarrollo.
 Construcción y arranque local:
 
 ```bash
-docker build -t ipstream-sitio .
-docker run --rm -p 4321:4321 \
-  -e ADMIN_USER=admin@ipstream.cl \
+docker build -t casterfly-site .
+docker run --rm -p 80:80 \
+  -e ADMIN_USER=admin@casterfly.com \
   -e ADMIN_PASS=cambia_esto \
   -e SESSION_SECRET=cambia_esto \
-  -v ipstream_data:/data \
-  -v ipstream_uploads:/app/uploads \
-  ipstream-sitio
+  -v site_data:/data \
+  -v site_uploads:/app/uploads \
+  casterfly-site
 ```
 
 La imagen incluye `HEALTHCHECK` contra `GET /api/health`, que verifica la
 conexión a SQLite.
 
-## Docker Compose (Dokploy)
+## Docker Compose en el VPS del panel
 
 ```bash
 cp .env.example .env   # define ADMIN_USER, ADMIN_PASS, SESSION_SECRET
@@ -44,14 +44,14 @@ docker compose up -d --build
 
 Para Dokploy, define las variables en la pestaña **Environment** de la
 aplicación (interpoladas por `docker-compose.yml`) y monta los volúmenes
-`app_data` y `uploads_data`. El servicio expone el puerto `4321` para que el
+`app_data` y `uploads_data`. El servicio expone el puerto `80` para que el
 proxy lo enrute.
 
 ## Base de datos y uploads
 
 - La base se crea sola en `DATABASE_PATH` y aplica las migraciones de `drizzle/`
   al primer arranque.
-- Los volúmenes `app_data` (base) y `uploads_data` (imágenes) deben persistir
+- Los volúmenes `site_data` (base) y `site_uploads` (imágenes) deben persistir
   entre redeploys.
 
 ## Migración de contenido

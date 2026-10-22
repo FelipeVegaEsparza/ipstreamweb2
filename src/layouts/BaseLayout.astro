@@ -26,8 +26,10 @@ const {
   sameAs = [],
 } = Astro.props;
 
-const site = Astro.site ?? new URL('https://ipstream.cl');
-const canonicalURL = canonical ? new URL(canonical, site) : Astro.url;
+const site = Astro.site ?? new URL('https://casterfly.com');
+const canonicalURL = canonical
+  ? new URL(canonical, site)
+  : new URL(`${Astro.url.pathname}${Astro.url.search}`, site);
 const metaDescription = description || seo.defaultDescription;
 const ogImage = new URL(image || seo.defaultImage, site);
 const robotsContent = noindex ? 'noindex,nofollow' : seo.robots;

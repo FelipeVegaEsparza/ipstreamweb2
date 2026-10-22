@@ -327,7 +327,7 @@ export const server = {
           slug: input.slug,
           excerpt: input.excerpt ?? null,
           content: input.content,
-          author: input.author ?? 'IPStream',
+          author: input.author ?? 'CasterFly',
           publishedAt: input.publishedAt,
           image: uploaded ?? input.imageUrl ?? null,
           seoTitle: input.seoTitle ?? null,

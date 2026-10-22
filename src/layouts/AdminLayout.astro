@@ -1,6 +1,7 @@
 ---
 import BaseLayout from './BaseLayout.astro';
 import Icon from '../components/ui/Icon.astro';
+import { SITE } from '../lib/site';
 import '../styles/admin.css';
 
 interface Props {
@@ -12,8 +13,6 @@ const path = Astro.url.pathname;
 
 const nav = [
   { href: '/admin', label: 'Resumen', icon: 'dashboard' },
-  { href: '/admin/planes', label: 'Planes', icon: 'layers' },
-  { href: '/admin/categorias', label: 'Categorías', icon: 'folder' },
   { href: '/admin/noticias', label: 'Noticias', icon: 'news' },
   { href: '/admin/tutoriales', label: 'Tutoriales', icon: 'book' },
   { href: '/admin/clientes', label: 'Clientes', icon: 'users' },
@@ -25,13 +24,14 @@ const nav = [
 const isActive = (href: string) => (href === '/admin' ? path === '/admin' : path.startsWith(href));
 ---
 
-<BaseLayout title={`${title} — Panel IPStream`} noindex>
+<BaseLayout title={`${title} — Panel CasterFly`} noindex>
   <div class="admin">
     <header class="admin-bar">
-      <a class="brand" href="/admin" aria-label="Panel IPStream">
-        <img src="/images/logos/logo.png" alt="IPStream" width="120" height="30" />
+      <a class="brand" href="/admin" aria-label="Panel CasterFly">
+        <img src="/images/logos/logo.png" alt="CasterFly" width="120" height="30" />
       </a>
       <div class="bar-actions">
+        <a href={`${SITE.panelUrl}admin/billing`} target="_blank" rel="noopener">Dashboard</a>
         <a href="/" target="_blank" rel="noopener">Ver sitio</a>
         <a href="/admin/logout">Cerrar sesión</a>
       </div>

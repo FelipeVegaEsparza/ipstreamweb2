@@ -1,9 +1,9 @@
 export const SITE = {
-  name: 'IPStream',
+  name: 'CasterFly',
   tagline: 'Tu radio online',
-  url: (process.env.SITE_URL ?? 'https://ipstream.cl').replace(/\/$/, ''),
-  panelUrl: 'https://panelipstream.cl/',
-  email: 'contacto@ipstream.cl',
+  url: (process.env.SITE_URL ?? 'https://casterfly.com').replace(/\/$/, ''),
+  panelUrl: 'https://panel.casterfly.com/',
+  email: 'contacto@casterfly.com',
 } as const;
 
 export interface NavItem {

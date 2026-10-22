@@ -145,7 +145,7 @@ export function parseNews(payload: unknown): SourceNews[] {
       excerpt: str(article.excerpt),
       content: str(article.content) ?? str(article.excerpt) ?? '',
       image: str(article.image),
-      author: str(article.author) ?? 'IPStream',
+      author: str(article.author) ?? 'CasterFly',
       publishedAt: str(article.published_at) ?? '',
       isActive: true,
     } satisfies SourceNews;

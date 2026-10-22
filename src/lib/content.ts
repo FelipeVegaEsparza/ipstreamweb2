@@ -92,7 +92,7 @@ export const STUDIO_FEATURES: Feature[] = [
   {
     code: '01',
     title: 'Transmisión en vivo',
-    description: 'Enlaza con los servidores de IPStream y transmite tu señal en tiempo real con máxima calidad.',
+    description: 'Enlaza con los servidores de CasterFly y transmite tu señal en tiempo real con máxima calidad.',
     points: ['Baja latencia', 'Alta calidad', 'Conexión estable'],
   },
   {
@@ -128,7 +128,7 @@ export const SUPPORT_CARDS = [
   {
     title: 'Contacto soporte',
     description: '¿Tienes dudas o necesitas ayuda? Nuestro equipo está listo para asistirte.',
-    href: 'mailto:contacto@ipstream.cl',
+    href: 'mailto:contacto@casterfly.com',
     action: 'Escribir a soporte',
   },
   {
@@ -149,7 +149,7 @@ export const FAQ = [
   {
     question: '¿Cómo empiezo a transmitir?',
     answer:
-      'Contratas un plan, recibes tus credenciales de transmisión y enlazas IPStreamStudio o tu software preferido (ZaraRadio, RadioBoss, OBS) a nuestros servidores.',
+      'Contratas un plan, recibes tus credenciales de transmisión y enlazas CasterFly Studio o tu software preferido (ZaraRadio, RadioBoss, OBS) a nuestros servidores.',
   },
   {
     question: '¿Incluye sitio web y app?',

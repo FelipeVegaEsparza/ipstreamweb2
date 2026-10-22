@@ -31,7 +31,7 @@ export const ROBOTS_OPTIONS = [
 ];
 
 export const DEFAULT_SEO: SeoSettings = {
-  siteName: 'IPStream',
+  siteName: 'CasterFly',
   defaultDescription:
     'Plataforma profesional para tu radio online: sitio web, reproductor, app PWA y panel de administración.',
   defaultImage: '/images/og-default.png',

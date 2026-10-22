@@ -9,29 +9,24 @@ import PlayerCard from '../components/PlayerCard.astro';
 import HeroBackground from '../components/HeroBackground.astro';
 import ContactSection from '../components/ContactSection.astro';
 import { getDatabase } from '../lib/db/client';
-import { listPlansGroupedByCategory } from '../lib/db/repositories/plans';
 import { listNews } from '../lib/db/repositories/news';
 import { listPortfolio } from '../lib/db/repositories/portfolio';
 import { SITE } from '../lib/site';
 import { PILLARS, HIGHLIGHTS, STUDIO_FEATURES, PLAYERS } from '../lib/content';
-import { formatCLP, formatUSD, formatDateShort } from '../lib/format';
+import { formatUSD, formatDateShort } from '../lib/format';
+import { getPanelPlanGroups } from '../lib/panel-plans';
 
 const db = getDatabase();
-const planGroups = listPlansGroupedByCategory(db, { activeOnly: true });
+const planGroups = await getPanelPlanGroups();
 const latestNews = listNews(db, { activeOnly: true, limit: 3 });
 const clients = listPortfolio(db, { activeOnly: true }).slice(0, 8);
 const carouselClients = [...clients, ...clients];
 
-const minMonthly = (group: (typeof planGroups)[number]) =>
-  Math.min(...group.plans.map((plan) => plan.monthlyPrice ?? plan.price));
-
-const minUsd = (group: (typeof planGroups)[number]) => {
-  const values = group.plans.map((plan) => plan.usdPrice).filter((value): value is number => value != null);
-  return values.length > 0 ? Math.min(...values) : null;
-};
+const minUsd = (group: (typeof planGroups)[number]) =>
+  Math.min(...group.plans.map((plan) => plan.usdAmount));
 ---
 
-<SiteLayout page="home" title="IPStream — Crea tu propia radio online" description="Sitio web profesional, reproductor, app PWA y panel de administración para tu radio online. Transmite con IPStream.">
+<SiteLayout page="home" title="CasterFly — Crea tu propia radio online" description="Sitio web profesional, reproductor, app PWA y panel de administración para tu radio online. Transmite con CasterFly.">
   <section class="hero band band--dark">
     <HeroBackground />
     <div class="container hero-grid">
@@ -40,7 +35,7 @@ const minUsd = (group: (typeof planGroups)[number]) => {
         <h1 class="display">Tu radio online,<br />al aire en minutos</h1>
         <p class="lede">
           Sitio web profesional, reproductor, app PWA y panel de administración en una sola plataforma. Transmite con
-          IPStreamStudio e incluye todo sin costo adicional.
+          CasterFly Studio e incluye todo sin costo adicional.
         </p>
         <div class="hero-actions">
           <ConsoleButton href="/planes">Ver planes</ConsoleButton>
@@ -52,7 +47,7 @@ const minUsd = (group: (typeof planGroups)[number]) => {
         <img
           class="hero-image"
           src="/images/hero1.png"
-          alt="IPStream en vivo: reproductor y panel de tu radio online"
+          alt="CasterFly en vivo: reproductor y panel de tu radio online"
           width="500"
           height="400"
           fetchpriority="high"
@@ -95,7 +90,7 @@ const minUsd = (group: (typeof planGroups)[number]) => {
         <p class="eyebrow">[ 02 / IPSTREAMSTUDIO ]</p>
         <h2 class="display">Tu transmisor de audio profesional</h2>
         <p class="studio-lead muted">
-          Software de transmisión desarrollado por IPStream. Enlaza tu estudio, programa cuñas y mantén tu radio al aire
+          Software de transmisión desarrollado por CasterFly. Enlaza tu estudio, programa cuñas y mantén tu radio al aire
           24/7. Incluido en todos los planes, sin costo adicional.
         </p>
         <ul class="channels">
@@ -116,13 +111,13 @@ const minUsd = (group: (typeof planGroups)[number]) => {
 
       <figure class="monitor">
         <span class="monitor__strip">
-          <span class="mono monitor__name">IPStreamStudio</span>
+          <span class="mono monitor__name">CasterFly Studio</span>
           <OnAirBadge label="ON AIR" />
         </span>
         <div class="monitor__screen">
           <img
             src="/images/estudio/1.png"
-            alt="IPStreamStudio, software de transmisión de audio"
+            alt="CasterFly Studio, software de transmisión de audio"
             width="1276"
             height="780"
             loading="lazy"
@@ -190,12 +185,11 @@ const minUsd = (group: (typeof planGroups)[number]) => {
       <div class="grid-3">
         {
           planGroups.map((group) => (
-            <Module label={group.category.name} led="ok">
-              <p class="muted">{group.category.description}</p>
+            <Module label={group.label} led="ok">
+              <p class="muted">{group.description}</p>
               <p class="plan-from">
-                Desde <span class="mono">{formatCLP(minMonthly(group))}</span>/mes
+                Desde <span class="mono">{formatUSD(minUsd(group))}</span>/mes
               </p>
-              {minUsd(group) != null && <p class="plan-usd mono">≈ {formatUSD(minUsd(group))}/mes</p>}
               <ConsoleButton variant="ghost" href="/planes">Ver {group.plans.length} planes</ConsoleButton>
             </Module>
           ))
@@ -210,9 +204,9 @@ const minUsd = (group: (typeof planGroups)[number]) => {
         <div class="container">
           <div class="section-head">
             <p class="eyebrow">[ 06 / CLIENTES ]</p>
-            <h2>Radios que confían en IPStream</h2>
+            <h2>Radios que confían en CasterFly</h2>
           </div>
-          <div class="clients-viewport" data-carousel tabindex="0" role="region" aria-label="Clientes de IPStream">
+          <div class="clients-viewport" data-carousel tabindex="0" role="region" aria-label="Clientes de CasterFly">
             <ul class="clients-track">
               {carouselClients.map((client, index) => {
                 const isClone = index >= clients.length;
