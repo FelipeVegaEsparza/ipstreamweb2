@@ -11,8 +11,7 @@ import ContactSection from '../components/ContactSection.astro';
 import { getDatabase } from '../lib/db/client';
 import { listNews } from '../lib/db/repositories/news';
 import { listPortfolio } from '../lib/db/repositories/portfolio';
-import { SITE } from '../lib/site';
-import { PILLARS, HIGHLIGHTS, STUDIO_FEATURES, PLAYERS } from '../lib/content';
+import { PILLARS, HIGHLIGHTS, STUDIO_FEATURES, PLAYERS, AI_FEATURES } from '../lib/content';
 import { formatUSD, formatDateShort } from '../lib/format';
 import { getPanelPlanGroups } from '../lib/panel-plans';
 
@@ -24,34 +23,73 @@ const carouselClients = [...clients, ...clients];
 
 const minUsd = (group: (typeof planGroups)[number]) =>
   Math.min(...group.plans.map((plan) => plan.usdAmount));
+
+const allPlans = planGroups.flatMap((group) => group.plans);
+const aiPlan = allPlans.find((plan) => plan.aiLiveEnabled) ?? null;
+const aiPlanName = aiPlan?.name ?? 'Plan Radio Pro';
+const aiCharacters = aiPlan?.aiMonthlyCharacters ?? 50000;
+const aiMusicMinutes = aiPlan?.aiMusicMinutes ?? 10;
 ---
 
-<SiteLayout page="home" title="CasterFly — Crea tu propia radio online" description="Sitio web profesional, reproductor, app PWA y panel de administración para tu radio online. Transmite con CasterFly.">
+<SiteLayout page="home" title="CasterFly — Radio profesional asistida por IA" description="Sitio, PWA, consola en vivo y un copiloto de IA que locuta, informa y programa. El panel profesional para tu radio online.">
   <section class="hero band band--dark">
     <HeroBackground />
     <div class="container hero-grid">
       <div class="hero-copy">
-        <OnAirBadge />
-        <h1 class="display">Tu radio online,<br />al aire en minutos</h1>
+        <OnAirBadge label="RADIO + IA" />
+        <h1 class="display">Tu radio profesional,<br />con IA a bordo</h1>
         <p class="lede">
-          Sitio web profesional, reproductor, app PWA y panel de administración en una sola plataforma. Transmite con
-          CasterFly Studio e incluye todo sin costo adicional.
+          Sitio, app PWA, consola en vivo y un copiloto de IA que locuta, informa y programa. Todo en
+          una sola plataforma, con la voz y el estilo de tu emisora.
         </p>
         <div class="hero-actions">
-          <ConsoleButton href="/planes">Ver planes</ConsoleButton>
-          <ConsoleButton variant="ghost" href={`mailto:${SITE.email}`}>Hablar con ventas</ConsoleButton>
+          <ConsoleButton href="/ia">Conocer la IA</ConsoleButton>
+          <ConsoleButton variant="ghost" href="/planes">Ver planes</ConsoleButton>
         </div>
       </div>
 
       <div class="hero-console">
-        <img
-          class="hero-image"
-          src="/images/hero1.png"
-          alt="CasterFly en vivo: reproductor y panel de tu radio online"
-          width="500"
-          height="400"
-          fetchpriority="high"
-        />
+        <Module label="AI / ON AIR" icon="mic" led="signal" class="hero-ai">
+          <p class="mono hero-ai-kicker">[ COPILOTO PROFESIONAL ]</p>
+          <h2 class="hero-ai-title">La IA se ocupa del aire.<br />Vos dirigís la radio.</h2>
+          <ul class="hero-ai-list">
+            <li><span class="mono">01</span> Presenta el próximo tema</li>
+            <li><span class="mono">02</span> Locuta hora y clima</li>
+            <li><span class="mono">03</span> Genera cápsulas y noticias</li>
+            <li><span class="mono">04</span> Mide y aprende de tu audiencia</li>
+          </ul>
+          <div class="hero-ai-foot">
+            <span>{aiPlanName}</span>
+            <span class="mono">{aiCharacters.toLocaleString('es-CL')} caracteres/mes</span>
+          </div>
+        </Module>
+      </div>
+    </div>
+  </section>
+
+  <section class="band band--paper" id="ia">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">[ 01 / IA EN EL AIRE ]</p>
+        <h2>Una radio que trabaja con vos</h2>
+        <p class="muted">
+          La IA no es un extra: presenta, locuta, redacta y programa. Seis funciones pensadas para
+          que tu emisora suene profesional las 24 horas.
+        </p>
+      </div>
+      <div class="grid-3">
+        {
+          AI_FEATURES.slice(0, 6).map((feature) => (
+            <Module label={`IA ${feature.code}`} icon={feature.icon} led="signal">
+              <h3>{feature.title}</h3>
+              <p class="muted">{feature.description}</p>
+              <ul class="points">{feature.points.map((point) => <li>{point}</li>)}</ul>
+            </Module>
+          ))
+        }
+      </div>
+      <div class="ai-more">
+        <ConsoleButton href="/ia">Ver todo sobre la IA</ConsoleButton>
       </div>
     </div>
   </section>
@@ -59,7 +97,7 @@ const minUsd = (group: (typeof planGroups)[number]) =>
   <section class="band band--panel">
     <div class="container">
       <div class="section-head">
-        <p class="eyebrow">[ 01 / CARACTERÍSTICAS ]</p>
+        <p class="eyebrow">[ 02 / PLATAFORMA ]</p>
         <h2>Todo lo que necesitas para tu radio online</h2>
         <p class="muted">Una solución completa para transmitir, gestionar y hacer crecer tu audiencia.</p>
       </div>
@@ -194,6 +232,14 @@ const minUsd = (group: (typeof planGroups)[number]) =>
             </Module>
           ))
         }
+      </div>
+      <div class="ai-plan-note">
+        <div>
+          <span class="mono">[ IA EN VIVO ]</span>
+          <strong>{aiPlanName}</strong>
+          <span class="muted">Locutor IA · {aiCharacters.toLocaleString('es-CL')} caracteres/mes · {aiMusicMinutes} min de música IA</span>
+        </div>
+        <ConsoleButton variant="ghost" href="/ia">Conocer la IA</ConsoleButton>
       </div>
     </div>
   </section>
@@ -376,6 +422,104 @@ const minUsd = (group: (typeof planGroups)[number]) =>
     width: 100%;
     max-width: 30rem;
     height: auto;
+  }
+
+  .hero-ai {
+    width: 100%;
+    max-width: 34rem;
+  }
+
+  .hero-ai-kicker {
+    color: var(--signal);
+    font-size: 0.6875rem;
+    letter-spacing: 0.2em;
+    margin-bottom: var(--space-4);
+  }
+
+  .hero-ai-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 1rem + 2vw, 2.25rem);
+    line-height: 1.05;
+    margin-bottom: var(--space-5);
+  }
+
+  .hero-ai-list {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: var(--space-3);
+    margin-bottom: var(--space-6);
+  }
+
+  .hero-ai-list li {
+    display: flex;
+    gap: var(--space-3);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--line);
+    color: var(--text);
+    font-size: 0.9375rem;
+  }
+
+  .hero-ai-list li span {
+    color: var(--signal);
+    font-size: 0.6875rem;
+    letter-spacing: 0.16em;
+    padding-top: 0.2rem;
+  }
+
+  .hero-ai-foot {
+    margin-top: auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-4);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--line);
+    color: var(--steel);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.06em;
+  }
+
+  .hero-ai-foot span:first-child {
+    color: var(--text);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .ai-more {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: var(--space-6);
+  }
+
+  .ai-plan-note {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin-top: var(--space-5);
+    padding: var(--space-4);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--panel-2);
+  }
+
+  .ai-plan-note > div {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2) var(--space-4);
+  }
+
+  .ai-plan-note .mono {
+    color: var(--signal);
+    font-size: 0.6875rem;
+    letter-spacing: 0.2em;
+  }
+
+  .ai-plan-note .muted {
+    font-size: 0.8125rem;
   }
 
   .grid-3 {

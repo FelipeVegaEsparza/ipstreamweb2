@@ -33,7 +33,7 @@ export const ROBOTS_OPTIONS = [
 export const DEFAULT_SEO: SeoSettings = {
   siteName: 'CasterFly',
   defaultDescription:
-    'Plataforma profesional para tu radio online: sitio web, reproductor, app PWA y panel de administración.',
+    'Radio profesional asistida por IA: locutor automático, cápsulas, noticias, analítica y panel de emisión.',
   defaultImage: '/images/og-default.png',
   keywords: '',
   robots: 'index,follow',
@@ -50,6 +50,7 @@ export interface SeoPageDef {
 
 export const SEO_PAGES: SeoPageDef[] = [
   { key: 'home', label: 'Inicio', path: '/' },
+  { key: 'ia', label: 'IA', path: '/ia' },
   { key: 'planes', label: 'Planes', path: '/planes' },
   { key: 'caracteristicas', label: 'Características', path: '/caracteristicas' },
   { key: 'tutoriales', label: 'Tutoriales', path: '/tutoriales' },

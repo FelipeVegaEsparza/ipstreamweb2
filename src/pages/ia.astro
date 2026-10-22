@@ -1,0 +1,486 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+import HeroBackground from '../components/HeroBackground.astro';
+import ConsoleButton from '../components/ui/ConsoleButton.astro';
+import Module from '../components/ui/Module.astro';
+import Icon from '../components/ui/Icon.astro';
+import OnAirBadge from '../components/ui/OnAirBadge.astro';
+import FrequencyStrip from '../components/ui/FrequencyStrip.astro';
+import { AI_FEATURES, AI_STEPS } from '../lib/content';
+import { fetchPanelPlans } from '../lib/panel-plans';
+
+const plans = await fetchPanelPlans();
+const aiPlans = plans.filter((plan) => plan.aiLiveEnabled);
+const aiPlan = aiPlans[0] ?? null;
+const aiPlanName = aiPlan?.name ?? 'Plan Radio Pro';
+const aiCharacters = aiPlan?.aiMonthlyCharacters ?? 50000;
+const aiMusicMinutes = aiPlan?.aiMusicMinutes ?? 10;
+
+const proFeatures = [
+  { icon: 'dashboard', title: 'Analítica profesional', text: 'Oyentes, sesiones, dispositivos, ubicación y horas pico.' },
+  { icon: 'mic', title: 'Consola en vivo', text: 'Transporte, playlists, efectos y locuciones desde el navegador.' },
+  { icon: 'calendar', title: 'Parrilla y AutoDJ', text: 'Programación por franjas, rotación automática y jingles.' },
+  { icon: 'smartphone', title: 'Sitio y PWA', text: 'Sitio del cliente, reproductor y app instalable.' },
+  { icon: 'video', title: 'Radio + TV', text: 'Audio y video en la misma plataforma, con HLS y VOD2Live.' },
+  { icon: 'layers', title: 'Multi-emisora', text: 'Operá varias radios o canales desde un solo panel.' },
+];
+---
+
+<SiteLayout
+  page="ia"
+  title="IA para radio — CasterFly"
+  description="Locutor IA, cápsulas, noticias y locuciones automáticas de hora y clima. El copiloto profesional para tu radio online."
+>
+  <section class="band band--dark hero-band">
+    <HeroBackground />
+    <div class="container hero">
+      <div class="hero-copy">
+        <p class="eyebrow">[ IA / CO-PILOTO PROFESIONAL ]</p>
+        <h1 class="display">Tu radio,<br />con un copiloto de IA</h1>
+        <p class="lede muted">
+          Locutor automático, cápsulas, noticias y locuciones de hora y clima. La IA se ocupa de lo
+          repetitivo; vos te quedás con la dirección de la emisora.
+        </p>
+        <div class="hero-actions">
+          <ConsoleButton href="/planes">Ver planes con IA</ConsoleButton>
+          <ConsoleButton variant="ghost" href="/caracteristicas">Conocer el panel</ConsoleButton>
+        </div>
+        <div class="freq-wrap"><FrequencyStrip /></div>
+      </div>
+
+      <Module label="AI / CONSOLA" icon="mic" led="signal" class="ai-console">
+        <div class="console-top">
+          <OnAirBadge label="LOCUTOR IA" />
+          <span class="mono console-code">PRO</span>
+        </div>
+        <p class="console-title">La voz de tu emisora, siempre lista.</p>
+        <ul class="console-list">
+          <li><span class="mono">01</span> Presenta el próximo tema</li>
+          <li><span class="mono">02</span> Locuta hora y clima</li>
+          <li><span class="mono">03</span> Genera cápsulas y noticias</li>
+          <li><span class="mono">04</span> Cae a voz local si falla la nube</li>
+        </ul>
+        <div class="console-foot">
+          <span>{aiPlanName}</span>
+          <span class="mono">{aiCharacters.toLocaleString('es-CL')} caracteres/mes</span>
+          <span class="mono">{aiMusicMinutes} min música IA</span>
+        </div>
+      </Module>
+    </div>
+  </section>
+
+  <section class="band band--panel">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">[ 01 / IA EN EL AIRE ]</p>
+        <h2>Seis formas en que la IA trabaja para tu radio</h2>
+        <p class="muted">
+          No es un adorno: la IA produce audio, presenta la música y te ayuda a publicar contenido
+          con la voz y el estilo de tu emisora.
+        </p>
+      </div>
+      <div class="grid-3">
+        {
+          AI_FEATURES.map((feature) => (
+            <Module label={`IA ${feature.code}`} icon={feature.icon} led="signal">
+              <h3>{feature.title}</h3>
+              <p class="muted">{feature.description}</p>
+              <ul class="points">{feature.points.map((point) => <li>{point}</li>)}</ul>
+            </Module>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="band band--paper">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">[ 02 / FLUJO ]</p>
+        <h2>De la idea al aire en cuatro pasos</h2>
+      </div>
+      <div class="steps">
+        {
+          AI_STEPS.map((step) => (
+            <article class="step">
+              <span class="mono step-code">{step.code}</span>
+              <h3>{step.title}</h3>
+              <p class="muted">{step.description}</p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="band band--dark">
+    <div class="container pro">
+      <div>
+        <p class="eyebrow">[ 03 / OPERACIÓN ]</p>
+        <h2 class="display">IA + operación profesional</h2>
+        <p class="muted">
+          La IA no reemplaza el control: lo potencia. Todo lo que pasa en la radio se gestiona desde
+          el mismo panel, con datos y trazabilidad.
+        </p>
+        <div class="pro-list">
+          {
+            proFeatures.map((feature) => (
+              <div class="pro-item">
+                <span class="pro-icon"><Icon name={feature.icon} size={18} /></span>
+                <div>
+                  <h3>{feature.title}</h3>
+                  <p class="muted">{feature.text}</p>
+                </div>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+      <Module label="PANEL / PROFESIONAL" icon="dashboard" led="ok" class="pro-module">
+        <p class="mono pro-kicker">[ RADIO ASISTIDA ]</p>
+        <h3 class="pro-title">La IA produce.<br />Vos dirigís.</h3>
+        <p class="muted">
+          Programá, publicá y medí sin perder el control editorial. La IA se apaga o se ajusta por
+          plan y por emisora.
+        </p>
+        <div class="pro-tags">
+          <span>Locutor IA</span>
+          <span>Cápsulas</span>
+          <span>Noticias IA</span>
+          <span>Analítica</span>
+        </div>
+        <ConsoleButton href="/planes">Elegir plan</ConsoleButton>
+      </Module>
+    </div>
+  </section>
+
+  <section class="band band--panel">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">[ 04 / PLANES ]</p>
+        <h2>La IA incluida en tu plan</h2>
+        <p class="muted">
+          La IA en vivo se habilita según el plan. Incluye presentador automático, locuciones libres
+          y clima/hora con voz premium.
+        </p>
+      </div>
+      <div class="ai-plan">
+        <div>
+          <span class="mono ai-plan-code">[ IA EN VIVO ]</span>
+          <h3>{aiPlanName}</h3>
+          <p class="muted">
+            Presentador automático cada N temas, locuciones libres y voz premium para clima y hora.
+            Si el proveedor falla, la radio sigue con la voz local.
+          </p>
+        </div>
+        <div class="ai-plan-metrics">
+          <div><strong class="mono">{aiCharacters.toLocaleString('es-CL')}</strong><span>caracteres/mes</span></div>
+          <div><strong class="mono">{aiMusicMinutes}</strong><span>min de música IA/mes</span></div>
+        </div>
+        <ConsoleButton href="/planes">Ver todos los planes</ConsoleButton>
+      </div>
+    </div>
+  </section>
+
+  <section class="band band--dark">
+    <div class="container cta">
+      <div>
+        <p class="eyebrow">[ SIGUIENTE PASO ]</p>
+        <h2 class="display">Poné la IA a trabajar en tu radio</h2>
+        <p class="muted">Empezá con 7 días gratis y activá el copiloto cuando quieras.</p>
+      </div>
+      <ConsoleButton href="/planes">Empezar ahora</ConsoleButton>
+    </div>
+  </section>
+</SiteLayout>
+
+<style>
+  .hero {
+    display: grid;
+    gap: var(--space-8);
+    align-items: center;
+  }
+
+  .hero h1 {
+    font-size: clamp(2.75rem, 1.2rem + 6vw, 5.5rem);
+    margin-top: var(--space-4);
+  }
+
+  .lede {
+    margin-top: var(--space-4);
+    max-width: 38rem;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-top: var(--space-6);
+  }
+
+  .freq-wrap {
+    margin-top: var(--space-7);
+  }
+
+  .ai-console {
+    align-self: stretch;
+  }
+
+  .console-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    margin-bottom: var(--space-5);
+  }
+
+  .console-code {
+    color: var(--signal);
+    font-size: 0.6875rem;
+    letter-spacing: 0.2em;
+  }
+
+  .console-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.35rem, 1rem + 1.5vw, 2rem);
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: var(--space-5);
+  }
+
+  .console-list {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: var(--space-3);
+    margin-bottom: var(--space-6);
+  }
+
+  .console-list li {
+    display: flex;
+    gap: var(--space-3);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--line);
+    color: var(--text);
+    font-size: 0.9375rem;
+  }
+
+  .console-list li span {
+    color: var(--signal);
+    font-size: 0.6875rem;
+    letter-spacing: 0.16em;
+    padding-top: 0.2rem;
+  }
+
+  .console-foot {
+    margin-top: auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-4);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--line);
+    color: var(--steel);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.06em;
+  }
+
+  .console-foot span:first-child {
+    color: var(--text);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .grid-3 {
+    display: grid;
+    gap: var(--space-5);
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  }
+
+  .grid-3 h3 {
+    margin-bottom: var(--space-2);
+  }
+
+  .points {
+    list-style: none;
+    padding: 0;
+    margin-top: var(--space-4);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .points li {
+    font-size: 0.8125rem;
+    color: var(--steel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: 0.2rem 0.5rem;
+  }
+
+  .steps {
+    display: grid;
+    gap: var(--space-5);
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+
+  .step {
+    border-top: 2px solid var(--line-paper);
+    padding-top: var(--space-4);
+  }
+
+  .step-code {
+    color: var(--muted-on-paper);
+    font-size: 0.6875rem;
+    letter-spacing: 0.2em;
+  }
+
+  .step h3 {
+    margin-block: var(--space-2) var(--space-2);
+  }
+
+  .pro {
+    display: grid;
+    gap: var(--space-8);
+    align-items: start;
+  }
+
+  .pro h2 {
+    margin-block: var(--space-3);
+  }
+
+  .pro-list {
+    display: grid;
+    gap: var(--space-4);
+    margin-top: var(--space-6);
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
+
+  .pro-item {
+    display: flex;
+    gap: var(--space-3);
+    align-items: flex-start;
+  }
+
+  .pro-icon {
+    display: grid;
+    place-items: center;
+    width: 2.35rem;
+    height: 2.35rem;
+    flex: 0 0 auto;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    color: var(--signal);
+    background: rgba(53, 214, 208, 0.06);
+  }
+
+  .pro-item h3 {
+    margin-bottom: 0.2rem;
+    font-size: 1rem;
+  }
+
+  .pro-item p {
+    font-size: 0.875rem;
+  }
+
+  .pro-module {
+    align-self: stretch;
+  }
+
+  .pro-kicker {
+    color: var(--signal);
+    font-size: 0.6875rem;
+    letter-spacing: 0.2em;
+    margin-bottom: var(--space-4);
+  }
+
+  .pro-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 1.1rem + 2vw, 2.5rem);
+    line-height: 1.05;
+    margin-bottom: var(--space-4);
+  }
+
+  .pro-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-block: var(--space-5);
+  }
+
+  .pro-tags span {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    padding: 0.35rem 0.6rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    color: var(--steel);
+  }
+
+  .ai-plan {
+    display: grid;
+    gap: var(--space-5);
+    align-items: center;
+    padding: var(--space-6);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--panel-2);
+  }
+
+  .ai-plan-code {
+    color: var(--signal);
+    font-size: 0.6875rem;
+    letter-spacing: 0.2em;
+  }
+
+  .ai-plan h3 {
+    margin-block: var(--space-2);
+    font-size: 1.75rem;
+  }
+
+  .ai-plan-metrics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-5);
+  }
+
+  .ai-plan-metrics div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding-left: var(--space-4);
+    border-left: 1px solid var(--line);
+  }
+
+  .ai-plan-metrics strong {
+    font-size: 1.5rem;
+    color: var(--signal);
+  }
+
+  .ai-plan-metrics span {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    color: var(--steel);
+  }
+
+  .cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-5);
+  }
+
+  @media (min-width: 900px) {
+    .hero,
+    .pro {
+      grid-template-columns: 1.1fr 0.9fr;
+    }
+
+    .ai-plan {
+      grid-template-columns: 1.2fr 0.8fr auto;
+    }
+  }
+</style>

@@ -7,29 +7,52 @@ import FrequencyStrip from '../components/ui/FrequencyStrip.astro';
 import ComingSoonBadge from '../components/ui/ComingSoonBadge.astro';
 import PlayerCard from '../components/PlayerCard.astro';
 import HeroBackground from '../components/HeroBackground.astro';
-import { PILLARS, HIGHLIGHTS, STUDIO_FEATURES, PLAYERS } from '../lib/content';
+import { PILLARS, HIGHLIGHTS, STUDIO_FEATURES, PLAYERS, AI_FEATURES } from '../lib/content';
 
 ---
 
 <SiteLayout
   page="caracteristicas"
   title="Características — CasterFly"
-  description="Todo lo que incluye CasterFly: sitio web profesional, app PWA, panel de administración, reproductores y el transmisor CasterFly Studio."
+  description="Radio profesional asistida por IA: locutor automático, cápsulas, noticias, analítica, consola en vivo, app PWA y CasterFly Studio."
 >
   <section class="band band--dark hero-band">
     <HeroBackground />
     <div class="container">
-      <p class="eyebrow">[ CARACTERÍSTICAS ]</p>
-      <h1 class="display">Una plataforma completa para tu radio</h1>
-      <p class="lede muted">Transmite, gestiona y haz crecer tu audiencia con herramientas profesionales incluidas.</p>
+      <p class="eyebrow">[ PLATAFORMA / IA ]</p>
+      <h1 class="display">Una plataforma profesional, con IA en el aire</h1>
+      <p class="lede muted">Locutor automático, cápsulas, noticias, analítica y consola en vivo. Todo lo que tu radio necesita para sonar profesional.</p>
       <div class="freq-wrap"><FrequencyStrip /></div>
+    </div>
+  </section>
+
+  <section class="band band--paper" id="ia">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">[ 01 / IA EN EL AIRE ]</p>
+        <h2>El copiloto que produce, locuta y programa</h2>
+        <p class="muted">
+          La IA se ocupa de lo repetitivo para que tu equipo se concentre en la dirección de la emisora.
+        </p>
+      </div>
+      <div class="grid-3">
+        {
+          AI_FEATURES.map((feature) => (
+            <Module label={`IA ${feature.code}`} icon={feature.icon} led="signal">
+              <h3>{feature.title}</h3>
+              <p class="muted">{feature.description}</p>
+              <ul class="points">{feature.points.map((point) => <li>{point}</li>)}</ul>
+            </Module>
+          ))
+        }
+      </div>
     </div>
   </section>
 
   <section class="band band--panel" id="sitio-web">
     <div class="container">
       <div class="section-head">
-        <p class="eyebrow">[ 01 / BASE ]</p>
+        <p class="eyebrow">[ 02 / BASE ]</p>
         <h2>La base de tu emisora</h2>
       </div>
       <div class="grid-3">
@@ -49,7 +72,7 @@ import { PILLARS, HIGHLIGHTS, STUDIO_FEATURES, PLAYERS } from '../lib/content';
   <section class="band band--paper">
     <div class="container">
       <div class="section-head">
-        <p class="eyebrow">[ 02 / DESTACADAS ]</p>
+        <p class="eyebrow">[ 03 / DESTACADAS ]</p>
         <h2>Funcionalidades premium</h2>
       </div>
       <div class="grid-3">
@@ -74,7 +97,7 @@ import { PILLARS, HIGHLIGHTS, STUDIO_FEATURES, PLAYERS } from '../lib/content';
   <section class="band band--dark" id="casterfly-studio">
     <div class="container studio">
       <div>
-        <p class="eyebrow">[ 03 / TRANSMISOR ]</p>
+        <p class="eyebrow">[ 04 / TRANSMISOR ]</p>
         <h2 class="display">CasterFly Studio</h2>
         <p class="muted">
           Software de transmisión de audio desarrollado por CasterFly. Incluido en todos los planes, sin costo adicional:
@@ -102,7 +125,7 @@ import { PILLARS, HIGHLIGHTS, STUDIO_FEATURES, PLAYERS } from '../lib/content';
   <section class="band band--panel">
     <div class="container">
       <div class="section-head">
-        <p class="eyebrow">[ 04 / REPRODUCTORES ]</p>
+        <p class="eyebrow">[ 05 / REPRODUCTORES ]</p>
         <h2>Reproductores para cada necesidad</h2>
       </div>
       <div class="players">

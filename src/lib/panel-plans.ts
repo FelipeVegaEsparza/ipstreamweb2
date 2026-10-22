@@ -13,6 +13,9 @@ export interface PanelPlan {
   currency: 'USD'
   features: string[]
   maxDjs: number
+  aiLiveEnabled: boolean
+  aiMonthlyCharacters: number
+  aiMusicMinutes: number
   radioStorageQuotaMB: number | null
   videoStorageQuotaMB: number | null
   imageUrl: string | null
@@ -77,6 +80,9 @@ function localPlans(): PanelPlan[] {
           currency: 'USD' as const,
           features: plan.features ?? [],
           maxDjs: 0,
+          aiLiveEnabled: false,
+          aiMonthlyCharacters: 0,
+          aiMusicMinutes: 0,
           radioStorageQuotaMB: null,
           videoStorageQuotaMB: null,
           imageUrl: plan.imageUrl ?? null,

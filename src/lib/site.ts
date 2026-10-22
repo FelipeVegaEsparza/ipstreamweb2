@@ -1,6 +1,6 @@
 export const SITE = {
   name: 'CasterFly',
-  tagline: 'Tu radio online',
+  tagline: 'Radio profesional asistida por IA',
   url: (process.env.SITE_URL ?? 'https://casterfly.com').replace(/\/$/, ''),
   panelUrl: 'https://panel.casterfly.com/',
   email: 'contacto@casterfly.com',
@@ -13,6 +13,7 @@ export interface NavItem {
 
 export const NAV: NavItem[] = [
   { label: 'Inicio', href: '/' },
+  { label: 'IA', href: '/ia' },
   { label: 'Planes', href: '/planes' },
   { label: 'Características', href: '/caracteristicas' },
   { label: 'Tutoriales', href: '/tutoriales' },

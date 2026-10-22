@@ -28,10 +28,10 @@ export const PILLARS: Feature[] = [
   },
   {
     code: '03',
-    title: 'Panel admin intuitivo',
+    title: 'Panel profesional con IA',
     description:
-      'Control total sin complicaciones. Sube noticias, edita tu parrilla y administra tu contenido en tiempo real desde un panel fácil de usar.',
-    points: ['Gestión de contenidos', 'Gestión de noticias', 'Programación de contenidos'],
+      'Controlá tu emisora y dejá que la IA te asista: locutor automático, cápsulas, noticias y locuciones de hora/clima con la voz de tu radio.',
+    points: ['Locutor IA', 'Analítica profesional', 'Consola en vivo'],
     image: '/images/banners/dashboard1.png',
     icon: 'dashboard',
   },
@@ -80,11 +80,85 @@ export const HIGHLIGHTS: Feature[] = [
   },
   {
     code: '06',
-    title: 'Ranking musical en video',
+    title: 'Analítica profesional',
     description:
-      'Atrae y fideliza audiencia con un ranking musical en video, actualizado semanalmente y totalmente automatizado.',
-    points: ['Actualización semanal', 'Automático', 'Fideliza audiencia'],
+      'Medí oyentes en vivo, sesiones, dispositivos, ubicación y horas pico para tomar decisiones con datos.',
+    points: ['Oyentes en vivo', 'Sesiones y retención', 'Geografía y dispositivos'],
     icon: 'ranking',
+  },
+];
+
+export const AI_FEATURES: Feature[] = [
+  {
+    code: '01',
+    title: 'Locutor IA',
+    description:
+      'Un presentador automático que anuncia el próximo tema con la voz de tu emisora. Elegís la frecuencia, las frases y el estilo.',
+    points: ['Voz de marca', 'Cada N temas', 'AutoDJ y vivo'],
+    icon: 'mic',
+  },
+  {
+    code: '02',
+    title: 'Locuciones inteligentes',
+    description:
+      'Hora, clima y mensajes se generan solos, se mezclan con ducking y se cachean para no repetir costos.',
+    points: ['Hora y clima', 'Ducking automático', 'Cache de voz'],
+    icon: 'globe',
+  },
+  {
+    code: '03',
+    title: 'Cápsulas IA',
+    description:
+      'Escribís un guion y la IA lo convierte en una cápsula de audio con música de fondo, lista para emitir.',
+    points: ['Guion → audio', 'Música IA', 'Programable'],
+    icon: 'layers',
+  },
+  {
+    code: '04',
+    title: 'Noticias con IA',
+    description:
+      'Generá borradores de noticias para tu audiencia, revisalos y publicalos desde el mismo panel.',
+    points: ['Borradores IA', 'Categorías', 'Revisión editorial'],
+    icon: 'news',
+  },
+  {
+    code: '05',
+    title: 'AutoDJ que presenta',
+    description:
+      'La música no se detiene: el AutoDJ rota, programa y presenta con IA, sin mezclar la voz con los jingles.',
+    points: ['Rotación inteligente', 'Intros IA', 'Operación 24/7'],
+    icon: 'radio',
+  },
+  {
+    code: '06',
+    title: 'Voz profesional',
+    description:
+      'Elegí ElevenLabs o Fish Audio, voces alternativas y un fallback local para que la radio nunca se quede sin voz.',
+    points: ['ElevenLabs', 'Fish Audio', 'Fallback Piper'],
+    icon: 'mic',
+  },
+];
+
+export const AI_STEPS = [
+  {
+    code: '01',
+    title: 'Elegís la voz',
+    description: 'Seleccionás la voz de la emisora y el proveedor: ElevenLabs, Fish Audio o la voz local de respaldo.',
+  },
+  {
+    code: '02',
+    title: 'Definís el guion',
+    description: 'Escribís frases con variables como {{radio}}, {{titulo}} y {{artista}}, o dejás que la IA genere una cápsula.',
+  },
+  {
+    code: '03',
+    title: 'La IA locuta',
+    description: 'El panel genera el audio, lo cachea y lo mezcla con la música respetando los tiempos de la radio.',
+  },
+  {
+    code: '04',
+    title: 'Medís y ajustás',
+    description: 'Seguís la cuota de caracteres, la frecuencia y el resultado en la analítica del panel.',
   },
 ];
 

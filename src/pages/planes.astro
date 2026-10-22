@@ -1,6 +1,7 @@
 ---
 import SiteLayout from '../layouts/SiteLayout.astro';
 import ConsoleButton from '../components/ui/ConsoleButton.astro';
+import Icon from '../components/ui/Icon.astro';
 import Module from '../components/ui/Module.astro';
 import OnAirBadge from '../components/ui/OnAirBadge.astro';
 import HeroBackground from '../components/HeroBackground.astro';
@@ -11,13 +12,13 @@ import { SITE } from '../lib/site';
 const groups = await getPanelPlanGroups();
 ---
 
-<SiteLayout page="planes" title="Planes y precios — CasterFly" description="Elige el plan que mejor se adapte a tu radio online. Planes de streaming de audio, video y combinados.">
+<SiteLayout page="planes" title="Planes y precios — CasterFly" description="Planes profesionales con precios en USD. IA en vivo disponible en el Plan Radio Pro: locutor automático, cápsulas y locuciones.">
   <section class="band band--dark hero-band">
     <HeroBackground />
     <div class="container">
       <p class="eyebrow">[ PLANES / PRECIOS ]</p>
       <h1 class="display">Planes y precios</h1>
-      <p class="lede muted">Elige el plan que mejor se adapte a tus necesidades y comienza a transmitir hoy mismo.</p>
+      <p class="lede muted">Planes profesionales con precios en USD. La IA en vivo está incluida en el Plan Radio Pro: locutor automático, cápsulas y locuciones con voz premium.</p>
       <p class="hero-trial">
         <span class="hero-trial__tag mono">7 DÍAS GRATIS</span>
         Prueba cualquier plan sin costo y sin compromiso. Solo pagas si te quedas.
@@ -55,6 +56,13 @@ const groups = await getPanelPlanGroups();
                   </div>
                   <h3>{plan.name}</h3>
                   {plan.description && <p class="muted">{plan.description}</p>}
+
+                  {plan.aiLiveEnabled && (
+                    <div class="ai-badge">
+                      <Icon name="mic" size={12} />
+                      <span>Locutor IA{plan.aiMonthlyCharacters > 0 ? ` · ${plan.aiMonthlyCharacters.toLocaleString('es-CL')} caracteres/mes` : ''}{plan.aiMusicMinutes > 0 ? ` · ${plan.aiMusicMinutes} min de música IA` : ''}</span>
+                    </div>
+                  )}
 
                   <dl class="prices">
                     <div>
@@ -204,6 +212,21 @@ const groups = await getPanelPlanGroups();
     margin-left: 0.15rem;
     font-size: 0.75rem;
     color: var(--steel);
+  }
+
+  .ai-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
+    padding: 0.35rem 0.6rem;
+    border: 1px solid color-mix(in srgb, var(--signal) 45%, var(--line));
+    border-radius: var(--radius-sm);
+    background: color-mix(in srgb, var(--signal) 8%, transparent);
+    color: var(--signal);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
   }
 
   .features {
