@@ -1,23 +1,28 @@
 ---
 import { NAV, SITE } from '../lib/site';
+import { getLocale, localizedPath, t } from '../lib/i18n';
+import LanguageSwitcher from './LanguageSwitcher.astro';
 
-const path = Astro.url.pathname;
-const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
+const locale = getLocale(Astro.locals);
+const currentPath = Astro.locals.pathWithoutLocale ?? Astro.url.pathname;
+const tr = t(locale);
+const nav = NAV.map((item) => ({ href: localizedPath(locale, item.href), base: item.href, label: tr(item.key) }));
+const isActive = (base: string) => (base === '/' ? currentPath === '/' : currentPath.startsWith(base));
 ---
 
 <header class="site-header">
   <div class="container header-inner">
-    <a class="brand" href="/" aria-label={`${SITE.name} inicio`}>
+    <a class="brand" href={localizedPath(locale, '/')} aria-label={`${SITE.name} ${locale === 'en' ? 'home' : 'inicio'}`}>
       <img src="/images/logos/logo.png" alt={SITE.name} width="150" height="38" />
     </a>
 
-    <nav class="nav-desktop" aria-label="Navegación principal">
+    <nav class="nav-desktop" aria-label={locale === 'en' ? 'Main navigation' : 'Navegación principal'}>
       {
-        NAV.map((item) => (
+        nav.map((item) => (
           <a
             href={item.href}
-            class:list={['nav-link', { 'is-active': isActive(item.href) }]}
-            aria-current={isActive(item.href) ? 'page' : undefined}
+            class:list={['nav-link', { 'is-active': isActive(item.base) }]}
+            aria-current={isActive(item.base) ? 'page' : undefined}
           >
             {item.label}
           </a>
@@ -26,16 +31,18 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
     </nav>
 
     <div class="actions">
-      <a class="panel-link" href={SITE.panelUrl} rel="noopener external">Ingresar</a>
-      <a class="cta" href={`mailto:${SITE.email}`}>Contactar</a>
+      <LanguageSwitcher locale={locale} path={currentPath} />
+      <a class="panel-link" href={SITE.panelUrl} rel="noopener external">{tr('nav.login')}</a>
+      <a class="cta" href={`mailto:${SITE.email}`}>{tr('nav.contact')}</a>
     </div>
 
     <details class="nav-mobile">
-      <summary aria-label="Abrir menú de navegación"><span></span><span></span></summary>
-      <nav aria-label="Navegación móvil">
-        {NAV.map((item) => <a href={item.href}>{item.label}</a>)}
-        <a href={SITE.panelUrl} rel="noopener external">Ingresar al panel</a>
-        <a href={`mailto:${SITE.email}`}>Contactar</a>
+      <summary aria-label={tr('nav.menu')}><span></span><span></span></summary>
+      <nav aria-label={locale === 'en' ? 'Mobile navigation' : 'Navegación móvil'}>
+        {nav.map((item) => <a href={item.href}>{item.label}</a>)}
+        <LanguageSwitcher locale={locale} path={currentPath} />
+        <a href={SITE.panelUrl} rel="noopener external">{tr('nav.loginPanel')}</a>
+        <a href={`mailto:${SITE.email}`}>{tr('nav.contact')}</a>
       </nav>
     </details>
   </div>

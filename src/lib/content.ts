@@ -240,3 +240,12 @@ export const FAQ = [
     answer: 'Aceptamos tarjetas de crédito, débito y transferencia. La facturación es mensual, sin contratos de permanencia.',
   },
 ];
+
+export const PRO_FEATURES = [
+  { icon: 'dashboard', title: 'Analítica profesional', text: 'Oyentes, sesiones, dispositivos, ubicación y horas pico.' },
+  { icon: 'mic', title: 'Consola en vivo', text: 'Transporte, playlists, efectos y locuciones desde el navegador.' },
+  { icon: 'calendar', title: 'Parrilla y AutoDJ', text: 'Programación por franjas, rotación automática y jingles.' },
+  { icon: 'smartphone', title: 'Sitio y PWA', text: 'Sitio del cliente, reproductor y app instalable.' },
+  { icon: 'video', title: 'Radio + TV', text: 'Audio y video en la misma plataforma, con HLS y VOD2Live.' },
+  { icon: 'layers', title: 'Multi-emisora', text: 'Operá varias radios o canales desde un solo panel.' },
+]

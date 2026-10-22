@@ -4,24 +4,27 @@ import OnAirBadge from '../../components/ui/OnAirBadge.astro';
 import HeroBackground from '../../components/HeroBackground.astro';
 import { getDatabase } from '../../lib/db/client';
 import { listNews } from '../../lib/db/repositories/news';
-import { formatDate } from '../../lib/format';
+import { formatDateLocale } from '../../lib/format';
+import { getLocale, localizedPath, t } from '../../lib/i18n';
 
+const locale = getLocale(Astro.locals);
+const tr = t(locale);
 const legacySlug = Astro.url.searchParams.get('slug');
 if (legacySlug) {
-  return Astro.redirect(`/noticias/${encodeURIComponent(legacySlug)}`, 301);
+  return Astro.redirect(localizedPath(locale, `/noticias/${encodeURIComponent(legacySlug)}`), 301);
 }
 
 const db = getDatabase();
 const items = listNews(db, { activeOnly: true });
 ---
 
-<SiteLayout page="noticias" title="Noticias — CasterFly" description="Novedades, actualizaciones y consejos para tu radio online.">
+<SiteLayout page="noticias" title={tr('news.metaTitle')} description={tr('news.metaDescription')}>
   <section class="band band--dark hero-band">
     <HeroBackground />
     <div class="container">
-      <p class="eyebrow">[ NOTICIAS ]</p>
-      <h1 class="display">Últimas noticias</h1>
-      <p class="lede muted">Novedades, actualizaciones y consejos para tu radio online.</p>
+      <p class="eyebrow">{tr('news.hero.eyebrow')}</p>
+      <h1 class="display">{tr('news.hero.title')}</h1>
+      <p class="lede muted">{tr('news.hero.description')}</p>
     </div>
   </section>
 
@@ -30,14 +33,14 @@ const items = listNews(db, { activeOnly: true });
       {
         items.length === 0 ? (
           <div class="empty">
-            <OnAirBadge label="SIN SEÑAL" tone="danger" />
-            <h2>No hay noticias publicadas</h2>
+            <OnAirBadge label={tr('common.noSignal')} tone="danger" />
+            <h2>{tr('news.empty.title')}</h2>
           </div>
         ) : (
           <div class="news-list">
             {items.map((item) => (
               <article class="news-item">
-                <a class="news-media" href={`/noticias/${item.slug}`} aria-hidden="true" tabindex="-1">
+                <a class="news-media" href={localizedPath(locale, `/noticias/${item.slug}`)} aria-hidden="true" tabindex="-1">
                   {item.image ? (
                     <img src={item.image} alt={item.title} width="480" height="270" loading="lazy" />
                   ) : (
@@ -45,10 +48,10 @@ const items = listNews(db, { activeOnly: true });
                   )}
                 </a>
                 <div class="news-body">
-                  <p class="mono date">{formatDate(item.publishedAt)}</p>
-                  <h2><a href={`/noticias/${item.slug}`}>{item.title}</a></h2>
+                  <p class="mono date">{formatDateLocale(item.publishedAt, locale)}</p>
+                  <h2><a href={localizedPath(locale, `/noticias/${item.slug}`)}>{item.title}</a></h2>
                   {item.excerpt && <p class="muted">{item.excerpt}</p>}
-                  <a class="read mono" href={`/noticias/${item.slug}`}>Leer noticia</a>
+                  <a class="read mono" href={localizedPath(locale, `/noticias/${item.slug}`)}>{tr('news.read')}</a>
                 </div>
               </article>
             ))}

@@ -5,18 +5,21 @@ import HeroBackground from '../components/HeroBackground.astro';
 import Icon from '../components/ui/Icon.astro';
 import { getDatabase } from '../lib/db/client';
 import { listPortfolio } from '../lib/db/repositories/portfolio';
+import { getLocale, t } from '../lib/i18n';
 
+const locale = getLocale(Astro.locals);
+const tr = t(locale);
 const db = getDatabase();
 const clients = listPortfolio(db, { activeOnly: true });
 ---
 
-<SiteLayout page="clientes" title="Clientes — CasterFly" description="Conoce las radios y proyectos que transmiten con CasterFly.">
+<SiteLayout page="clientes" title={tr('clients.metaTitle')} description={tr('clients.metaDescription')}>
   <section class="band band--dark hero-band">
     <HeroBackground />
     <div class="container">
-      <p class="eyebrow">[ CLIENTES ]</p>
-      <h1 class="display">Proyectos que confían en CasterFly</h1>
-      <p class="lede muted">Conoce algunos de los proyectos que transmiten con nuestra plataforma.</p>
+      <p class="eyebrow">{tr('clients.hero.eyebrow')}</p>
+      <h1 class="display">{tr('clients.hero.title')}</h1>
+      <p class="lede muted">{tr('clients.hero.description')}</p>
     </div>
   </section>
 
@@ -25,8 +28,8 @@ const clients = listPortfolio(db, { activeOnly: true });
       {
         clients.length === 0 ? (
           <div class="empty">
-            <OnAirBadge label="SIN SEÑAL" tone="danger" />
-            <h2>Estamos actualizando el portafolio</h2>
+            <OnAirBadge label={tr('common.noSignal')} tone="danger" />
+            <h2>{tr('clients.empty.title')}</h2>
           </div>
         ) : (
           <div class="clients">
@@ -61,7 +64,7 @@ const clients = listPortfolio(db, { activeOnly: true });
               );
             })}
           </div>
-          <p class="note muted">Estos son ejemplos de algunos de nuestros clientes.</p>
+          <p class="note muted">{tr('clients.note')}</p>
         )
       }
     </div>

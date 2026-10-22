@@ -1,6 +1,7 @@
 import { getDatabase } from './db/client'
 import { listPlansGroupedByCategory } from './db/repositories/plans'
 import { SITE } from './site'
+import type { Locale } from './i18n'
 
 export interface PanelPlan {
   id: string
@@ -30,19 +31,81 @@ export interface PanelPlanGroup {
   plans: PanelPlan[]
 }
 
-const GROUP_META: Record<PanelPlanGroup['key'], { label: string; description: string }> = {
-  radio: {
-    label: 'Radio',
-    description: 'Streaming de audio, AutoDJ, sitio web y app PWA para tu emisora.',
+const GROUP_META: Record<Locale, Record<PanelPlanGroup['key'], { label: string; description: string }>> = {
+  es: {
+    radio: { label: 'Radio', description: 'Streaming de audio, AutoDJ, sitio web y app PWA para tu emisora.' },
+    tv: { label: 'TV', description: 'Canal de televisión online con AutoDJ de video y playlist.' },
+    both: { label: 'Radio + TV', description: 'Audio y video en una sola plataforma.' },
   },
-  tv: {
-    label: 'TV',
-    description: 'Canal de televisión online con AutoDJ de video y playlist.',
+  en: {
+    radio: { label: 'Radio', description: 'Audio streaming, AutoDJ, website and PWA app for your station.' },
+    tv: { label: 'TV', description: 'Online TV channel with video AutoDJ and playlist.' },
+    both: { label: 'Radio + TV', description: 'Audio and video in one platform.' },
   },
-  both: {
-    label: 'Radio + TV',
-    description: 'Audio y video en una sola plataforma.',
+}
+
+const PLAN_EN: Record<string, { name: string; description: string; features: string[] }> = {
+  'plan-radio-basico': {
+    name: 'Basic Radio Plan',
+    description:
+      'Everything you need to get your online radio on the air and start streaming. A simple, affordable option for stations that need an online presence, AutoDJ and the essential tools to keep the signal available.',
+    features: [
+      '10 GB AutoDJ storage',
+      'Social media links',
+      'Stream from Butt, RadioBoss or CasterFly Studio',
+      'GC message lines',
+      'Admin panel access',
+      'VAT not included · Monthly billing, no long-term contract',
+    ],
   },
+  'plan-tv-basico': {
+    name: 'Basic TV Plan',
+    description:
+      'Put your TV channel online and reach your audience from anywhere. A simple solution to stream your signal, keep content available with AutoDJ Video and give your channel its own online presence.',
+    features: [
+      '25 GB AutoDJ Video storage',
+      'Stream from OBS or AutoDJ',
+      'GC message lines',
+      'Social media links',
+      'Admin panel access',
+    ],
+  },
+  'plan-radio-pro': {
+    name: 'Radio Pro Plan',
+    description:
+      'More than an online radio: build a community around your station. The Pro plan gives you the tools to share news, podcasts, videoclips and content, stay in touch with listeners and be present on their devices.',
+    features: [
+      '30 GB AutoDJ storage',
+      'Change templates as often as you want',
+      'Stream from Butt, RadioBoss or CasterFly Studio',
+      'GC message lines',
+      'Admin panel access',
+      'News, podcast, videocast and social media management',
+      'Contact form',
+      'PWA app for Android, PC and iOS',
+    ],
+  },
+  'plan-tv-pro': {
+    name: 'TV Pro Plan',
+    description:
+      'Much more than streaming TV online: build a community around your channel. The Pro plan gives you the tools to publish content, keep your audience connected and create your own experience for viewers on any device.',
+    features: [
+      '50 GB AutoDJ Video storage',
+      'Stream from OBS or AutoDJ',
+      'GC message lines',
+      'Social media links',
+      'Admin panel access',
+      'News, podcast, videocast and social media management',
+      'Contact form',
+      'PWA app for Android, PC and iOS',
+    ],
+  },
+}
+
+export function localizePlan(plan: PanelPlan, locale: Locale): PanelPlan {
+  if (locale === 'es') return plan
+  const translation = PLAN_EN[plan.slug]
+  return translation ? { ...plan, ...translation } : plan
 }
 
 const GROUP_ORDER: PanelPlanGroup['key'][] = ['radio', 'tv', 'both']
@@ -119,14 +182,18 @@ export async function fetchPanelPlans(): Promise<PanelPlan[]> {
   }
 }
 
-export function groupPanelPlans(plans: PanelPlan[]): PanelPlanGroup[] {
+export function groupPanelPlans(plans: PanelPlan[], locale: Locale = 'es'): PanelPlanGroup[] {
   return GROUP_ORDER.map((key) => ({
     key,
-    ...GROUP_META[key],
+    ...GROUP_META[locale][key],
     plans: plans.filter((plan) => plan.services === key),
   })).filter((group) => group.plans.length > 0)
 }
 
-export async function getPanelPlanGroups(): Promise<PanelPlanGroup[]> {
-  return groupPanelPlans(await fetchPanelPlans())
+export async function getPanelPlans(locale: Locale = 'es'): Promise<PanelPlan[]> {
+  return (await fetchPanelPlans()).map((plan) => localizePlan(plan, locale))
+}
+
+export async function getPanelPlanGroups(locale: Locale = 'es'): Promise<PanelPlanGroup[]> {
+  return groupPanelPlans(await getPanelPlans(locale), locale)
 }

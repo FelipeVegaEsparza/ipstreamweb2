@@ -1,5 +1,6 @@
 ---
 import { NAV, SITE, SOCIAL_LABELS } from '../lib/site';
+import { getLocale, localizedPath, t } from '../lib/i18n';
 import Icon from './ui/Icon.astro';
 
 interface Props {
@@ -7,6 +8,9 @@ interface Props {
 }
 
 const { social = null } = Astro.props;
+const locale = getLocale(Astro.locals);
+const tr = t(locale);
+const nav = NAV.map((item) => ({ href: localizedPath(locale, item.href), label: tr(item.key) }));
 const socialEntries = social
   ? Object.entries(social).filter(([key, value]) => value && value !== '#' && key in SOCIAL_LABELS)
   : [];
@@ -18,8 +22,7 @@ const year = new Date().getFullYear();
     <div class="footer-brand">
       <img src="/images/logos/logo.png" alt={SITE.name} width="150" height="38" />
       <p class="muted">
-        Soluciones profesionales para tu radio online. Transmite, comparte y llega a más oyentes con la plataforma más
-        completa del mercado.
+        {tr('footer.description')}
       </p>
       {
         socialEntries.length > 0 && (
@@ -36,34 +39,34 @@ const year = new Date().getFullYear();
       }
     </div>
 
-    <nav class="footer-col" aria-label="Enlaces">
-      <h2 class="footer-title mono">Enlaces</h2>
+    <nav class="footer-col" aria-label={tr('footer.links')}>
+      <h2 class="footer-title mono">{tr('footer.links')}</h2>
       <ul>
-        {NAV.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+        {nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
       </ul>
     </nav>
 
-    <nav class="footer-col" aria-label="Ayuda">
-      <h2 class="footer-title mono">Ayuda</h2>
+    <nav class="footer-col" aria-label={tr('footer.help')}>
+      <h2 class="footer-title mono">{tr('footer.help')}</h2>
       <ul>
-        <li><a href="/tutoriales">Tutoriales</a></li>
+        <li><a href={localizedPath(locale, '/tutoriales')}>{tr('nav.tutorials')}</a></li>
         <li><a href={`mailto:${SITE.email}`}>{SITE.email}</a></li>
       </ul>
     </nav>
 
     <div class="footer-col">
-      <h2 class="footer-title mono">Panel</h2>
+      <h2 class="footer-title mono">{tr('footer.panel')}</h2>
       <ul>
-        <li><a href={SITE.panelUrl} rel="noopener external">Ingresar al panel</a></li>
-        <li><a href="/planes">Ver planes</a></li>
+        <li><a href={SITE.panelUrl} rel="noopener external">{tr('footer.loginPanel')}</a></li>
+        <li><a href={localizedPath(locale, '/planes')}>{tr('footer.viewPlans')}</a></li>
       </ul>
     </div>
   </div>
 
   <div class="container footer-bottom">
-    <p class="mono">© 2020-{year} {SITE.name}. Todos los derechos reservados.</p>
+    <p class="mono">© 2020-{year} {SITE.name}. {tr('footer.rights')}</p>
     <p class="mono muted made-in">
-      Hecho en Chile con <Icon name="heart" size={13} class="made-in__heart" /> para todo el mundo
+      {tr('footer.madeInBefore')} <Icon name="heart" size={13} class="made-in__heart" /> {tr('footer.madeInAfter')}
     </p>
   </div>
 </footer>

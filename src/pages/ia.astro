@@ -6,64 +6,57 @@ import Module from '../components/ui/Module.astro';
 import Icon from '../components/ui/Icon.astro';
 import OnAirBadge from '../components/ui/OnAirBadge.astro';
 import FrequencyStrip from '../components/ui/FrequencyStrip.astro';
-import { AI_FEATURES, AI_STEPS } from '../lib/content';
-import { fetchPanelPlans } from '../lib/panel-plans';
+import { getContent } from '../lib/content-i18n';
+import { getLocale, localizedPath, t } from '../lib/i18n';
+import { getPanelPlans } from '../lib/panel-plans';
 
-const plans = await fetchPanelPlans();
+const locale = getLocale(Astro.locals);
+const tr = t(locale);
+const { AI_FEATURES, AI_STEPS, PRO_FEATURES } = getContent(locale);
+const plans = await getPanelPlans(locale);
 const aiPlans = plans.filter((plan) => plan.aiLiveEnabled);
 const aiPlan = aiPlans[0] ?? null;
-const aiPlanName = aiPlan?.name ?? 'Plan Radio Pro';
+const aiPlanName = aiPlan?.name ?? tr('ia.plans.planFallback');
 const aiCharacters = aiPlan?.aiMonthlyCharacters ?? 50000;
 const aiMusicMinutes = aiPlan?.aiMusicMinutes ?? 10;
-
-const proFeatures = [
-  { icon: 'dashboard', title: 'Analítica profesional', text: 'Oyentes, sesiones, dispositivos, ubicación y horas pico.' },
-  { icon: 'mic', title: 'Consola en vivo', text: 'Transporte, playlists, efectos y locuciones desde el navegador.' },
-  { icon: 'calendar', title: 'Parrilla y AutoDJ', text: 'Programación por franjas, rotación automática y jingles.' },
-  { icon: 'smartphone', title: 'Sitio y PWA', text: 'Sitio del cliente, reproductor y app instalable.' },
-  { icon: 'video', title: 'Radio + TV', text: 'Audio y video en la misma plataforma, con HLS y VOD2Live.' },
-  { icon: 'layers', title: 'Multi-emisora', text: 'Operá varias radios o canales desde un solo panel.' },
-];
+const formattedCharacters = aiCharacters.toLocaleString(locale === 'en' ? 'en-US' : 'es-CL');
 ---
 
 <SiteLayout
   page="ia"
-  title="IA para radio — CasterFly"
-  description="Locutor IA, cápsulas, noticias y locuciones automáticas de hora y clima. El copiloto profesional para tu radio online."
+  title={tr('ia.metaTitle')}
+  description={tr('ia.metaDescription')}
 >
   <section class="band band--dark hero-band">
     <HeroBackground />
     <div class="container hero">
       <div class="hero-copy">
-        <p class="eyebrow">[ IA / CO-PILOTO PROFESIONAL ]</p>
-        <h1 class="display">Tu radio,<br />con un copiloto de IA</h1>
-        <p class="lede muted">
-          Locutor automático, cápsulas, noticias y locuciones de hora y clima. La IA se ocupa de lo
-          repetitivo; vos te quedás con la dirección de la emisora.
-        </p>
+        <p class="eyebrow">{tr('ia.hero.eyebrow')}</p>
+        <h1 class="display">{tr('ia.hero.title')}</h1>
+        <p class="lede muted">{tr('ia.hero.description')}</p>
         <div class="hero-actions">
-          <ConsoleButton href="/planes">Ver planes con IA</ConsoleButton>
-          <ConsoleButton variant="ghost" href="/caracteristicas">Conocer el panel</ConsoleButton>
+          <ConsoleButton href={localizedPath(locale, '/planes')}>{tr('ia.hero.ctaPlans')}</ConsoleButton>
+          <ConsoleButton variant="ghost" href={localizedPath(locale, '/caracteristicas')}>{tr('ia.hero.ctaFeatures')}</ConsoleButton>
         </div>
         <div class="freq-wrap"><FrequencyStrip /></div>
       </div>
 
-      <Module label="AI / CONSOLA" icon="mic" led="signal" class="ai-console">
+      <Module label={tr('ia.console.label')} icon="mic" led="signal" class="ai-console">
         <div class="console-top">
-          <OnAirBadge label="LOCUTOR IA" />
+          <OnAirBadge label={tr('ia.console.onAir')} />
           <span class="mono console-code">PRO</span>
         </div>
-        <p class="console-title">La voz de tu emisora, siempre lista.</p>
+        <p class="console-title">{tr('ia.console.title')}</p>
         <ul class="console-list">
-          <li><span class="mono">01</span> Presenta el próximo tema</li>
-          <li><span class="mono">02</span> Locuta hora y clima</li>
-          <li><span class="mono">03</span> Genera cápsulas y noticias</li>
-          <li><span class="mono">04</span> Cae a voz local si falla la nube</li>
+          <li><span class="mono">01</span> {tr('ia.console.item1')}</li>
+          <li><span class="mono">02</span> {tr('ia.console.item2')}</li>
+          <li><span class="mono">03</span> {tr('ia.console.item3')}</li>
+          <li><span class="mono">04</span> {tr('ia.console.item4')}</li>
         </ul>
         <div class="console-foot">
           <span>{aiPlanName}</span>
-          <span class="mono">{aiCharacters.toLocaleString('es-CL')} caracteres/mes</span>
-          <span class="mono">{aiMusicMinutes} min música IA</span>
+          <span class="mono">{tr('ia.console.characters', { count: formattedCharacters })}</span>
+          <span class="mono">{tr('ia.console.music', { minutes: aiMusicMinutes })}</span>
         </div>
       </Module>
     </div>
@@ -72,17 +65,14 @@ const proFeatures = [
   <section class="band band--panel">
     <div class="container">
       <div class="section-head">
-        <p class="eyebrow">[ 01 / IA EN EL AIRE ]</p>
-        <h2>Seis formas en que la IA trabaja para tu radio</h2>
-        <p class="muted">
-          No es un adorno: la IA produce audio, presenta la música y te ayuda a publicar contenido
-          con la voz y el estilo de tu emisora.
-        </p>
+        <p class="eyebrow">{tr('ia.features.eyebrow')}</p>
+        <h2>{tr('ia.features.title')}</h2>
+        <p class="muted">{tr('ia.features.description')}</p>
       </div>
       <div class="grid-3">
         {
           AI_FEATURES.map((feature) => (
-            <Module label={`IA ${feature.code}`} icon={feature.icon} led="signal">
+            <Module label={`${locale === 'en' ? 'AI' : 'IA'} ${feature.code}`} icon={feature.icon} led="signal">
               <h3>{feature.title}</h3>
               <p class="muted">{feature.description}</p>
               <ul class="points">{feature.points.map((point) => <li>{point}</li>)}</ul>
@@ -96,8 +86,8 @@ const proFeatures = [
   <section class="band band--paper">
     <div class="container">
       <div class="section-head">
-        <p class="eyebrow">[ 02 / FLUJO ]</p>
-        <h2>De la idea al aire en cuatro pasos</h2>
+        <p class="eyebrow">{tr('ia.steps.eyebrow')}</p>
+        <h2>{tr('ia.steps.title')}</h2>
       </div>
       <div class="steps">
         {
@@ -116,15 +106,12 @@ const proFeatures = [
   <section class="band band--dark">
     <div class="container pro">
       <div>
-        <p class="eyebrow">[ 03 / OPERACIÓN ]</p>
-        <h2 class="display">IA + operación profesional</h2>
-        <p class="muted">
-          La IA no reemplaza el control: lo potencia. Todo lo que pasa en la radio se gestiona desde
-          el mismo panel, con datos y trazabilidad.
-        </p>
+        <p class="eyebrow">{tr('ia.pro.eyebrow')}</p>
+        <h2 class="display">{tr('ia.pro.title')}</h2>
+        <p class="muted">{tr('ia.pro.description')}</p>
         <div class="pro-list">
           {
-            proFeatures.map((feature) => (
+            PRO_FEATURES.map((feature) => (
               <div class="pro-item">
                 <span class="pro-icon"><Icon name={feature.icon} size={18} /></span>
                 <div>
@@ -136,20 +123,17 @@ const proFeatures = [
           }
         </div>
       </div>
-      <Module label="PANEL / PROFESIONAL" icon="dashboard" led="ok" class="pro-module">
-        <p class="mono pro-kicker">[ RADIO ASISTIDA ]</p>
-        <h3 class="pro-title">La IA produce.<br />Vos dirigís.</h3>
-        <p class="muted">
-          Programá, publicá y medí sin perder el control editorial. La IA se apaga o se ajusta por
-          plan y por emisora.
-        </p>
+      <Module label={tr('ia.pro.moduleLabel')} icon="dashboard" led="ok" class="pro-module">
+        <p class="mono pro-kicker">{tr('ia.pro.kicker')}</p>
+        <h3 class="pro-title">{tr('ia.pro.moduleTitle')}</h3>
+        <p class="muted">{tr('ia.pro.moduleDescription')}</p>
         <div class="pro-tags">
-          <span>Locutor IA</span>
-          <span>Cápsulas</span>
-          <span>Noticias IA</span>
-          <span>Analítica</span>
+          <span>{tr('ia.pro.tag1')}</span>
+          <span>{tr('ia.pro.tag2')}</span>
+          <span>{tr('ia.pro.tag3')}</span>
+          <span>{tr('ia.pro.tag4')}</span>
         </div>
-        <ConsoleButton href="/planes">Elegir plan</ConsoleButton>
+        <ConsoleButton href={localizedPath(locale, '/planes')}>{tr('ia.pro.cta')}</ConsoleButton>
       </Module>
     </div>
   </section>
@@ -157,27 +141,21 @@ const proFeatures = [
   <section class="band band--panel">
     <div class="container">
       <div class="section-head">
-        <p class="eyebrow">[ 04 / PLANES ]</p>
-        <h2>La IA incluida en tu plan</h2>
-        <p class="muted">
-          La IA en vivo se habilita según el plan. Incluye presentador automático, locuciones libres
-          y clima/hora con voz premium.
-        </p>
+        <p class="eyebrow">{tr('ia.plans.eyebrow')}</p>
+        <h2>{tr('ia.plans.title')}</h2>
+        <p class="muted">{tr('ia.plans.description')}</p>
       </div>
       <div class="ai-plan">
         <div>
           <span class="mono ai-plan-code">[ IA EN VIVO ]</span>
           <h3>{aiPlanName}</h3>
-          <p class="muted">
-            Presentador automático cada N temas, locuciones libres y voz premium para clima y hora.
-            Si el proveedor falla, la radio sigue con la voz local.
-          </p>
+          <p class="muted">{tr('ia.plans.planDescription')}</p>
         </div>
         <div class="ai-plan-metrics">
-          <div><strong class="mono">{aiCharacters.toLocaleString('es-CL')}</strong><span>caracteres/mes</span></div>
-          <div><strong class="mono">{aiMusicMinutes}</strong><span>min de música IA/mes</span></div>
+          <div><strong class="mono">{formattedCharacters}</strong><span>{tr('ia.plans.characters', { count: '' }).replace('{count}', '').trim()}</span></div>
+          <div><strong class="mono">{aiMusicMinutes}</strong><span>{tr('ia.plans.music', { minutes: '' }).replace('{minutes}', '').trim()}</span></div>
         </div>
-        <ConsoleButton href="/planes">Ver todos los planes</ConsoleButton>
+        <ConsoleButton href={localizedPath(locale, '/planes')}>{tr('ia.plans.cta')}</ConsoleButton>
       </div>
     </div>
   </section>
@@ -185,11 +163,11 @@ const proFeatures = [
   <section class="band band--dark">
     <div class="container cta">
       <div>
-        <p class="eyebrow">[ SIGUIENTE PASO ]</p>
-        <h2 class="display">Poné la IA a trabajar en tu radio</h2>
-        <p class="muted">Empezá con 7 días gratis y activá el copiloto cuando quieras.</p>
+        <p class="eyebrow">{tr('ia.cta.eyebrow')}</p>
+        <h2 class="display">{tr('ia.cta.title')}</h2>
+        <p class="muted">{tr('ia.cta.description')}</p>
       </div>
-      <ConsoleButton href="/planes">Empezar ahora</ConsoleButton>
+      <ConsoleButton href={localizedPath(locale, '/planes')}>{tr('ia.cta.button')}</ConsoleButton>
     </div>
   </section>
 </SiteLayout>

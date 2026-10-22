@@ -3,8 +3,11 @@ import SiteLayout from '../../layouts/SiteLayout.astro';
 import HeroBackground from '../../components/HeroBackground.astro';
 import { getDatabase } from '../../lib/db/client';
 import { getNewsBySlug, listNews } from '../../lib/db/repositories/news';
-import { formatDate } from '../../lib/format';
+import { formatDateLocale } from '../../lib/format';
+import { getLocale, localizedPath, t } from '../../lib/i18n';
 
+const locale = getLocale(Astro.locals);
+const tr = t(locale);
 const { slug } = Astro.params;
 const db = getDatabase();
 const article = slug ? getNewsBySlug(db, slug, { activeOnly: true }) : undefined;
@@ -30,8 +33,8 @@ const jsonLd = article
 ---
 
 <SiteLayout
-  title={article ? article.seoTitle ?? `${article.title} — CasterFly` : 'Noticia no encontrada — CasterFly'}
-  description={article?.seoDescription ?? article?.excerpt ?? 'La noticia que buscas no existe o fue eliminada.'}
+  title={article ? article.seoTitle ?? `${article.title} — CasterFly` : tr('news.detail.notFoundTitle')}
+  description={article?.seoDescription ?? article?.excerpt ?? tr('news.detail.notFoundText')}
   image={article?.seoImage ?? article?.image ?? undefined}
   canonical={article ? `/noticias/${article.slug}` : undefined}
   noindex={!article}
@@ -44,9 +47,9 @@ const jsonLd = article
           <header class="band band--dark hero-band">
             <HeroBackground />
             <div class="container article-head">
-              <p class="eyebrow">[ NOTICIAS / {formatDate(article.publishedAt)} ]</p>
+              <p class="eyebrow">{tr('news.detail.eyebrow', { date: formatDateLocale(article.publishedAt, locale) })}</p>
               <h1 class="display">{article.title}</h1>
-              <p class="muted mono">Por {article.author}</p>
+              <p class="muted mono">{tr('news.detail.by')} {article.author}</p>
             </div>
           </header>
 
@@ -66,13 +69,13 @@ const jsonLd = article
             <section class="band band--panel">
               <div class="container">
                 <div class="section-head">
-                  <p class="eyebrow">[ SIGUE LEYENDO ]</p>
-                  <h2>Más noticias</h2>
+                  <p class="eyebrow">{tr('news.detail.relatedEyebrow')}</p>
+                  <h2>{tr('news.detail.relatedTitle')}</h2>
                 </div>
                 <div class="related">
                   {related.map((item) => (
-                    <a class="related-item" href={`/noticias/${item.slug}`}>
-                      <span class="mono">{formatDate(item.publishedAt)}</span>
+                    <a class="related-item" href={localizedPath(locale, `/noticias/${item.slug}`)}>
+                      <span class="mono">{formatDateLocale(item.publishedAt, locale)}</span>
                       <h3>{item.title}</h3>
                     </a>
                   ))}
@@ -86,9 +89,9 @@ const jsonLd = article
       <section class="band band--panel">
         <div class="container empty">
           <p class="eyebrow">[ ERROR 404 ]</p>
-          <h1 class="display">Noticia no encontrada</h1>
-          <p class="muted">La noticia que buscas no existe o ha sido eliminada.</p>
-          <a class="link mono" href="/noticias">Volver a noticias</a>
+          <h1 class="display">{tr('news.detail.notFoundTitle').replace(' — CasterFly', '')}</h1>
+          <p class="muted">{tr('news.detail.notFoundText')}</p>
+          <a class="link mono" href={localizedPath(locale, '/noticias')}>{tr('news.detail.back')}</a>
         </div>
       </section>
     )

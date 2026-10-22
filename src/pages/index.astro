@@ -11,12 +11,16 @@ import ContactSection from '../components/ContactSection.astro';
 import { getDatabase } from '../lib/db/client';
 import { listNews } from '../lib/db/repositories/news';
 import { listPortfolio } from '../lib/db/repositories/portfolio';
-import { PILLARS, HIGHLIGHTS, STUDIO_FEATURES, PLAYERS, AI_FEATURES } from '../lib/content';
+import { getContent } from '../lib/content-i18n';
+import { getLocale, localizedPath, t } from '../lib/i18n';
 import { formatUSD, formatDateShort } from '../lib/format';
 import { getPanelPlanGroups } from '../lib/panel-plans';
 
+const locale = getLocale(Astro.locals);
+const tr = t(locale);
+const { PILLARS, HIGHLIGHTS, STUDIO_FEATURES, PLAYERS, AI_FEATURES } = getContent(locale);
 const db = getDatabase();
-const planGroups = await getPanelPlanGroups();
+const planGroups = await getPanelPlanGroups(locale);
 const latestNews = listNews(db, { activeOnly: true, limit: 3 });
 const clients = listPortfolio(db, { activeOnly: true }).slice(0, 8);
 const carouselClients = [...clients, ...clients];
@@ -26,41 +30,38 @@ const minUsd = (group: (typeof planGroups)[number]) =>
 
 const allPlans = planGroups.flatMap((group) => group.plans);
 const aiPlan = allPlans.find((plan) => plan.aiLiveEnabled) ?? null;
-const aiPlanName = aiPlan?.name ?? 'Plan Radio Pro';
+const aiPlanName = aiPlan?.name ?? tr('ia.plans.planFallback');
 const aiCharacters = aiPlan?.aiMonthlyCharacters ?? 50000;
 const aiMusicMinutes = aiPlan?.aiMusicMinutes ?? 10;
 ---
 
-<SiteLayout page="home" title="CasterFly — Radio profesional asistida por IA" description="Sitio, PWA, consola en vivo y un copiloto de IA que locuta, informa y programa. El panel profesional para tu radio online.">
+<SiteLayout page="home" title={tr('home.metaTitle')} description={tr('home.metaDescription')}>
   <section class="hero band band--dark">
     <HeroBackground />
     <div class="container hero-grid">
       <div class="hero-copy">
-        <OnAirBadge label="RADIO + IA" />
-        <h1 class="display">Tu radio profesional,<br />con IA a bordo</h1>
-        <p class="lede">
-          Sitio, app PWA, consola en vivo y un copiloto de IA que locuta, informa y programa. Todo en
-          una sola plataforma, con la voz y el estilo de tu emisora.
-        </p>
+        <OnAirBadge label={tr('home.hero.badge')} />
+        <h1 class="display">{tr('home.hero.title')}</h1>
+        <p class="lede">{tr('home.hero.description')}</p>
         <div class="hero-actions">
-          <ConsoleButton href="/ia">Conocer la IA</ConsoleButton>
-          <ConsoleButton variant="ghost" href="/planes">Ver planes</ConsoleButton>
+          <ConsoleButton href={localizedPath(locale, '/ia')}>{tr('home.hero.ctaAI')}</ConsoleButton>
+          <ConsoleButton variant="ghost" href={localizedPath(locale, '/planes')}>{tr('home.hero.ctaPlans')}</ConsoleButton>
         </div>
       </div>
 
       <div class="hero-console">
         <Module label="AI / ON AIR" icon="mic" led="signal" class="hero-ai">
-          <p class="mono hero-ai-kicker">[ COPILOTO PROFESIONAL ]</p>
-          <h2 class="hero-ai-title">La IA se ocupa del aire.<br />Vos dirigís la radio.</h2>
+          <p class="mono hero-ai-kicker">{tr('home.hero.aiKicker')}</p>
+          <h2 class="hero-ai-title">{tr('home.hero.aiTitle')}</h2>
           <ul class="hero-ai-list">
-            <li><span class="mono">01</span> Presenta el próximo tema</li>
-            <li><span class="mono">02</span> Locuta hora y clima</li>
-            <li><span class="mono">03</span> Genera cápsulas y noticias</li>
-            <li><span class="mono">04</span> Mide y aprende de tu audiencia</li>
+            <li><span class="mono">01</span> {tr('home.hero.aiItem1')}</li>
+            <li><span class="mono">02</span> {tr('home.hero.aiItem2')}</li>
+            <li><span class="mono">03</span> {tr('home.hero.aiItem3')}</li>
+            <li><span class="mono">04</span> {tr('home.hero.aiItem4')}</li>
           </ul>
           <div class="hero-ai-foot">
             <span>{aiPlanName}</span>
-            <span class="mono">{aiCharacters.toLocaleString('es-CL')} caracteres/mes</span>
+            <span class="mono">{tr('home.hero.aiCharacters', { count: aiCharacters.toLocaleString(locale === 'en' ? 'en-US' : 'es-CL') })}</span>
           </div>
         </Module>
       </div>
@@ -70,17 +71,14 @@ const aiMusicMinutes = aiPlan?.aiMusicMinutes ?? 10;
   <section class="band band--paper" id="ia">
     <div class="container">
       <div class="section-head">
-        <p class="eyebrow">[ 01 / IA EN EL AIRE ]</p>
-        <h2>Una radio que trabaja con vos</h2>
-        <p class="muted">
-          La IA no es un extra: presenta, locuta, redacta y programa. Seis funciones pensadas para
-          que tu emisora suene profesional las 24 horas.
-        </p>
+        <p class="eyebrow">{tr('home.ai.eyebrow')}</p>
+        <h2>{tr('home.ai.title')}</h2>
+        <p class="muted">{tr('home.ai.description')}</p>
       </div>
       <div class="grid-3">
         {
           AI_FEATURES.slice(0, 6).map((feature) => (
-            <Module label={`IA ${feature.code}`} icon={feature.icon} led="signal">
+            <Module label={`${locale === 'en' ? 'AI' : 'IA'} ${feature.code}`} icon={feature.icon} led="signal">
               <h3>{feature.title}</h3>
               <p class="muted">{feature.description}</p>
               <ul class="points">{feature.points.map((point) => <li>{point}</li>)}</ul>
@@ -89,7 +87,7 @@ const aiMusicMinutes = aiPlan?.aiMusicMinutes ?? 10;
         }
       </div>
       <div class="ai-more">
-        <ConsoleButton href="/ia">Ver todo sobre la IA</ConsoleButton>
+        <ConsoleButton href={localizedPath(locale, '/ia')}>{tr('home.ai.cta')}</ConsoleButton>
       </div>
     </div>
   </section>
@@ -97,14 +95,14 @@ const aiMusicMinutes = aiPlan?.aiMusicMinutes ?? 10;
   <section class="band band--panel">
     <div class="container">
       <div class="section-head">
-        <p class="eyebrow">[ 02 / PLATAFORMA ]</p>
-        <h2>Todo lo que necesitas para tu radio online</h2>
-        <p class="muted">Una solución completa para transmitir, gestionar y hacer crecer tu audiencia.</p>
+        <p class="eyebrow">{tr('home.platform.eyebrow')}</p>
+        <h2>{tr('home.platform.title')}</h2>
+        <p class="muted">{tr('home.platform.description')}</p>
       </div>
       <div class="grid-3">
         {
           PILLARS.map((pillar) => (
-            <Module label={`Canal ${pillar.code}`} icon={pillar.icon} led="signal">
+            <Module label={`${tr('home.channel')} ${pillar.code}`} icon={pillar.icon} led="signal">
               {pillar.image && (
                 <div class="pillar-media">
                   <img src={pillar.image} alt={pillar.title} width="1440" height="771" loading="lazy" />
@@ -125,12 +123,9 @@ const aiMusicMinutes = aiPlan?.aiMusicMinutes ?? 10;
   <section class="band band--paper">
     <div class="container studio">
       <div class="studio-copy">
-        <p class="eyebrow">[ 02 / IPSTREAMSTUDIO ]</p>
-        <h2 class="display">Tu transmisor de audio profesional</h2>
-        <p class="studio-lead muted">
-          Software de transmisión desarrollado por CasterFly. Enlaza tu estudio, programa cuñas y mantén tu radio al aire
-          24/7. Incluido en todos los planes, sin costo adicional.
-        </p>
+        <p class="eyebrow">{tr('home.studio.eyebrow')}</p>
+        <h2 class="display">{tr('home.studio.title')}</h2>
+        <p class="studio-lead muted">{tr('home.studio.description')}</p>
         <ul class="channels">
           {
             STUDIO_FEATURES.map((feature) => (
@@ -155,18 +150,18 @@ const aiMusicMinutes = aiPlan?.aiMusicMinutes ?? 10;
         <div class="monitor__screen">
           <img
             src="/images/estudio/1.png"
-            alt="CasterFly Studio, software de transmisión de audio"
+            alt={tr('home.studio.alt')}
             width="1276"
             height="780"
             loading="lazy"
           />
-          <ComingSoonBadge overlay />
+          <ComingSoonBadge overlay label={tr('common.soon')} />
         </div>
         <figcaption class="monitor__foot">
           <span class="mono">24/7</span>
           <span class="mono">Auto-DJ</span>
-          <span class="mono">Hora/Temp</span>
-          <span class="mono">Grabación</span>
+          <span class="mono">{tr('home.studio.timeTemp')}</span>
+          <span class="mono">{tr('home.studio.recording')}</span>
         </figcaption>
       </figure>
     </div>
@@ -175,8 +170,8 @@ const aiMusicMinutes = aiPlan?.aiMusicMinutes ?? 10;
   <section class="band band--dark">
     <div class="container">
       <div class="section-head">
-        <p class="eyebrow">[ 03 / FUNCIONALIDADES ]</p>
-        <h2>Diseñado para hacer crecer tu audiencia</h2>
+        <p class="eyebrow">{tr('home.highlights.eyebrow')}</p>
+        <h2>{tr('home.highlights.title')}</h2>
       </div>
       <div class="grid-3">
         {
@@ -200,9 +195,9 @@ const aiMusicMinutes = aiPlan?.aiMusicMinutes ?? 10;
   <section class="band band--panel">
     <div class="container">
       <div class="section-head">
-        <p class="eyebrow">[ 04 / REPRODUCTORES ]</p>
-        <h2>Los reproductores más modernos y compatibles</h2>
-        <p class="muted">Diseñados para ofrecer la mejor experiencia de streaming en cualquier dispositivo.</p>
+        <p class="eyebrow">{tr('home.players.eyebrow')}</p>
+        <h2>{tr('home.players.title')}</h2>
+        <p class="muted">{tr('home.players.description')}</p>
       </div>
       <div class="players">
         {
@@ -217,8 +212,8 @@ const aiMusicMinutes = aiPlan?.aiMusicMinutes ?? 10;
   <section class="band band--dark">
     <div class="container">
       <div class="section-head">
-        <p class="eyebrow">[ 05 / PLANES ]</p>
-        <h2>Planes diseñados para tu éxito</h2>
+        <p class="eyebrow">{tr('home.plans.eyebrow')}</p>
+        <h2>{tr('home.plans.title')}</h2>
       </div>
       <div class="grid-3">
         {
@@ -226,20 +221,20 @@ const aiMusicMinutes = aiPlan?.aiMusicMinutes ?? 10;
             <Module label={group.label} led="ok">
               <p class="muted">{group.description}</p>
               <p class="plan-from">
-                Desde <span class="mono">{formatUSD(minUsd(group))}</span>/mes
+                {tr('home.plans.from')} <span class="mono">{formatUSD(minUsd(group))}</span>{tr('home.plans.perMonth')}
               </p>
-              <ConsoleButton variant="ghost" href="/planes">Ver {group.plans.length} planes</ConsoleButton>
+              <ConsoleButton variant="ghost" href={localizedPath(locale, '/planes')}>{tr('home.plans.viewPlans', { count: group.plans.length })}</ConsoleButton>
             </Module>
           ))
         }
       </div>
       <div class="ai-plan-note">
         <div>
-          <span class="mono">[ IA EN VIVO ]</span>
+          <span class="mono">{tr('home.aiPlan.eyebrow')}</span>
           <strong>{aiPlanName}</strong>
-          <span class="muted">Locutor IA · {aiCharacters.toLocaleString('es-CL')} caracteres/mes · {aiMusicMinutes} min de música IA</span>
+          <span class="muted">{tr('home.aiPlan.characters', { count: aiCharacters.toLocaleString(locale === 'en' ? 'en-US' : 'es-CL'), minutes: aiMusicMinutes })}</span>
         </div>
-        <ConsoleButton variant="ghost" href="/ia">Conocer la IA</ConsoleButton>
+        <ConsoleButton variant="ghost" href={localizedPath(locale, '/ia')}>{tr('home.aiPlan.cta')}</ConsoleButton>
       </div>
     </div>
   </section>
@@ -249,10 +244,10 @@ const aiMusicMinutes = aiPlan?.aiMusicMinutes ?? 10;
       <section class="band band--panel">
         <div class="container">
           <div class="section-head">
-            <p class="eyebrow">[ 06 / CLIENTES ]</p>
-            <h2>Radios que confían en CasterFly</h2>
+            <p class="eyebrow">{tr('home.clients.eyebrow')}</p>
+            <h2>{tr('home.clients.title')}</h2>
           </div>
-          <div class="clients-viewport" data-carousel tabindex="0" role="region" aria-label="Clientes de CasterFly">
+          <div class="clients-viewport" data-carousel tabindex="0" role="region" aria-label={tr('home.clients.aria')}>
             <ul class="clients-track">
               {carouselClients.map((client, index) => {
                 const isClone = index >= clients.length;
@@ -260,7 +255,7 @@ const aiMusicMinutes = aiPlan?.aiMusicMinutes ?? 10;
                   <li class="client-slide" aria-hidden={isClone ? 'true' : undefined}>
                     <a
                       class="client"
-                      href={client.projectUrl ?? '/clientes'}
+                      href={client.projectUrl ?? localizedPath(locale, '/clientes')}
                       target={client.projectUrl ? '_blank' : undefined}
                       rel="noopener"
                       tabindex={isClone ? -1 : undefined}
@@ -289,20 +284,20 @@ const aiMusicMinutes = aiPlan?.aiMusicMinutes ?? 10;
       <section class="band band--paper">
         <div class="container">
           <div class="section-head">
-            <p class="eyebrow">[ 07 / NOTICIAS ]</p>
-            <h2>Últimas noticias</h2>
+            <p class="eyebrow">{tr('home.news.eyebrow')}</p>
+            <h2>{tr('home.news.title')}</h2>
           </div>
           <div class="grid-3">
             {latestNews.map((item) => (
               <article class="news-card">
                 {item.image && <img src={item.image} alt={item.title} width="400" height="225" loading="lazy" />}
                 <p class="mono news-date">{formatDateShort(item.publishedAt)}</p>
-                <h3><a href={`/noticias/${item.slug}`}>{item.title}</a></h3>
+                <h3><a href={localizedPath(locale, `/noticias/${item.slug}`)}>{item.title}</a></h3>
                 <p class="muted">{item.excerpt}</p>
               </article>
             ))}
           </div>
-          <div class="more"><ConsoleButton variant="quiet" href="/noticias">Ver todas las noticias</ConsoleButton></div>
+          <div class="more"><ConsoleButton variant="quiet" href={localizedPath(locale, '/noticias')}>{tr('home.news.viewAll')}</ConsoleButton></div>
         </div>
       </section>
     )
@@ -313,12 +308,12 @@ const aiMusicMinutes = aiPlan?.aiMusicMinutes ?? 10;
   <section class="band band--dark cta-band">
     <div class="container cta-inner">
       <div>
-        <p class="eyebrow">[ LISTO PARA EMITIR ]</p>
-        <h2 class="display">¿Listo para profesionalizar tu radio?</h2>
+        <p class="eyebrow">{tr('home.cta.eyebrow')}</p>
+        <h2 class="display">{tr('home.cta.title')}</h2>
       </div>
       <div class="hero-actions">
-        <ConsoleButton href="/planes">Ver planes</ConsoleButton>
-        <ConsoleButton variant="ghost" href="#contacto">Contactar ventas</ConsoleButton>
+        <ConsoleButton href={localizedPath(locale, '/planes')}>{tr('home.cta.plans')}</ConsoleButton>
+        <ConsoleButton variant="ghost" href="#contacto">{tr('home.cta.contact')}</ConsoleButton>
       </div>
     </div>
   </section>

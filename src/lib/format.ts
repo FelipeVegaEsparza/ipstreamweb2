@@ -28,6 +28,17 @@ export function formatDate(value: string | Date | null | undefined): string {
   return new Intl.DateTimeFormat('es-CL', { day: '2-digit', month: 'long', year: 'numeric' }).format(date);
 }
 
+export function formatDateLocale(value: string | Date | null | undefined, locale: 'es' | 'en'): string {
+  if (!value) return ''
+  const date = value instanceof Date ? value : new Date(String(value).replace(' ', 'T'))
+  if (Number.isNaN(date.getTime())) return String(value)
+  return new Intl.DateTimeFormat(locale === 'en' ? 'en-US' : 'es-CL', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+  }).format(date)
+}
+
 export function formatDateShort(value: string | Date | null | undefined): string {
   if (!value) return '';
   const date = value instanceof Date ? value : new Date(value.replace(' ', 'T'));

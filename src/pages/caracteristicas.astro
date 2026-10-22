@@ -7,21 +7,26 @@ import FrequencyStrip from '../components/ui/FrequencyStrip.astro';
 import ComingSoonBadge from '../components/ui/ComingSoonBadge.astro';
 import PlayerCard from '../components/PlayerCard.astro';
 import HeroBackground from '../components/HeroBackground.astro';
-import { PILLARS, HIGHLIGHTS, STUDIO_FEATURES, PLAYERS, AI_FEATURES } from '../lib/content';
+import { getContent } from '../lib/content-i18n';
+import { getLocale, localizedPath, t } from '../lib/i18n';
+
+const locale = getLocale(Astro.locals);
+const tr = t(locale);
+const { PILLARS, HIGHLIGHTS, STUDIO_FEATURES, PLAYERS, AI_FEATURES } = getContent(locale);
 
 ---
 
 <SiteLayout
   page="caracteristicas"
-  title="Características — CasterFly"
-  description="Radio profesional asistida por IA: locutor automático, cápsulas, noticias, analítica, consola en vivo, app PWA y CasterFly Studio."
+  title={tr('features.metaTitle')}
+  description={tr('features.metaDescription')}
 >
   <section class="band band--dark hero-band">
     <HeroBackground />
     <div class="container">
-      <p class="eyebrow">[ PLATAFORMA / IA ]</p>
-      <h1 class="display">Una plataforma profesional, con IA en el aire</h1>
-      <p class="lede muted">Locutor automático, cápsulas, noticias, analítica y consola en vivo. Todo lo que tu radio necesita para sonar profesional.</p>
+      <p class="eyebrow">{tr('features.hero.eyebrow')}</p>
+      <h1 class="display">{tr('features.hero.title')}</h1>
+      <p class="lede muted">{tr('features.hero.description')}</p>
       <div class="freq-wrap"><FrequencyStrip /></div>
     </div>
   </section>
@@ -29,16 +34,14 @@ import { PILLARS, HIGHLIGHTS, STUDIO_FEATURES, PLAYERS, AI_FEATURES } from '../l
   <section class="band band--paper" id="ia">
     <div class="container">
       <div class="section-head">
-        <p class="eyebrow">[ 01 / IA EN EL AIRE ]</p>
-        <h2>El copiloto que produce, locuta y programa</h2>
-        <p class="muted">
-          La IA se ocupa de lo repetitivo para que tu equipo se concentre en la dirección de la emisora.
-        </p>
+        <p class="eyebrow">{tr('features.ai.eyebrow')}</p>
+        <h2>{tr('features.ai.title')}</h2>
+        <p class="muted">{tr('features.ai.description')}</p>
       </div>
       <div class="grid-3">
         {
           AI_FEATURES.map((feature) => (
-            <Module label={`IA ${feature.code}`} icon={feature.icon} led="signal">
+            <Module label={`${locale === 'en' ? 'AI' : 'IA'} ${feature.code}`} icon={feature.icon} led="signal">
               <h3>{feature.title}</h3>
               <p class="muted">{feature.description}</p>
               <ul class="points">{feature.points.map((point) => <li>{point}</li>)}</ul>
@@ -52,13 +55,13 @@ import { PILLARS, HIGHLIGHTS, STUDIO_FEATURES, PLAYERS, AI_FEATURES } from '../l
   <section class="band band--panel" id="sitio-web">
     <div class="container">
       <div class="section-head">
-        <p class="eyebrow">[ 02 / BASE ]</p>
-        <h2>La base de tu emisora</h2>
+        <p class="eyebrow">{tr('features.base.eyebrow')}</p>
+        <h2>{tr('features.base.title')}</h2>
       </div>
       <div class="grid-3">
         {
           PILLARS.map((pillar) => (
-            <Module label={`Canal ${pillar.code}`} icon={pillar.icon} led="signal">
+            <Module label={`${tr('home.channel')} ${pillar.code}`} icon={pillar.icon} led="signal">
               <h3>{pillar.title}</h3>
               <p class="muted">{pillar.description}</p>
               <ul class="points">{pillar.points.map((point) => <li>{point}</li>)}</ul>
@@ -72,8 +75,8 @@ import { PILLARS, HIGHLIGHTS, STUDIO_FEATURES, PLAYERS, AI_FEATURES } from '../l
   <section class="band band--paper">
     <div class="container">
       <div class="section-head">
-        <p class="eyebrow">[ 03 / DESTACADAS ]</p>
-        <h2>Funcionalidades premium</h2>
+        <p class="eyebrow">{tr('features.highlights.eyebrow')}</p>
+        <h2>{tr('features.highlights.title')}</h2>
       </div>
       <div class="grid-3">
         {
@@ -97,12 +100,9 @@ import { PILLARS, HIGHLIGHTS, STUDIO_FEATURES, PLAYERS, AI_FEATURES } from '../l
   <section class="band band--dark" id="casterfly-studio">
     <div class="container studio">
       <div>
-        <p class="eyebrow">[ 04 / TRANSMISOR ]</p>
+        <p class="eyebrow">{tr('features.studio.eyebrow')}</p>
         <h2 class="display">CasterFly Studio</h2>
-        <p class="muted">
-          Software de transmisión de audio desarrollado por CasterFly. Incluido en todos los planes, sin costo adicional:
-          transmisión en vivo, locución de hora y temperatura, gestión de playlist y automatización 24/7.
-        </p>
+        <p class="muted">{tr('features.studio.description')}</p>
         <div class="studio-grid">
           {
             STUDIO_FEATURES.map((feature) => (
@@ -117,7 +117,7 @@ import { PILLARS, HIGHLIGHTS, STUDIO_FEATURES, PLAYERS, AI_FEATURES } from '../l
       </div>
       <div class="studio-screen">
         <img src="/images/estudio/1.png" alt="CasterFly Studio" width="640" height="480" loading="lazy" />
-        <ComingSoonBadge overlay />
+        <ComingSoonBadge overlay label={tr('common.soon')} />
       </div>
     </div>
   </section>
@@ -125,8 +125,8 @@ import { PILLARS, HIGHLIGHTS, STUDIO_FEATURES, PLAYERS, AI_FEATURES } from '../l
   <section class="band band--panel">
     <div class="container">
       <div class="section-head">
-        <p class="eyebrow">[ 05 / REPRODUCTORES ]</p>
-        <h2>Reproductores para cada necesidad</h2>
+        <p class="eyebrow">{tr('features.players.eyebrow')}</p>
+        <h2>{tr('features.players.title')}</h2>
       </div>
       <div class="players">
         {
@@ -140,8 +140,8 @@ import { PILLARS, HIGHLIGHTS, STUDIO_FEATURES, PLAYERS, AI_FEATURES } from '../l
 
   <section class="band band--dark">
     <div class="container cta">
-      <h2 class="display">¿Listo para empezar?</h2>
-      <ConsoleButton href="/planes">Ver planes y precios</ConsoleButton>
+      <h2 class="display">{tr('features.cta.title')}</h2>
+      <ConsoleButton href={localizedPath(locale, '/planes')}>{tr('features.cta.button')}</ConsoleButton>
     </div>
   </section>
 </SiteLayout>

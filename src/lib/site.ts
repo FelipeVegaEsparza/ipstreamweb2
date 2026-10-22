@@ -1,3 +1,5 @@
+import type { TranslationKey } from './i18n'
+
 export const SITE = {
   name: 'CasterFly',
   tagline: 'Radio profesional asistida por IA',
@@ -6,19 +8,20 @@ export const SITE = {
   email: 'contacto@casterfly.com',
 } as const;
 
+
 export interface NavItem {
-  label: string;
+  key: TranslationKey;
   href: string;
 }
 
 export const NAV: NavItem[] = [
-  { label: 'Inicio', href: '/' },
-  { label: 'IA', href: '/ia' },
-  { label: 'Planes', href: '/planes' },
-  { label: 'Características', href: '/caracteristicas' },
-  { label: 'Tutoriales', href: '/tutoriales' },
-  { label: 'Noticias', href: '/noticias' },
-  { label: 'Clientes', href: '/clientes' },
+  { key: 'nav.home', href: '/' },
+  { key: 'nav.ia', href: '/ia' },
+  { key: 'nav.plans', href: '/planes' },
+  { key: 'nav.features', href: '/caracteristicas' },
+  { key: 'nav.tutorials', href: '/tutoriales' },
+  { key: 'nav.news', href: '/noticias' },
+  { key: 'nav.clients', href: '/clientes' },
 ];
 
 export const SOCIAL_LABELS: Record<string, string> = {

@@ -6,20 +6,23 @@ import HeroBackground from '../components/HeroBackground.astro';
 import { getDatabase } from '../lib/db/client';
 import { listTutorialsGroupedByCategory } from '../lib/db/repositories/tutorials';
 import { SITE } from '../lib/site';
+import { getLocale, t } from '../lib/i18n';
 
+const locale = getLocale(Astro.locals);
+const tr = t(locale);
 const db = getDatabase();
 const groups = listTutorialsGroupedByCategory(db, { activeOnly: true });
 const total = groups.reduce((sum, group) => sum + group.tutorials.length, 0);
 ---
 
-<SiteLayout page="tutoriales" title="Tutoriales — CasterFly" description="Guías paso a paso y videos para aprender a usar todas las herramientas de CasterFly.">
+<SiteLayout page="tutoriales" title={tr('tutorials.metaTitle')} description={tr('tutorials.metaDescription')}>
   <section class="band band--dark hero-band">
     <HeroBackground />
     <div class="container">
-      <p class="eyebrow">[ TUTORIALES ]</p>
-      <h1 class="display">Aprende a usar tu plataforma</h1>
+      <p class="eyebrow">{tr('tutorials.hero.eyebrow')}</p>
+      <h1 class="display">{tr('tutorials.hero.title')}</h1>
       <p class="lede muted">
-        {total > 0 ? `${total} tutoriales disponibles para sacar el máximo provecho a tu radio online.` : 'Pronto publicaremos nuevas guías.'}
+        {total > 0 ? tr('tutorials.count', { count: total }) : tr('tutorials.comingSoon')}
       </p>
     </div>
   </section>
@@ -28,12 +31,10 @@ const total = groups.reduce((sum, group) => sum + group.tutorials.length, 0);
     groups.length === 0 ? (
       <section class="band band--panel">
         <div class="container empty">
-          <OnAirBadge label="SIN SEÑAL" tone="danger" />
-          <h2>Todavía no hay tutoriales publicados</h2>
-          <p class="muted">
-            Estamos preparando las guías. Mientras tanto, escríbenos a soporte y te ayudamos directamente.
-          </p>
-          <a class="link mono" href={`mailto:${SITE.email}`}>Escríbenos</a>
+          <OnAirBadge label={tr('common.noSignal')} tone="danger" />
+          <h2>{tr('tutorials.empty.title')}</h2>
+          <p class="muted">{tr('tutorials.empty.text')}</p>
+          <a class="link mono" href={`mailto:${SITE.email}`}>{tr('tutorials.empty.cta')}</a>
         </div>
       </section>
     ) : (
@@ -51,10 +52,10 @@ const total = groups.reduce((sum, group) => sum + group.tutorials.length, 0);
                   {tutorial.description && <p class="muted">{tutorial.description}</p>}
                   <p class="meta mono">
                     {tutorial.duration && <span>{tutorial.duration}</span>}
-                    <span>{tutorial.views} vistas</span>
+                    <span>{tr('tutorials.views', { count: tutorial.views })}</span>
                   </p>
                   {tutorial.videoUrl && (
-                    <a class="link mono" href={tutorial.videoUrl} rel="noopener external" target="_blank">Ver tutorial</a>
+                    <a class="link mono" href={tutorial.videoUrl} rel="noopener external" target="_blank">{tr('tutorials.watch')}</a>
                   )}
                 </Module>
               ))}

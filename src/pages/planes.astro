@@ -8,20 +8,23 @@ import HeroBackground from '../components/HeroBackground.astro';
 import { getPanelPlanGroups } from '../lib/panel-plans';
 import { formatUSD } from '../lib/format';
 import { SITE } from '../lib/site';
+import { getLocale, t } from '../lib/i18n';
 
-const groups = await getPanelPlanGroups();
+const locale = getLocale(Astro.locals);
+const tr = t(locale);
+const groups = await getPanelPlanGroups(locale);
 ---
 
-<SiteLayout page="planes" title="Planes y precios — CasterFly" description="Planes profesionales con precios en USD. IA en vivo disponible en el Plan Radio Pro: locutor automático, cápsulas y locuciones.">
+<SiteLayout page="planes" title={tr('plans.metaTitle')} description={tr('plans.metaDescription')}>
   <section class="band band--dark hero-band">
     <HeroBackground />
     <div class="container">
-      <p class="eyebrow">[ PLANES / PRECIOS ]</p>
-      <h1 class="display">Planes y precios</h1>
-      <p class="lede muted">Planes profesionales con precios en USD. La IA en vivo está incluida en el Plan Radio Pro: locutor automático, cápsulas y locuciones con voz premium.</p>
+      <p class="eyebrow">{tr('plans.hero.eyebrow')}</p>
+      <h1 class="display">{tr('plans.hero.title')}</h1>
+      <p class="lede muted">{tr('plans.hero.description')}</p>
       <p class="hero-trial">
-        <span class="hero-trial__tag mono">7 DÍAS GRATIS</span>
-        Prueba cualquier plan sin costo y sin compromiso. Solo pagas si te quedas.
+        <span class="hero-trial__tag mono">{tr('plans.hero.trialTag')}</span>
+        {tr('plans.hero.trialText')}
       </p>
     </div>
   </section>
@@ -30,9 +33,9 @@ const groups = await getPanelPlanGroups();
     groups.length === 0 ? (
       <section class="band band--panel">
         <div class="container empty">
-          <OnAirBadge label="SIN SEÑAL" tone="danger" />
-          <h2>No hay planes disponibles</h2>
-          <p class="muted">Estamos actualizando nuestros planes. Vuelve pronto.</p>
+          <OnAirBadge label={tr('common.noSignal')} tone="danger" />
+          <h2>{tr('plans.empty.title')}</h2>
+          <p class="muted">{tr('plans.empty.text')}</p>
         </div>
       </section>
     ) : (
@@ -52,7 +55,7 @@ const groups = await getPanelPlanGroups();
                     {plan.imageUrl && (
                       <img class="plan-image" src={plan.imageUrl} alt={plan.name} loading="lazy" />
                     )}
-                    <span class="trial mono">7 DÍAS GRATIS</span>
+                    <span class="trial mono">{tr('plans.hero.trialTag')}</span>
                   </div>
                   <h3>{plan.name}</h3>
                   {plan.description && <p class="muted">{plan.description}</p>}
@@ -60,14 +63,14 @@ const groups = await getPanelPlanGroups();
                   {plan.aiLiveEnabled && (
                     <div class="ai-badge">
                       <Icon name="mic" size={12} />
-                      <span>Locutor IA{plan.aiMonthlyCharacters > 0 ? ` · ${plan.aiMonthlyCharacters.toLocaleString('es-CL')} caracteres/mes` : ''}{plan.aiMusicMinutes > 0 ? ` · ${plan.aiMusicMinutes} min de música IA` : ''}</span>
+                      <span>{tr('plans.ai', { count: plan.aiMonthlyCharacters.toLocaleString(locale === 'en' ? 'en-US' : 'es-CL'), minutes: plan.aiMusicMinutes })}</span>
                     </div>
                   )}
 
                   <dl class="prices">
                     <div>
-                      <dt class="mono">USD</dt>
-                      <dd class="mono price">{formatUSD(plan.usdAmount)}<span class="per">/{plan.interval === 'yearly' ? 'año' : 'mes'}</span></dd>
+                      <dt class="mono">{tr('plans.usd')}</dt>
+                      <dd class="mono price">{formatUSD(plan.usdAmount)}<span class="per">{plan.interval === 'yearly' ? tr('plans.perYear') : tr('plans.perMonth')}</span></dd>
                     </div>
                   </dl>
 
@@ -83,10 +86,10 @@ const groups = await getPanelPlanGroups();
                       target={/^https?:\/\//i.test(plan.contractUrl?.trim() ?? '') ? '_blank' : undefined}
                       rel={/^https?:\/\//i.test(plan.contractUrl?.trim() ?? '') ? 'noopener' : undefined}
                     >
-                      Contratar
+                      {tr('plans.contract')}
                     </ConsoleButton>
                     {plan.demoUrl && (
-                      <ConsoleButton variant="ghost" href={plan.demoUrl} target="_blank" rel="noopener">Ver ejemplo de este plan</ConsoleButton>
+                      <ConsoleButton variant="ghost" href={plan.demoUrl} target="_blank" rel="noopener">{tr('plans.demo')}</ConsoleButton>
                     )}
                   </div>
                 </Module>
@@ -101,11 +104,11 @@ const groups = await getPanelPlanGroups();
   <section class="band band--dark">
     <div class="container cta">
       <div>
-        <p class="eyebrow">[ PRUEBA ]</p>
-        <h2 class="display">¿Qué esperas para tener tu radio online?</h2>
-        <p class="muted">Transmite con todas las herramientas incluidas desde el primer día.</p>
+        <p class="eyebrow">{tr('plans.cta.eyebrow')}</p>
+        <h2 class="display">{tr('plans.cta.title')}</h2>
+        <p class="muted">{tr('plans.cta.description')}</p>
       </div>
-      <ConsoleButton href={`mailto:${SITE.email}`}>Contactar ventas</ConsoleButton>
+      <ConsoleButton href={`mailto:${SITE.email}`}>{tr('plans.cta.button')}</ConsoleButton>
     </div>
   </section>
 </SiteLayout>

@@ -1,0 +1,117 @@
+---
+import { getLocale, localizedPath, translate, type Locale } from '../lib/i18n';
+
+interface Props {
+  locale?: Locale;
+  path?: string;
+  compact?: boolean;
+}
+
+const locale = Astro.props.locale ?? getLocale(Astro.locals);
+const path = Astro.props.path ?? Astro.locals.pathWithoutLocale ?? Astro.url.pathname;
+const compact = Astro.props.compact ?? false;
+const esHref = localizedPath('es', path);
+const enHref = localizedPath('en', path);
+const switchLabel = translate(locale, 'lang.switch');
+---
+
+<div class:list={['lang', { 'lang--compact': compact }]} aria-label={switchLabel}>
+  <a
+    class:list={['lang-link', { 'is-active': locale === 'es' }]}
+    href={esHref}
+    aria-current={locale === 'es' ? 'true' : undefined}
+    aria-label={`${switchLabel}: Español`}
+    title="Español"
+  >
+    <svg class="flag" viewBox="0 0 24 16" aria-hidden="true" focusable="false">
+      <rect width="24" height="16" fill="#ffffff" />
+      <rect y="8" width="24" height="8" fill="#d52b1e" />
+      <rect width="8" height="8" fill="#0039a6" />
+      <path d="M4 1.4l0.72 1.94 2.06.12-1.63 1.25.53 2.02L4 5.58 2.32 6.73l.53-2.02L1.22 3.46l2.06-.12z" fill="#ffffff" />
+    </svg>
+    {!compact && <span class="lang-code">ES</span>}
+  </a>
+  <a
+    class:list={['lang-link', { 'is-active': locale === 'en' }]}
+    href={enHref}
+    aria-current={locale === 'en' ? 'true' : undefined}
+    aria-label={`${switchLabel}: English`}
+    title="English"
+  >
+    <svg class="flag" viewBox="0 0 24 16" aria-hidden="true" focusable="false">
+      <rect width="24" height="16" fill="#ffffff" />
+      <g fill="#b22234">
+        <rect width="24" height="1.23" />
+        <rect y="2.46" width="24" height="1.23" />
+        <rect y="4.92" width="24" height="1.23" />
+        <rect y="7.38" width="24" height="1.23" />
+        <rect y="9.84" width="24" height="1.23" />
+        <rect y="12.3" width="24" height="1.23" />
+        <rect y="14.76" width="24" height="1.23" />
+      </g>
+      <rect width="10" height="8.6" fill="#3c3b6e" />
+      <g fill="#ffffff">
+        <circle cx="2" cy="1.9" r="0.55" />
+        <circle cx="5" cy="1.9" r="0.55" />
+        <circle cx="8" cy="1.9" r="0.55" />
+        <circle cx="3.5" cy="3.7" r="0.55" />
+        <circle cx="6.5" cy="3.7" r="0.55" />
+        <circle cx="2" cy="5.5" r="0.55" />
+        <circle cx="5" cy="5.5" r="0.55" />
+        <circle cx="8" cy="5.5" r="0.55" />
+        <circle cx="3.5" cy="7.2" r="0.55" />
+        <circle cx="6.5" cy="7.2" r="0.55" />
+      </g>
+    </svg>
+    {!compact && <span class="lang-code">EN</span>}
+  </a>
+</div>
+
+<style>
+  .lang {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .lang-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0.35rem;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    opacity: 0.62;
+    transition: opacity 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+  }
+
+  .lang-link:hover,
+  .lang-link.is-active {
+    opacity: 1;
+    border-color: var(--line);
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .flag {
+    width: 18px;
+    height: 12px;
+    border-radius: 2px;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.16);
+    flex: 0 0 auto;
+  }
+
+  .lang-code {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.08em;
+    color: var(--steel);
+  }
+
+  .lang-link.is-active .lang-code {
+    color: var(--text);
+  }
+
+  .lang--compact .lang-link {
+    padding: 0.2rem;
+  }
+</style>

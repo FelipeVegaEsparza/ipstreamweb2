@@ -1,4 +1,5 @@
 import { defineMiddleware } from 'astro:middleware';
+import { getLocaleFromPath } from './lib/i18n';
 import {
   CSRF_COOKIE,
   SESSION_COOKIE,
@@ -12,6 +13,29 @@ const PUBLIC_ADMIN_PATHS = new Set(['/admin/login', '/admin/logout']);
 
 export const onRequest = defineMiddleware(async (context, next) => {
   const { pathname } = context.url;
+  const forcedLocale = context.request.headers.get('x-casterfly-locale');
+  const localeInfo = forcedLocale === 'en'
+    ? { locale: 'en' as const, path: pathname }
+    : getLocaleFromPath(pathname);
+
+  context.locals.locale = localeInfo.locale;
+  context.locals.pathWithoutLocale = localeInfo.path;
+  context.locals.originalPathname = pathname;
+
+  if (localeInfo.locale === 'en' && forcedLocale !== 'en') {
+    if (localeInfo.path.startsWith('/admin')) {
+      return context.redirect(localeInfo.path, 302);
+    }
+    const url = new URL(context.url);
+    url.pathname = localeInfo.path;
+    const headers = new Headers(context.request.headers);
+    headers.set('x-casterfly-locale', 'en');
+    return context.rewrite(new Request(url, { method: context.request.method, headers }));
+  }
+
+  if (pathname === '/es' || pathname.startsWith('/es/')) {
+    return context.redirect(localeInfo.path, 301);
+  }
 
   if (!pathname.startsWith('/admin')) {
     return next();

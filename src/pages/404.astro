@@ -4,22 +4,24 @@ import ConsoleButton from '../components/ui/ConsoleButton.astro';
 import OnAirBadge from '../components/ui/OnAirBadge.astro';
 import Waveform from '../components/ui/Waveform.astro';
 import HeroBackground from '../components/HeroBackground.astro';
+import { getLocale, localizedPath, t } from '../lib/i18n';
 
-export const prerender = true;
+const locale = getLocale(Astro.locals);
+const tr = t(locale);
 ---
 
-<SiteLayout title="Página no encontrada — CasterFly" description="La página que buscas no existe." noindex social={null}>
+<SiteLayout title={tr('notFound.metaTitle')} description={tr('notFound.metaDescription')} noindex social={null}>
   <section class="band band--dark hero-band">
     <HeroBackground />
     <div class="container notfound">
-      <OnAirBadge label="FUERA DEL AIRE" tone="danger" />
+      <OnAirBadge label={tr('notFound.badge')} tone="danger" />
       <p class="code mono">ERROR 404</p>
-      <h1 class="display">Esta frecuencia no está disponible</h1>
-      <p class="muted">La página que buscas no existe o cambió de dirección.</p>
+      <h1 class="display">{tr('notFound.title')}</h1>
+      <p class="muted">{tr('notFound.text')}</p>
       <Waveform bars={40} />
       <div class="actions">
-        <ConsoleButton href="/">Volver al inicio</ConsoleButton>
-        <ConsoleButton variant="ghost" href="/planes">Ver planes</ConsoleButton>
+        <ConsoleButton href={localizedPath(locale, '/')}>{tr('notFound.back')}</ConsoleButton>
+        <ConsoleButton variant="ghost" href={localizedPath(locale, '/planes')}>{tr('notFound.plans')}</ConsoleButton>
       </div>
     </div>
   </section>

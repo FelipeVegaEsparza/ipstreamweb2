@@ -5,6 +5,7 @@ import '@fontsource/ibm-plex-mono/500.css';
 import '@fontsource/ibm-plex-mono/600.css';
 import '../styles/global.css';
 import { DEFAULT_SEO, type SeoSettings } from '../lib/seo';
+import { getLocale, getPathWithoutLocale, localizedPath } from '../lib/i18n';
 
 interface Props {
   title: string;
@@ -27,9 +28,12 @@ const {
 } = Astro.props;
 
 const site = Astro.site ?? new URL('https://casterfly.com');
-const canonicalURL = canonical
-  ? new URL(canonical, site)
-  : new URL(`${Astro.url.pathname}${Astro.url.search}`, site);
+const locale = getLocale(Astro.locals);
+const currentPath = getPathWithoutLocale(Astro.locals, Astro.url);
+const canonicalPath = canonical ? new URL(canonical, site).pathname : currentPath;
+const canonicalURL = new URL(`${localizedPath(locale, canonicalPath)}${Astro.url.search}`, site);
+const esURL = new URL(`${localizedPath('es', canonicalPath)}${Astro.url.search}`, site);
+const enURL = new URL(`${localizedPath('en', canonicalPath)}${Astro.url.search}`, site);
 const metaDescription = description || seo.defaultDescription;
 const ogImage = new URL(image || seo.defaultImage, site);
 const robotsContent = noindex ? 'noindex,nofollow' : seo.robots;
@@ -54,7 +58,7 @@ const jsonLd = {
 ---
 
 <!doctype html>
-<html lang="es">
+<html lang={locale}>
   <head>
     <meta charset="utf-8" />
     <link rel="icon" href="/favicon.ico" sizes="any" />
@@ -68,9 +72,14 @@ const jsonLd = {
     {seo.keywords && <meta name="keywords" content={seo.keywords} />}
     <meta name="robots" content={robotsContent} />
     {!noindex && <link rel="canonical" href={canonicalURL} />}
+    {!noindex && <link rel="alternate" hreflang="es" href={esURL.toString()} />}
+    {!noindex && <link rel="alternate" hreflang="en" href={enURL.toString()} />}
+    {!noindex && <link rel="alternate" hreflang="x-default" href={esURL.toString()} />}
     {seo.googleVerification && <meta name="google-site-verification" content={seo.googleVerification} />}
 
     <meta property="og:type" content="website" />
+    <meta property="og:locale" content={locale === 'en' ? 'en_US' : 'es_CL'} />
+    <meta property="og:locale:alternate" content={locale === 'en' ? 'es_CL' : 'en_US'} />
     <meta property="og:site_name" content={seo.siteName} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={metaDescription} />

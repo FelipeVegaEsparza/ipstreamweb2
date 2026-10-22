@@ -1,63 +1,66 @@
 ---
 import { actions } from 'astro:actions';
 import { SITE } from '../lib/site';
+import { getLocale, t } from '../lib/i18n';
 
 const result = Astro.getActionResult(actions.contact);
 const success = result?.data as { ok?: boolean; message?: string } | undefined;
 const error = result?.error as { message?: string } | undefined;
+const locale = getLocale(Astro.locals);
+const tr = t(locale);
+const errorMessage = error ? (locale === 'en' ? tr('contact.error') : error.message ?? tr('contact.error')) : null;
+const successMessage = success?.ok ? tr('contact.success') : null;
 ---
 
 <section class="band band--panel contact" id="contacto">
   <div class="container contact-grid">
     <div class="contact-copy">
-      <p class="eyebrow">[ 08 / CONTACTO ]</p>
-      <h2 class="display">Hablemos de tu radio</h2>
-      <p class="muted">
-        Cuéntanos qué necesitas y te contactamos a la brevedad. También puedes escribirnos directamente:
-      </p>
+      <p class="eyebrow">{tr('contact.eyebrow')}</p>
+      <h2 class="display">{tr('contact.title')}</h2>
+      <p class="muted">{tr('contact.description')}</p>
       <ul class="contact-list">
         <li>
-          <span class="contact-list__label mono">Correo</span>
+          <span class="contact-list__label mono">{tr('contact.email')}</span>
           <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
         </li>
         <li>
-          <span class="contact-list__label mono">Panel</span>
-          <a href={SITE.panelUrl} rel="noopener external">Ingresar al panel</a>
+          <span class="contact-list__label mono">{tr('contact.panel')}</span>
+          <a href={SITE.panelUrl} rel="noopener external">{tr('contact.loginPanel')}</a>
         </li>
       </ul>
     </div>
 
     <div class="contact-panel">
-      {error && <p class="contact-msg contact-msg--error" role="alert">{error.message ?? 'No se pudo enviar la consulta'}</p>}
-      {!error && success?.ok && <p class="contact-msg" role="status">{success.message}</p>}
+      {errorMessage && <p class="contact-msg contact-msg--error" role="alert">{errorMessage}</p>}
+      {!errorMessage && successMessage && <p class="contact-msg" role="status">{successMessage}</p>}
 
       <form class="contact-form" method="POST" action={actions.contact}>
         <div class="field">
-          <label for="contact-name">Nombre</label>
+          <label for="contact-name">{tr('contact.name')}</label>
           <input class="input" id="contact-name" name="name" type="text" autocomplete="name" required minlength="2" maxlength="120" />
         </div>
         <div class="field">
-          <label for="contact-email">Correo</label>
+          <label for="contact-email">{tr('contact.emailLabel')}</label>
           <input class="input" id="contact-email" name="email" type="email" autocomplete="email" required maxlength="160" />
         </div>
         <div class="field">
-          <label for="contact-phone">Teléfono <span class="optional mono">(opcional)</span></label>
+          <label for="contact-phone">{tr('contact.phone')} <span class="optional mono">{tr('contact.optional')}</span></label>
           <input class="input" id="contact-phone" name="phone" type="tel" autocomplete="tel" maxlength="40" />
         </div>
         <div class="field">
-          <label for="contact-subject">Asunto <span class="optional mono">(opcional)</span></label>
+          <label for="contact-subject">{tr('contact.subject')} <span class="optional mono">{tr('contact.optional')}</span></label>
           <input class="input" id="contact-subject" name="subject" type="text" maxlength="160" />
         </div>
         <div class="field field--full">
-          <label for="contact-message">Mensaje</label>
+          <label for="contact-message">{tr('contact.message')}</label>
           <textarea class="input textarea" id="contact-message" name="message" required minlength="10" maxlength="5000"></textarea>
         </div>
         <div class="honeypot" aria-hidden="true">
-          <label for="contact-website">No completar</label>
+          <label for="contact-website">{tr('contact.honeypot')}</label>
           <input id="contact-website" name="website" type="text" tabindex="-1" autocomplete="off" />
         </div>
         <div class="field field--full">
-          <button class="contact-submit" type="submit">Enviar consulta</button>
+          <button class="contact-submit" type="submit">{tr('contact.submit')}</button>
         </div>
       </form>
     </div>
