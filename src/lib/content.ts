@@ -21,8 +21,8 @@ export const PILLARS: Feature[] = [
     code: '02',
     title: 'App PWA multiplataforma',
     description:
-      'Llega directo al bolsillo de tu audiencia. La App PWA funciona como una app móvil real, sin pasar por tiendas. Compatible con Android, iPhone y PC.',
-    points: ['Instalable en dispositivos móviles', 'Android, iPhone y PC', 'Funciona sin conexión'],
+      'Llega directo al bolsillo de tu audiencia. La App PWA funciona como una app móvil real, sin pasar por tiendas. Compatible con Android, iPhone y PC, con mensajería push masiva desde el panel.',
+    points: ['Instalable en dispositivos móviles', 'Android, iPhone y PC', 'Funciona sin conexión', 'Push masivo desde el panel'],
     image: '/images/banners/pwa1.png',
     icon: 'smartphone',
   },
@@ -85,6 +85,14 @@ export const HIGHLIGHTS: Feature[] = [
       'Medí oyentes en vivo, sesiones, dispositivos, ubicación y horas pico para tomar decisiones con datos.',
     points: ['Oyentes en vivo', 'Sesiones y retención', 'Geografía y dispositivos'],
     icon: 'ranking',
+  },
+  {
+    code: '07',
+    title: 'Mensajería push masiva',
+    description:
+      'Envía mensajes masivos desde el panel de control a todos los dispositivos que tengan instalada la app de tu radio. Ideal para anunciar programas en vivo, noticias, promociones y eventos especiales.',
+    points: ['Desde el panel', 'Dispositivos con la app', 'Anuncios y promociones'],
+    icon: 'bell',
   },
 ];
 

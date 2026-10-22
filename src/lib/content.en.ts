@@ -14,8 +14,8 @@ export const PILLARS: Feature[] = [
     code: '02',
     title: 'Cross-platform PWA app',
     description:
-      'Reach your audience’s pocket. The PWA works like a real mobile app without app stores. Compatible with Android, iPhone and PC.',
-    points: ['Installable on mobile', 'Android, iPhone and PC', 'Works offline'],
+      'Reach your audience’s pocket. The PWA works like a real mobile app without app stores. Compatible with Android, iPhone and PC, with mass push messaging from the panel.',
+    points: ['Installable on mobile', 'Android, iPhone and PC', 'Works offline', 'Mass push from the panel'],
     image: '/images/banners/pwa1.png',
     icon: 'smartphone',
   },
@@ -78,6 +78,14 @@ export const HIGHLIGHTS: Feature[] = [
       'Measure live listeners, sessions, devices, location and peak hours to make data-driven decisions.',
     points: ['Live listeners', 'Sessions and retention', 'Geography and devices'],
     icon: 'ranking',
+  },
+  {
+    code: '07',
+    title: 'Mass push messaging',
+    description:
+      'Send mass messages from the control panel to every device that has your radio’s app installed. Ideal for announcing live shows, news, promotions and special events.',
+    points: ['From the panel', 'Devices with the app', 'Announcements and promos'],
+    icon: 'bell',
   },
 ]
 
