@@ -30,7 +30,7 @@ export const PILLARS: Feature[] = [
     code: '03',
     title: 'Panel profesional con IA',
     description:
-      'Controlá tu emisora y dejá que la IA te asista: locutor automático, cápsulas, noticias y locuciones de hora/clima con la voz de tu radio.',
+      'Controla tu emisora y deja que la IA te asista: locutor automático, cápsulas, noticias y locuciones de hora/clima con la voz de tu radio.',
     points: ['Locutor IA', 'Analítica profesional', 'Consola en vivo'],
     image: '/images/banners/dashboard1.png',
     icon: 'dashboard',
@@ -82,7 +82,7 @@ export const HIGHLIGHTS: Feature[] = [
     code: '06',
     title: 'Analítica profesional',
     description:
-      'Medí oyentes en vivo, sesiones, dispositivos, ubicación y horas pico para tomar decisiones con datos.',
+      'Mide oyentes en vivo, sesiones, dispositivos, ubicación y horas pico para tomar decisiones con datos.',
     points: ['Oyentes en vivo', 'Sesiones y retención', 'Geografía y dispositivos'],
     icon: 'ranking',
   },
@@ -101,7 +101,7 @@ export const AI_FEATURES: Feature[] = [
     code: '01',
     title: 'Locutor IA',
     description:
-      'Un presentador automático que anuncia el próximo tema con la voz de tu emisora. Elegís la frecuencia, las frases y el estilo.',
+      'Un presentador automático que anuncia el próximo tema con la voz de tu emisora. Eliges la frecuencia, las frases y el estilo.',
     points: ['Voz de marca', 'Cada N temas', 'AutoDJ y vivo'],
     icon: 'mic',
   },
@@ -117,7 +117,7 @@ export const AI_FEATURES: Feature[] = [
     code: '03',
     title: 'Cápsulas IA',
     description:
-      'Escribís un guion y la IA lo convierte en una cápsula de audio con música de fondo, lista para emitir.',
+      'Escribes un guion y la IA lo convierte en una cápsula de audio con música de fondo, lista para emitir.',
     points: ['Guion → audio', 'Música IA', 'Programable'],
     icon: 'layers',
   },
@@ -125,7 +125,7 @@ export const AI_FEATURES: Feature[] = [
     code: '04',
     title: 'Noticias con IA',
     description:
-      'Generá borradores de noticias para tu audiencia, revisalos y publicalos desde el mismo panel.',
+      'Genera borradores de noticias para tu audiencia, revísalos y publícalos desde el mismo panel.',
     points: ['Borradores IA', 'Categorías', 'Revisión editorial'],
     icon: 'news',
   },
@@ -141,7 +141,7 @@ export const AI_FEATURES: Feature[] = [
     code: '06',
     title: 'Voz profesional',
     description:
-      'Elegí ElevenLabs o Fish Audio, voces alternativas y un fallback local para que la radio nunca se quede sin voz.',
+      'Elige ElevenLabs o Fish Audio, voces alternativas y un fallback local para que la radio nunca se quede sin voz.',
     points: ['ElevenLabs', 'Fish Audio', 'Fallback Piper'],
     icon: 'mic',
   },
@@ -150,13 +150,13 @@ export const AI_FEATURES: Feature[] = [
 export const AI_STEPS = [
   {
     code: '01',
-    title: 'Elegís la voz',
-    description: 'Seleccionás la voz de la emisora y el proveedor: ElevenLabs, Fish Audio o la voz local de respaldo.',
+    title: 'Eliges la voz',
+    description: 'Seleccionas la voz de la emisora y el proveedor: ElevenLabs, Fish Audio o la voz local de respaldo.',
   },
   {
     code: '02',
-    title: 'Definís el guion',
-    description: 'Escribís frases con variables como {{radio}}, {{titulo}} y {{artista}}, o dejás que la IA genere una cápsula.',
+    title: 'Defines el guion',
+    description: 'Escribes frases con variables como {{radio}}, {{titulo}} y {{artista}}, o dejas que la IA genere una cápsula.',
   },
   {
     code: '03',
@@ -165,8 +165,8 @@ export const AI_STEPS = [
   },
   {
     code: '04',
-    title: 'Medís y ajustás',
-    description: 'Seguís la cuota de caracteres, la frecuencia y el resultado en la analítica del panel.',
+    title: 'Mides y ajustas',
+    description: 'Sigues la cuota de caracteres, la frecuencia y el resultado en la analítica del panel.',
   },
 ];
 
@@ -174,25 +174,25 @@ export const STUDIO_FEATURES: Feature[] = [
   {
     code: '01',
     title: 'Biblioteca y cola',
-    description: 'Cargá archivos o carpetas de tu equipo, buscá, sumá a la cola y reordená. La música se reproduce desde tu navegador: no se sube al servidor.',
+    description: 'Carga archivos o carpetas de tu equipo, busca, agrega a la cola y reordena. La música se reproduce desde tu navegador: no se sube al servidor.',
     points: ['Carpeta local', 'Cola e historial', 'Sin subir archivos'],
   },
   {
     code: '02',
     title: 'Micrófono y monitoreo',
-    description: 'Hablá en vivo con ganancia, cue y medidores estéreo. La consola te pide confirmar audífonos antes de salir al aire.',
+    description: 'Habla en vivo con ganancia, cue y medidores estéreo. La consola te pide confirmar audífonos antes de salir al aire.',
     points: ['Ganancia y cue', 'VU estéreo', 'Audífonos'],
   },
   {
     code: '03',
     title: 'Efectos y locuciones',
-    description: 'Dispará efectos, jingles y cápsulas, y sumá hora, clima o locutor IA con la voz de tu emisora.',
+    description: 'Dispara efectos, jingles y cápsulas, y agrega hora, clima o locutor IA con la voz de tu emisora.',
     points: ['Botonera', 'Jingles y cápsulas', 'Hora/clima + IA'],
   },
   {
     code: '04',
     title: 'Salida al aire',
-    description: 'Elegí el slot o DJ, transmití a 192 kbps y seguí el estado de la sesión, la reconexión y los oyentes conectados.',
+    description: 'Elige el slot o DJ, transmite a 192 kbps y sigue el estado de la sesión, la reconexión y los oyentes conectados.',
     points: ['Slots y DJ', '192 kbps', 'Estado y oyentes'],
   },
 ];
@@ -255,5 +255,5 @@ export const PRO_FEATURES = [
   { icon: 'calendar', title: 'Parrilla y AutoDJ', text: 'Programación por franjas, rotación automática y jingles.' },
   { icon: 'smartphone', title: 'Sitio y PWA', text: 'Sitio del cliente, reproductor y app instalable.' },
   { icon: 'video', title: 'Radio + TV', text: 'Audio y video en la misma plataforma, con HLS y VOD2Live.' },
-  { icon: 'layers', title: 'Multi-emisora', text: 'Operá varias radios o canales desde un solo panel.' },
+  { icon: 'layers', title: 'Multi-emisora', text: 'Opera varias radios o canales desde un solo panel.' },
 ]

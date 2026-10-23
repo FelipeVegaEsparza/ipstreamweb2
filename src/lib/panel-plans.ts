@@ -104,18 +104,33 @@ const PLAN_EN: Record<string, { name: string; description: string; features: str
 
 const LEGACY_STUDIO_SOFTWARE = /IpstreamStudio|CasterFly Studio/gi
 
-function normalizeLegacyStudioCopy(features: string[], locale: Locale): string[] {
+const ES_COPY_FIXES: Array<[RegExp, string]> = [
+  [/\bPruedes\b/gi, 'Puedes'],
+  [/\bLines\b/gi, 'Líneas'],
+  [/\badministracion\b/gi, 'administración'],
+  [/\bAplicacion\b/gi, 'Aplicación'],
+  [/\bGestion\b/gi, 'Gestión'],
+  [/\bios\b/g, 'iOS'],
+]
+
+function normalizePanelCopy(features: string[], locale: Locale): string[] {
   const replacement = locale === 'en' ? 'the panel live console' : 'la consola en vivo del panel'
-  return features.map((feature) => feature.replace(LEGACY_STUDIO_SOFTWARE, replacement))
+  return features.map((feature) => {
+    let copy = feature.replace(LEGACY_STUDIO_SOFTWARE, replacement)
+    if (locale === 'es') {
+      for (const [pattern, value] of ES_COPY_FIXES) copy = copy.replace(pattern, value)
+    }
+    return copy
+  })
 }
 
 export function localizePlan(plan: PanelPlan, locale: Locale): PanelPlan {
   if (locale === 'es') {
-    return { ...plan, features: normalizeLegacyStudioCopy(plan.features, locale) }
+    return { ...plan, features: normalizePanelCopy(plan.features, locale) }
   }
   const translation = PLAN_EN[plan.slug]
   const localized = translation ? { ...plan, ...translation } : plan
-  return { ...localized, features: normalizeLegacyStudioCopy(localized.features, locale) }
+  return { ...localized, features: normalizePanelCopy(localized.features, locale) }
 }
 
 const GROUP_ORDER: PanelPlanGroup['key'][] = ['radio', 'tv', 'both']
