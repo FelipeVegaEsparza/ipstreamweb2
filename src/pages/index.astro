@@ -2,7 +2,6 @@
 import SiteLayout from '../layouts/SiteLayout.astro';
 import ConsoleButton from '../components/ui/ConsoleButton.astro';
 import OnAirBadge from '../components/ui/OnAirBadge.astro';
-import ComingSoonBadge from '../components/ui/ComingSoonBadge.astro';
 import Module from '../components/ui/Module.astro';
 import Icon from '../components/ui/Icon.astro';
 import PlayerCard from '../components/PlayerCard.astro';
@@ -149,19 +148,18 @@ const aiMusicMinutes = aiPlan?.aiMusicMinutes ?? 10;
         </span>
         <div class="monitor__screen">
           <img
-            src="/images/estudio/1.png"
+            src="/images/estudio/consola-en-vivo.png"
             alt={tr('home.studio.alt')}
-            width="1276"
-            height="780"
+            width="1600"
+            height="1300"
             loading="lazy"
           />
-          <ComingSoonBadge overlay label={tr('common.soon')} />
         </div>
         <figcaption class="monitor__foot">
-          <span class="mono">24/7</span>
-          <span class="mono">Auto-DJ</span>
-          <span class="mono">{tr('home.studio.timeTemp')}</span>
-          <span class="mono">{tr('home.studio.recording')}</span>
+          <span class="mono">{tr('home.studio.live')}</span>
+          <span class="mono">{tr('home.studio.bitrate')}</span>
+          <span class="mono">{tr('home.studio.effects')}</span>
+          <span class="mono">{tr('home.studio.aiVoice')}</span>
         </figcaption>
       </figure>
     </div>

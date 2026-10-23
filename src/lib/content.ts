@@ -173,27 +173,27 @@ export const AI_STEPS = [
 export const STUDIO_FEATURES: Feature[] = [
   {
     code: '01',
-    title: 'Transmisión en vivo',
-    description: 'Enlaza con los servidores de CasterFly y transmite tu señal en tiempo real con máxima calidad.',
-    points: ['Baja latencia', 'Alta calidad', 'Conexión estable'],
+    title: 'Biblioteca y cola',
+    description: 'Cargá archivos o carpetas de tu equipo, buscá, sumá a la cola y reordená. La música se reproduce desde tu navegador: no se sube al servidor.',
+    points: ['Carpeta local', 'Cola e historial', 'Sin subir archivos'],
   },
   {
     code: '02',
-    title: 'Locución de hora y temperatura',
-    description: 'Configurable por ciudad. Tu radio dirá automáticamente la hora y temperatura actual sin intervención manual.',
-    points: ['Por ciudad', 'Automático', 'Configurable'],
+    title: 'Micrófono y monitoreo',
+    description: 'Hablá en vivo con ganancia, cue y medidores estéreo. La consola te pide confirmar audífonos antes de salir al aire.',
+    points: ['Ganancia y cue', 'VU estéreo', 'Audífonos'],
   },
   {
     code: '03',
-    title: 'Gestión de playlist',
-    description: 'Organiza tu programación musical con listas de reproducción inteligentes y programación automatizada.',
-    points: ['Listas inteligentes', 'Programación', 'AutoDJ'],
+    title: 'Efectos y locuciones',
+    description: 'Dispará efectos, jingles y cápsulas, y sumá hora, clima o locutor IA con la voz de tu emisora.',
+    points: ['Botonera', 'Jingles y cápsulas', 'Hora/clima + IA'],
   },
   {
     code: '04',
-    title: 'Grabación y automatización',
-    description: 'Graba tu transmisión, programa cuñas automáticas y mantén tu radio funcionando 24/7 sin supervisión.',
-    points: ['Grabación', 'Cuñas', '24/7'],
+    title: 'Salida al aire',
+    description: 'Elegí el slot o DJ, transmití a 192 kbps y seguí el estado de la sesión, la reconexión y los oyentes conectados.',
+    points: ['Slots y DJ', '192 kbps', 'Estado y oyentes'],
   },
 ];
 
@@ -231,7 +231,7 @@ export const FAQ = [
   {
     question: '¿Cómo empiezo a transmitir?',
     answer:
-      'Contratas un plan, recibes tus credenciales de transmisión y enlazas CasterFly Studio o tu software preferido (ZaraRadio, RadioBoss, OBS) a nuestros servidores.',
+      'Contratas un plan, recibes tus credenciales de transmisión y transmites desde la consola en vivo del panel o desde tu software preferido (ZaraRadio, RadioBoss, OBS).',
   },
   {
     question: '¿Incluye sitio web y app?',

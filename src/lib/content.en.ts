@@ -166,27 +166,27 @@ export const AI_STEPS = [
 export const STUDIO_FEATURES: Feature[] = [
   {
     code: '01',
-    title: 'Live broadcast',
-    description: 'Connect to CasterFly servers and stream your signal in real time at maximum quality.',
-    points: ['Low latency', 'High quality', 'Stable connection'],
+    title: 'Library and queue',
+    description: 'Load files or folders from your computer, search, add to the queue and reorder. Audio plays from your browser and is never uploaded to the server.',
+    points: ['Local folder', 'Queue and history', 'No uploads'],
   },
   {
     code: '02',
-    title: 'Time and temperature voice-over',
-    description: 'Configurable by city. Your radio automatically announces the current time and temperature without manual work.',
-    points: ['By city', 'Automatic', 'Configurable'],
+    title: 'Mic and monitoring',
+    description: 'Go live with gain, cue and stereo meters. The console asks you to confirm headphones before going on air.',
+    points: ['Gain and cue', 'Stereo VU', 'Headphones'],
   },
   {
     code: '03',
-    title: 'Playlist management',
-    description: 'Organize your music programming with smart playlists and automated scheduling.',
-    points: ['Smart playlists', 'Scheduling', 'AutoDJ'],
+    title: 'Effects and voice-overs',
+    description: 'Fire sound effects, jingles and capsules, and add time, weather or an AI presenter in your station voice.',
+    points: ['Sound pad', 'Jingles and capsules', 'Time/weather + AI'],
   },
   {
     code: '04',
-    title: 'Recording and automation',
-    description: 'Record your broadcast, schedule idents and keep your radio running 24/7 without supervision.',
-    points: ['Recording', 'Idents', '24/7'],
+    title: 'On-air output',
+    description: 'Pick the slot or DJ, stream at 192 kbps and follow session status, reconnection and connected listeners.',
+    points: ['Slots and DJ', '192 kbps', 'Status and listeners'],
   },
 ]
 

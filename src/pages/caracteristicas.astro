@@ -4,7 +4,6 @@ import ConsoleButton from '../components/ui/ConsoleButton.astro';
 import Module from '../components/ui/Module.astro';
 import Icon from '../components/ui/Icon.astro';
 import FrequencyStrip from '../components/ui/FrequencyStrip.astro';
-import ComingSoonBadge from '../components/ui/ComingSoonBadge.astro';
 import PlayerCard from '../components/PlayerCard.astro';
 import HeroBackground from '../components/HeroBackground.astro';
 import { getContent } from '../lib/content-i18n';
@@ -101,7 +100,7 @@ const { PILLARS, HIGHLIGHTS, STUDIO_FEATURES, PLAYERS, AI_FEATURES } = getConten
     <div class="container studio">
       <div>
         <p class="eyebrow">{tr('features.studio.eyebrow')}</p>
-        <h2 class="display">CasterFly Studio</h2>
+        <h2 class="display">{tr('features.studio.title')}</h2>
         <p class="muted">{tr('features.studio.description')}</p>
         <div class="studio-grid">
           {
@@ -116,8 +115,13 @@ const { PILLARS, HIGHLIGHTS, STUDIO_FEATURES, PLAYERS, AI_FEATURES } = getConten
         </div>
       </div>
       <div class="studio-screen">
-        <img src="/images/estudio/1.png" alt="CasterFly Studio" width="640" height="480" loading="lazy" />
-        <ComingSoonBadge overlay label={tr('common.soon')} />
+        <img
+          src="/images/estudio/consola-en-vivo.png"
+          alt={tr('home.studio.alt')}
+          width="1600"
+          height="1300"
+          loading="lazy"
+        />
       </div>
     </div>
   </section>

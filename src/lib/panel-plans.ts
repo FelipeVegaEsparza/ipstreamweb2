@@ -52,7 +52,7 @@ const PLAN_EN: Record<string, { name: string; description: string; features: str
     features: [
       '10 GB AutoDJ storage',
       'Social media links',
-      'Stream from Butt, RadioBoss or CasterFly Studio',
+      'Stream from the panel live console, Butt or RadioBoss',
       'GC message lines',
       'Admin panel access',
       'VAT not included · Monthly billing, no long-term contract',
@@ -77,7 +77,7 @@ const PLAN_EN: Record<string, { name: string; description: string; features: str
     features: [
       '30 GB AutoDJ storage',
       'Change templates as often as you want',
-      'Stream from Butt, RadioBoss or CasterFly Studio',
+      'Stream from the panel live console, Butt or RadioBoss',
       'GC message lines',
       'Admin panel access',
       'News, podcast, videocast and social media management',
@@ -102,10 +102,20 @@ const PLAN_EN: Record<string, { name: string; description: string; features: str
   },
 }
 
+const LEGACY_STUDIO_SOFTWARE = /IpstreamStudio|CasterFly Studio/gi
+
+function normalizeLegacyStudioCopy(features: string[], locale: Locale): string[] {
+  const replacement = locale === 'en' ? 'the panel live console' : 'la consola en vivo del panel'
+  return features.map((feature) => feature.replace(LEGACY_STUDIO_SOFTWARE, replacement))
+}
+
 export function localizePlan(plan: PanelPlan, locale: Locale): PanelPlan {
-  if (locale === 'es') return plan
+  if (locale === 'es') {
+    return { ...plan, features: normalizeLegacyStudioCopy(plan.features, locale) }
+  }
   const translation = PLAN_EN[plan.slug]
-  return translation ? { ...plan, ...translation } : plan
+  const localized = translation ? { ...plan, ...translation } : plan
+  return { ...localized, features: normalizeLegacyStudioCopy(localized.features, locale) }
 }
 
 const GROUP_ORDER: PanelPlanGroup['key'][] = ['radio', 'tv', 'both']
