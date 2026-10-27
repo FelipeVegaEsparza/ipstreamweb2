@@ -6,6 +6,7 @@ export const SITE = {
   url: (process.env.SITE_URL ?? 'https://casterfly.com').replace(/\/$/, ''),
   panelUrl: 'https://panel.casterfly.com/',
   email: 'contacto@casterfly.com',
+  demoStreamUrl: 'https://audio1.ipstream.cl/radio_5715de5983df',
 } as const;
 
 

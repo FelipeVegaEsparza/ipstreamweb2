@@ -1,0 +1,377 @@
+---
+import Icon from './ui/Icon.astro';
+import OnAirBadge from './ui/OnAirBadge.astro';
+
+interface Props {
+  url: string;
+  eyebrow: string;
+  title: string;
+  description: string;
+  station: string;
+  meta: string;
+  play: string;
+  pause: string;
+  connecting: string;
+  error: string;
+  open: string;
+  live: string;
+}
+
+const {
+  url,
+  eyebrow,
+  title,
+  description,
+  station,
+  meta,
+  play,
+  pause,
+  connecting,
+  error,
+  open,
+  live,
+} = Astro.props;
+
+const bars = Array.from({ length: 42 }, (_, index) => {
+  const value =
+    Math.abs(Math.sin(index * 0.58) * 0.48) +
+    Math.abs(Math.sin(index * 0.21) * 0.32) +
+    Math.abs(Math.sin(index * 1.33) * 0.2);
+  return Math.round((0.18 + Math.min(value, 1) * 0.82) * 100) / 100;
+});
+---
+
+<div
+  class="live-demo"
+  data-live-demo
+  data-play-label={play}
+  data-pause-label={pause}
+  data-connecting-label={connecting}
+  data-error-label={error}
+>
+  <div class="live-demo__copy">
+    <p class="live-demo__eyebrow mono">{eyebrow}</p>
+    <h2>{title}</h2>
+    <p class="live-demo__desc">{description}</p>
+    <div class="live-demo__actions">
+      <button type="button" class="live-demo__play" data-live-toggle aria-pressed="false">
+        <span class="live-demo__icon live-demo__icon--play" aria-hidden="true">
+          <Icon name="play" size={16} />
+        </span>
+        <span class="live-demo__icon live-demo__icon--pause" aria-hidden="true">
+          <Icon name="pause" size={16} />
+        </span>
+        <span data-live-label>{play}</span>
+      </button>
+      <a class="live-demo__open" href={url} target="_blank" rel="noopener">
+        {open}
+        <Icon name="external" size={13} />
+      </a>
+    </div>
+    <p class="live-demo__status" data-live-status role="status" aria-live="polite"></p>
+  </div>
+
+  <div class="live-demo__console" aria-hidden="true">
+    <div class="live-demo__strip">
+      <span class="mono live-demo__console-label">AI / AUTO DJ</span>
+      <span class="mono">{meta}</span>
+    </div>
+    <div class="live-demo__screen">
+      <div class="live-demo__station">
+        <div>
+          <span class="live-demo__station-name">{station}</span>
+          <span class="live-demo__station-meta mono">{meta}</span>
+        </div>
+        <OnAirBadge label={live} />
+      </div>
+      <div class="live-demo__wave">
+        {bars.map((height, index) => (
+          <span style={`--i:${index};--h:${height}`} />
+        ))}
+      </div>
+      <div class="live-demo__readout">
+        <span class="mono">44.1 kHz · STEREO</span>
+        <span class="mono">MP3 · 128 kbps</span>
+      </div>
+    </div>
+  </div>
+
+  <audio data-live-audio preload="none" src={url}></audio>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-live-demo]').forEach((root) => {
+    const audio = root.querySelector<HTMLAudioElement>('[data-live-audio]');
+    const button = root.querySelector<HTMLButtonElement>('[data-live-toggle]');
+    const label = root.querySelector<HTMLElement>('[data-live-label]');
+    const status = root.querySelector<HTMLElement>('[data-live-status]');
+    if (!audio || !button || !label) return;
+
+    const playLabel = root.dataset.playLabel ?? 'Play';
+    const pauseLabel = root.dataset.pauseLabel ?? 'Pause';
+    const connectingLabel = root.dataset.connectingLabel ?? 'Connecting…';
+    const errorLabel = root.dataset.errorLabel ?? 'Could not connect';
+
+    const render = (playing: boolean, message = '') => {
+      root.classList.toggle('is-playing', playing);
+      button.setAttribute('aria-pressed', playing ? 'true' : 'false');
+      button.disabled = false;
+      label.textContent = playing ? pauseLabel : playLabel;
+      if (status) status.textContent = message;
+    };
+
+    button.addEventListener('click', async () => {
+      if (!audio.paused) {
+        audio.pause();
+        render(false);
+        return;
+      }
+
+      render(false, connectingLabel);
+      button.disabled = true;
+      try {
+        await audio.play();
+      } catch {
+        render(false, errorLabel);
+      } finally {
+        button.disabled = false;
+      }
+    });
+
+    audio.addEventListener('playing', () => render(true));
+    audio.addEventListener('pause', () => render(false));
+    audio.addEventListener('waiting', () => {
+      if (status) status.textContent = connectingLabel;
+    });
+    audio.addEventListener('error', () => render(false, errorLabel));
+  });
+</script>
+
+<style>
+  .live-demo {
+    position: relative;
+    display: grid;
+    gap: var(--space-7);
+    align-items: center;
+    padding: clamp(1.5rem, 3vw, 2.5rem);
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--signal) 28%, var(--line));
+    border-top: 2px solid var(--signal);
+    border-radius: var(--radius-lg);
+    background: var(--panel-2);
+    box-shadow: var(--shadow-panel);
+  }
+
+  .live-demo__copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-4);
+    min-width: 0;
+  }
+
+  .live-demo__eyebrow {
+    font-size: 0.6875rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--signal);
+  }
+
+  .live-demo h2 {
+    max-width: 20ch;
+    font-size: clamp(1.75rem, 1rem + 2.5vw, 3rem);
+  }
+
+  .live-demo__desc {
+    max-width: 36rem;
+    color: var(--steel);
+  }
+
+  .live-demo__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-4);
+    margin-top: var(--space-2);
+  }
+
+  .live-demo__play {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 3rem;
+    padding: 0 var(--space-5);
+    border: 1px solid var(--signal);
+    border-radius: var(--radius);
+    background: var(--signal);
+    color: var(--ink);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+  }
+
+  .live-demo__play:hover {
+    background: var(--signal-strong);
+    border-color: var(--signal-strong);
+  }
+
+  .live-demo__play:disabled {
+    opacity: 0.7;
+    cursor: wait;
+  }
+
+  .live-demo__icon {
+    display: inline-flex;
+  }
+
+  .live-demo__icon--pause {
+    display: none;
+  }
+
+  .live-demo.is-playing .live-demo__icon--play {
+    display: none;
+  }
+
+  .live-demo.is-playing .live-demo__icon--pause {
+    display: inline-flex;
+  }
+
+  .live-demo__open {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    color: var(--steel);
+    text-transform: uppercase;
+  }
+
+  .live-demo__open:hover {
+    color: var(--signal);
+  }
+
+  .live-demo__status {
+    min-height: 1.25rem;
+    font-size: 0.8125rem;
+    color: var(--steel);
+  }
+
+  .live-demo__console {
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--panel);
+    box-shadow: var(--shadow-panel);
+  }
+
+  .live-demo__strip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-4);
+    border-bottom: 1px solid var(--line);
+    background: var(--ink);
+    color: var(--steel);
+    font-size: 0.625rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .live-demo__console-label {
+    color: var(--signal);
+  }
+
+  .live-demo__screen {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    padding: var(--space-5);
+    background: var(--ink);
+  }
+
+  .live-demo__station {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+
+  .live-demo__station-name {
+    display: block;
+    font-family: var(--font-display);
+    font-size: clamp(1.25rem, 1rem + 1.5vw, 1.75rem);
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .live-demo__station-meta {
+    display: block;
+    margin-top: var(--space-1);
+    font-size: 0.625rem;
+    letter-spacing: 0.12em;
+    color: var(--steel);
+  }
+
+  .live-demo__wave {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: clamp(5rem, 10vw, 8rem);
+    padding-block: var(--space-2);
+  }
+
+  .live-demo__wave span {
+    flex: 1 1 0;
+    height: 100%;
+    transform: scaleY(calc(var(--h, 0.5) * 0.35));
+    transform-origin: bottom;
+    background: var(--signal-gradient-v);
+    opacity: 0.85;
+  }
+
+  .live-demo.is-playing .live-demo__wave span {
+    animation: live-wave 1.1s ease-in-out infinite;
+    animation-delay: calc(var(--i) * -0.045s);
+  }
+
+  .live-demo__readout {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-4);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--line);
+    color: var(--steel);
+    font-size: 0.625rem;
+    letter-spacing: 0.12em;
+  }
+
+  @keyframes live-wave {
+    0%,
+    100% {
+      transform: scaleY(calc(var(--h, 0.5) * 0.35));
+    }
+    50% {
+      transform: scaleY(var(--h, 0.5));
+    }
+  }
+
+  @media (min-width: 980px) {
+    .live-demo {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .live-demo.is-playing .live-demo__wave span {
+      animation: none;
+      transform: scaleY(var(--h, 0.5));
+    }
+  }
+</style>

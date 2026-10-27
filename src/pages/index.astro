@@ -8,6 +8,8 @@ import PlayerCard from '../components/PlayerCard.astro';
 import HeroBackground from '../components/HeroBackground.astro';
 import ContactSection from '../components/ContactSection.astro';
 import ChatDemo from '../components/ChatDemo.astro';
+import LiveAudioDemo from '../components/LiveAudioDemo.astro';
+import { SITE } from '../lib/site';
 import { getDatabase } from '../lib/db/client';
 import { listNews } from '../lib/db/repositories/news';
 import { listPortfolio } from '../lib/db/repositories/portfolio';
@@ -71,6 +73,25 @@ const aiMusicMinutes = aiPlan?.aiMusicMinutes ?? 10;
           </div>
         </Module>
       </div>
+    </div>
+  </section>
+
+  <section class="band band--panel live-demo-band" aria-label={tr('home.demo.aria')}>
+    <div class="container">
+      <LiveAudioDemo
+        url={SITE.demoStreamUrl}
+        eyebrow={tr('home.demo.eyebrow')}
+        title={tr('home.demo.title')}
+        description={tr('home.demo.description')}
+        station={tr('home.demo.station')}
+        meta={tr('home.demo.meta')}
+        play={tr('home.demo.play')}
+        pause={tr('home.demo.pause')}
+        connecting={tr('home.demo.connecting')}
+        error={tr('home.demo.error')}
+        open={tr('home.demo.open')}
+        live={tr('home.demo.live')}
+      />
     </div>
   </section>
 
@@ -400,6 +421,11 @@ const aiMusicMinutes = aiPlan?.aiMusicMinutes ?? 10;
     position: relative;
     overflow: hidden;
     padding-block: var(--space-9) var(--space-8);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .live-demo-band {
+    padding-block: var(--space-7);
     border-bottom: 1px solid var(--line);
   }
 
