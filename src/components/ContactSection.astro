@@ -1,13 +1,16 @@
 ---
 import { actions } from 'astro:actions';
 import { SITE } from '../lib/site';
-import { getLocale, t } from '../lib/i18n';
+import { getLocale } from '../lib/i18n';
+import { createSiteTranslator, getSiteContent } from '../lib/panel-content';
 
 const result = Astro.getActionResult(actions.contact);
 const success = result?.data as { ok?: boolean; message?: string } | undefined;
 const error = result?.error as { message?: string } | undefined;
 const locale = getLocale(Astro.locals);
-const tr = t(locale);
+const content = await getSiteContent(locale);
+const tr = createSiteTranslator(locale, content.i18n);
+const email = content.global.contactEmail || SITE.email;
 const errorMessage = error ? (locale === 'en' ? tr('contact.error') : error.message ?? tr('contact.error')) : null;
 const successMessage = success?.ok ? tr('contact.success') : null;
 ---
@@ -21,7 +24,7 @@ const successMessage = success?.ok ? tr('contact.success') : null;
       <ul class="contact-list">
         <li>
           <span class="contact-list__label mono">{tr('contact.email')}</span>
-          <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
+          <a href={`mailto:${email}`}>{email}</a>
         </li>
         <li>
           <span class="contact-list__label mono">{tr('contact.panel')}</span>

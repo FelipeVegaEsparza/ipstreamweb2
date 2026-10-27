@@ -4,6 +4,7 @@ import { getLocale, localizedPath, t } from '../lib/i18n';
 import LanguageSwitcher from './LanguageSwitcher.astro';
 
 const locale = getLocale(Astro.locals);
+const { email = SITE.email } = Astro.props as { email?: string };
 const currentPath = Astro.locals.pathWithoutLocale ?? Astro.url.pathname;
 const tr = t(locale);
 const nav = NAV.map((item) => ({ href: localizedPath(locale, item.href), base: item.href, label: tr(item.key) }));
@@ -33,7 +34,7 @@ const isActive = (base: string) => (base === '/' ? currentPath === '/' : current
     <div class="actions">
       <LanguageSwitcher locale={locale} path={currentPath} />
       <a class="panel-link" href={SITE.panelUrl} rel="noopener external">{tr('nav.login')}</a>
-      <a class="cta" href={`mailto:${SITE.email}`}>{tr('nav.contact')}</a>
+      <a class="cta" href={`mailto:${email}`}>{tr('nav.contact')}</a>
     </div>
 
     <details class="nav-mobile">
@@ -42,7 +43,7 @@ const isActive = (base: string) => (base === '/' ? currentPath === '/' : current
         {nav.map((item) => <a href={item.href}>{item.label}</a>)}
         <LanguageSwitcher locale={locale} path={currentPath} />
         <a href={SITE.panelUrl} rel="noopener external">{tr('nav.loginPanel')}</a>
-        <a href={`mailto:${SITE.email}`}>{tr('nav.contact')}</a>
+        <a href={`mailto:${email}`}>{tr('nav.contact')}</a>
       </nav>
     </details>
   </div>

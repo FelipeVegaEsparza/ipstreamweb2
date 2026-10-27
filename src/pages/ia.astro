@@ -6,13 +6,14 @@ import Module from '../components/ui/Module.astro';
 import Icon from '../components/ui/Icon.astro';
 import OnAirBadge from '../components/ui/OnAirBadge.astro';
 import FrequencyStrip from '../components/ui/FrequencyStrip.astro';
-import { getContent } from '../lib/content-i18n';
-import { getLocale, localizedPath, t } from '../lib/i18n';
+import { createSiteTranslator, getSiteContent } from '../lib/panel-content';
+import { getLocale, localizedPath } from '../lib/i18n';
 import { getPanelPlans } from '../lib/panel-plans';
 
 const locale = getLocale(Astro.locals);
-const tr = t(locale);
-const { AI_FEATURES, AI_STEPS, PRO_FEATURES } = getContent(locale);
+const content = await getSiteContent(locale);
+const tr = createSiteTranslator(locale, content.i18n);
+const { aiFeatures: AI_FEATURES, aiSteps: AI_STEPS, proFeatures: PRO_FEATURES } = content.collections;
 const plans = await getPanelPlans(locale);
 const aiPlans = plans.filter((plan) => plan.aiLiveEnabled);
 const aiPlan = aiPlans[0] ?? null;

@@ -5,9 +5,10 @@ import Icon from './ui/Icon.astro';
 
 interface Props {
   social?: Record<string, string> | null;
+  email?: string;
 }
 
-const { social = null } = Astro.props;
+const { social = null, email = SITE.email } = Astro.props;
 const locale = getLocale(Astro.locals);
 const tr = t(locale);
 const nav = NAV.map((item) => ({ href: localizedPath(locale, item.href), label: tr(item.key) }));
@@ -50,7 +51,7 @@ const year = new Date().getFullYear();
       <h2 class="footer-title mono">{tr('footer.help')}</h2>
       <ul>
         <li><a href={localizedPath(locale, '/tutoriales')}>{tr('nav.tutorials')}</a></li>
-        <li><a href={`mailto:${SITE.email}`}>{SITE.email}</a></li>
+        <li><a href={`mailto:${email}`}>{email}</a></li>
       </ul>
     </nav>
 

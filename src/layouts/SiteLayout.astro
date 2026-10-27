@@ -5,6 +5,9 @@ import Footer from '../components/Footer.astro';
 import { getDatabase } from '../lib/db/client';
 import { getSocialLinks } from '../lib/db/repositories/settings';
 import { DEFAULT_SEO, getPageSeo, getSeoSettings, type SeoSettings } from '../lib/seo';
+import { getLocale } from '../lib/i18n';
+import { SITE } from '../lib/site';
+import { getSiteContent } from '../lib/panel-content';
 
 interface Props {
   title: string;
@@ -18,15 +21,33 @@ interface Props {
 }
 
 const { social: socialProp, seo: seoProp, page, ...rest } = Astro.props;
+const locale = getLocale(Astro.locals);
+const panelContent = await getSiteContent(locale);
 const useDatabase = socialProp === undefined;
 const db = useDatabase ? getDatabase() : null;
-const social = db ? getSocialLinks(db) : socialProp;
+const panelSocial = Object.fromEntries(
+  Object.entries(panelContent.global.social).filter(([, value]) => Boolean(value))
+);
+const social = { ...(db ? getSocialLinks(db) : socialProp ?? {}), ...panelSocial };
 const seo = seoProp ?? (db ? getSeoSettings(db) : DEFAULT_SEO);
 const pageSeo = db && page ? getPageSeo(db, page) : null;
 const sameAs = social ? Object.values(social).filter((value) => value && value !== '#') : [];
 
-const title = pageSeo?.title || rest.title;
-const description = pageSeo?.description || rest.description;
+const PAGE_SEO_KEYS: Record<string, { title: string; description: string }> = {
+  home: { title: 'home.metaTitle', description: 'home.metaDescription' },
+  ia: { title: 'ia.metaTitle', description: 'ia.metaDescription' },
+  caracteristicas: { title: 'features.metaTitle', description: 'features.metaDescription' },
+  planes: { title: 'plans.metaTitle', description: 'plans.metaDescription' },
+  clientes: { title: 'clients.metaTitle', description: 'clients.metaDescription' },
+  tutoriales: { title: 'tutorials.metaTitle', description: 'tutorials.metaDescription' },
+  noticias: { title: 'news.metaTitle', description: 'news.metaDescription' },
+};
+const pageSeoKeys = page ? PAGE_SEO_KEYS[page] : null;
+const panelTitle = pageSeoKeys ? panelContent.i18n[pageSeoKeys.title] : undefined;
+const panelDescription = pageSeoKeys ? panelContent.i18n[pageSeoKeys.description] : undefined;
+
+const title = panelTitle || pageSeo?.title || rest.title;
+const description = panelDescription || pageSeo?.description || rest.description;
 const image = pageSeo?.image || rest.image;
 const noindex = rest.noindex || pageSeo?.noindex || false;
 ---
@@ -41,9 +62,9 @@ const noindex = rest.noindex || pageSeo?.noindex || false;
   sameAs={sameAs}
 >
   <a class="skip-link" href="#contenido">Saltar al contenido</a>
-  <Header />
+  <Header email={panelContent.global.contactEmail || SITE.email} />
   <main id="contenido"><slot /></main>
-  <Footer social={social} />
+  <Footer social={social} email={panelContent.global.contactEmail || SITE.email} />
 </BaseLayout>
 
 <style>

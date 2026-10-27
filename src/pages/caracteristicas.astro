@@ -7,13 +7,14 @@ import FrequencyStrip from '../components/ui/FrequencyStrip.astro';
 import PlayerCard from '../components/PlayerCard.astro';
 import HeroBackground from '../components/HeroBackground.astro';
 import ChatDemo from '../components/ChatDemo.astro';
-import { getContent } from '../lib/content-i18n';
-import { getLocale, localizedPath, t } from '../lib/i18n';
+import { createSiteTranslator, getSiteContent } from '../lib/panel-content';
+import { getLocale, localizedPath } from '../lib/i18n';
 
 const locale = getLocale(Astro.locals);
-const tr = t(locale);
-const { PILLARS, HIGHLIGHTS, STUDIO_FEATURES, PLAYERS, AI_FEATURES } = getContent(locale);
-const chatFeature = HIGHLIGHTS.find((item) => item.icon === 'chat')!;
+const content = await getSiteContent(locale);
+const tr = createSiteTranslator(locale, content.i18n);
+const { pillars: PILLARS, highlights: HIGHLIGHTS, studioFeatures: STUDIO_FEATURES, players: PLAYERS, aiFeatures: AI_FEATURES } = content.collections;
+const chatFeature = HIGHLIGHTS.find((item) => item.icon === 'chat') ?? { points: [] };
 const chatMessages = [
   { name: 'María', body: tr('home.chat.demoMsg1'), time: '21:04' },
   { name: tr('home.chat.demoStaff'), body: tr('home.chat.demoMsg2'), time: '21:05', staff: true },
@@ -137,8 +138,8 @@ const chatMessages = [
     <div class="container chat-feature">
       <div class="chat-feature__copy">
         <p class="eyebrow">{tr('home.chat.eyebrow')}</p>
-        <h2 class="display">{chatFeature.title}</h2>
-        <p class="muted">{chatFeature.description}</p>
+        <h2 class="display">{tr('home.chat.title')}</h2>
+        <p class="muted">{tr('home.chat.description')}</p>
         <ul class="points">
           {chatFeature.points.map((point) => <li>{point}</li>)}
         </ul>
