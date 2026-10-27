@@ -190,6 +190,8 @@ export const es = {
   'plans.hero.trialText': 'Prueba cualquier plan sin costo y sin compromiso. Solo pagas si te quedas.',
   'plans.empty.title': 'No hay planes disponibles',
   'plans.empty.text': 'Estamos actualizando nuestros planes. Vuelve pronto.',
+  'plans.badge.ai': 'Con IA',
+  'plans.badge.noAi': 'Sin IA',
   'plans.measure.eyebrow': '[ CÓMO SE MIDE LA IA ]',
   'plans.measure.title': 'La locución se mide en caracteres',
   'plans.measure.description': 'No usamos “créditos” internos: cada plan muestra los caracteres mensuales incluidos. Así sabes exactamente cuánto audio puedes generar.',

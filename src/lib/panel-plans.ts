@@ -100,6 +100,73 @@ const PLAN_EN: Record<string, { name: string; description: string; features: str
       'PWA app for Android, PC and iOS',
     ],
   },
+  'plan-radio-economico': {
+    name: 'Economy Radio Plan',
+    description:
+      'An affordable online radio plan without AI. Ideal for stations that need streaming, AutoDJ and a professional presence without voice automation.',
+    features: [
+      '10 GB AutoDJ storage',
+      'Stream from the panel live console, Butt or RadioBoss',
+      'GC message lines',
+      'Social media links',
+      'Admin panel access',
+      'No AI: no automatic presenter, voice-overs or AI music',
+      'VAT not included · Monthly billing, no long-term contract',
+    ],
+  },
+  'plan-radio-ia-250k': {
+    name: 'Radio AI 250k Plan',
+    description:
+      'Professional radio with AI for stations that want an automatic presenter and voice-overs without overspending. Includes 250,000 AI characters per month.',
+    features: [
+      '30 GB AutoDJ storage',
+      '250,000 AI characters/month',
+      '10 minutes of AI music/month',
+      'Custom website templates',
+      'Stream from the panel live console, Butt or RadioBoss',
+      'GC message lines',
+      'News, podcast, videocast and social media management',
+      'Contact form',
+      'PWA app for Android, iPhone and PC',
+      'VAT not included · Monthly billing, no long-term contract',
+    ],
+  },
+  'plan-radio-ia-500k': {
+    name: 'Radio AI 500k Plan',
+    description:
+      'More AI capacity for stations with frequent presenter, time/weather and live voice-overs. Includes 500,000 AI characters per month.',
+    features: [
+      '60 GB AutoDJ storage',
+      '500,000 AI characters/month',
+      '20 minutes of AI music/month',
+      'Up to 6 simultaneous DJs',
+      'Custom website templates',
+      'Stream from the panel live console, Butt or RadioBoss',
+      'GC message lines',
+      'News, podcast, videocast and social media management',
+      'Contact form',
+      'PWA app for Android, iPhone and PC',
+      'VAT not included · Monthly billing, no long-term contract',
+    ],
+  },
+  'plan-radio-ia-1m': {
+    name: 'Radio AI 1M Plan',
+    description:
+      'Maximum AI capacity for 24/7 stations with automatic presenter and continuous voice-over. Includes 1,000,000 AI characters per month.',
+    features: [
+      '120 GB AutoDJ storage',
+      '1,000,000 AI characters/month',
+      '40 minutes of AI music/month',
+      'Up to 10 simultaneous DJs',
+      'Custom website templates',
+      'Stream from the panel live console, Butt or RadioBoss',
+      'GC message lines',
+      'News, podcast, videocast and social media management',
+      'Contact form',
+      'PWA app for Android, iPhone and PC',
+      'VAT not included · Monthly billing, no long-term contract',
+    ],
+  },
 }
 
 const LEGACY_STUDIO_SOFTWARE = /IpstreamStudio|CasterFly Studio/gi

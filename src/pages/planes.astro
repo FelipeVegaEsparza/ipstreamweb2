@@ -57,7 +57,14 @@ const groups = await getPanelPlanGroups(locale);
                     )}
                     <span class="trial mono">{tr('plans.hero.trialTag')}</span>
                   </div>
-                  <h3>{plan.name}</h3>
+                  <div class="plan-title">
+                    <h3>{plan.name}</h3>
+                    {plan.aiLiveEnabled ? (
+                      <span class="plan-badge plan-badge--ai">{tr('plans.badge.ai')}</span>
+                    ) : (
+                      <span class="plan-badge plan-badge--no-ai">{tr('plans.badge.noAi')}</span>
+                    )}
+                  </div>
                   {plan.description && <p class="muted">{plan.description}</p>}
 
                   {plan.aiLiveEnabled && (
@@ -345,6 +352,39 @@ const groups = await getPanelPlanGroups(locale);
     padding-top: var(--space-4);
     border-top: 1px solid var(--line);
     font-size: 0.875rem;
+    color: var(--steel);
+  }
+
+  .plan-title {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-bottom: var(--space-2);
+  }
+
+  .plan-title h3 {
+    margin: 0;
+  }
+
+  .plan-badge {
+    padding: 0.2rem 0.5rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .plan-badge--ai {
+    color: var(--signal);
+    border-color: color-mix(in srgb, var(--signal) 45%, var(--line));
+    background: color-mix(in srgb, var(--signal) 8%, transparent);
+  }
+
+  .plan-badge--no-ai {
     color: var(--steel);
   }
 </style>

@@ -191,6 +191,8 @@ export const en: Record<keyof typeof es, string> = {
   'plans.hero.trialText': 'Try any plan free and with no commitment. You only pay if you stay.',
   'plans.empty.title': 'No plans available',
   'plans.empty.text': 'We are updating our plans. Check back soon.',
+  'plans.badge.ai': 'With AI',
+  'plans.badge.noAi': 'No AI',
   'plans.measure.eyebrow': '[ HOW AI IS MEASURED ]',
   'plans.measure.title': 'Voice-over is measured in characters',
   'plans.measure.description': 'We do not use internal “credits”: every plan shows the monthly characters included, so you know exactly how much audio you can generate.',
