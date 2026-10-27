@@ -8,6 +8,7 @@ import PlayerCard from '../components/PlayerCard.astro';
 import HeroBackground from '../components/HeroBackground.astro';
 import ContactSection from '../components/ContactSection.astro';
 import ChatDemo from '../components/ChatDemo.astro';
+import VoiceSamples from '../components/VoiceSamples.astro';
 import LiveAudioDemo from '../components/LiveAudioDemo.astro';
 import { getDatabase } from '../lib/db/client';
 import { listNews } from '../lib/db/repositories/news';
@@ -118,6 +119,16 @@ const aiMusicMinutes = aiPlan?.aiMusicMinutes ?? 10;
       </div>
     </div>
   </section>
+
+  <VoiceSamples
+    eyebrow={tr('home.voice.eyebrow')}
+    title={tr('home.voice.title')}
+    description={tr('home.voice.description')}
+    samples={content.collections.voiceSamples}
+    playLabel={tr('home.voice.play')}
+    pauseLabel={tr('home.voice.pause')}
+    ariaLabel={tr('home.voice.aria')}
+  />
 
   <section class="band band--panel">
     <div class="container">

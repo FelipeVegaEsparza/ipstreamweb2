@@ -28,6 +28,16 @@ export interface SiteProFeature {
   text: string
 }
 
+export interface SiteVoiceSample {
+  title: string
+  description: string
+  voice: string
+  tag: string
+  duration: string
+  audioUrl: string
+  transcript?: string
+}
+
 export interface SiteStep {
   code: string
   title: string
@@ -44,6 +54,7 @@ export interface SiteCollections {
   supportCards: SiteSupportCard[]
   faq: SiteFaq[]
   proFeatures: SiteProFeature[]
+  voiceSamples: SiteVoiceSample[]
 }
 
 export interface SiteGlobal {
@@ -177,6 +188,7 @@ interface StaticContentExports {
   SUPPORT_CARDS?: SiteSupportCard[]
   FAQ?: SiteFaq[]
   PRO_FEATURES?: SiteProFeature[]
+  VOICE_SAMPLES?: SiteVoiceSample[]
 }
 
 function staticCollections(locale: Locale): SiteCollections {
@@ -192,6 +204,7 @@ function staticCollections(locale: Locale): SiteCollections {
     supportCards: localized.SUPPORT_CARDS ?? es.SUPPORT_CARDS ?? [],
     faq: localized.FAQ ?? es.FAQ ?? [],
     proFeatures: localized.PRO_FEATURES ?? es.PRO_FEATURES ?? [],
+    voiceSamples: localized.VOICE_SAMPLES ?? es.VOICE_SAMPLES ?? [],
   }
 }
 

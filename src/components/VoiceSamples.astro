@@ -1,0 +1,283 @@
+---
+import Icon from './ui/Icon.astro'
+
+interface VoiceSample {
+  title: string
+  description: string
+  voice: string
+  tag: string
+  duration: string
+  audioUrl: string
+  transcript?: string
+}
+
+interface Props {
+  eyebrow: string
+  title: string
+  description: string
+  samples: VoiceSample[]
+  playLabel: string
+  pauseLabel: string
+  ariaLabel: string
+}
+
+const { eyebrow, title, description, samples, playLabel, pauseLabel, ariaLabel } = Astro.props
+---
+
+<section class="band band--panel voice-section" aria-label={ariaLabel}>
+  <div class="container">
+    <div class="section-head">
+      <p class="eyebrow">{eyebrow}</p>
+      <h2>{title}</h2>
+      <p class="muted">{description}</p>
+    </div>
+
+    <div
+      class="voice-grid"
+      data-voice-samples
+      data-play-label={playLabel}
+      data-pause-label={pauseLabel}
+    >
+      {
+        samples.map((sample) => (
+          <article class="voice-card" data-voice-sample data-duration={sample.duration}>
+            <div class="voice-card__strip">
+              <span class="mono voice-card__tag">{sample.tag}</span>
+              <span class="mono voice-card__voice">{sample.voice}</span>
+            </div>
+            <div class="voice-card__body">
+              <h3>{sample.title}</h3>
+              <p class="muted">{sample.description}</p>
+
+              <div class="voice-player">
+                <button
+                  type="button"
+                  class="voice-player__toggle"
+                  data-voice-toggle
+                  data-title={sample.title}
+                  aria-label={`${playLabel}: ${sample.title}`}
+                  aria-pressed="false"
+                >
+                  <span class="voice-player__icon voice-player__icon--play" aria-hidden="true">
+                    <Icon name="play" size={15} />
+                  </span>
+                  <span class="voice-player__icon voice-player__icon--pause" aria-hidden="true">
+                    <Icon name="pause" size={15} />
+                  </span>
+                </button>
+                <div class="voice-player__bar" aria-hidden="true">
+                  <span data-voice-progress></span>
+                </div>
+                <span class="mono voice-player__time" data-voice-time>{sample.duration}</span>
+              </div>
+
+              {sample.transcript && <p class="voice-card__transcript">“{sample.transcript}”</p>}
+            </div>
+            <audio data-voice-audio preload="none" src={sample.audioUrl}></audio>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<script>
+  function formatTime(seconds: number): string {
+    if (!Number.isFinite(seconds) || seconds < 0) return '00:00'
+    const total = Math.round(seconds)
+    const minutes = Math.floor(total / 60)
+    const rest = total % 60
+    return `${String(minutes).padStart(2, '0')}:${String(rest).padStart(2, '0')}`
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-voice-samples]').forEach((root) => {
+    const playLabel = root.dataset.playLabel ?? 'Play'
+    const pauseLabel = root.dataset.pauseLabel ?? 'Pause'
+    const cards = Array.from(root.querySelectorAll<HTMLElement>('[data-voice-sample]'))
+    const players = cards
+      .map((card) => {
+        const audio = card.querySelector<HTMLAudioElement>('[data-voice-audio]')
+        const button = card.querySelector<HTMLButtonElement>('[data-voice-toggle]')
+        const progress = card.querySelector<HTMLElement>('[data-voice-progress]')
+        const time = card.querySelector<HTMLElement>('[data-voice-time]')
+        if (!audio || !button || !progress || !time) return null
+        return { card, audio, button, progress, time, title: button.dataset.title ?? '' }
+      })
+      .filter((player): player is NonNullable<typeof player> => Boolean(player))
+
+    const render = (player: (typeof players)[number], playing: boolean) => {
+      player.card.classList.toggle('is-playing', playing)
+      player.button.setAttribute('aria-pressed', playing ? 'true' : 'false')
+      player.button.setAttribute(
+        'aria-label',
+        `${playing ? pauseLabel : playLabel}: ${player.title}`
+      )
+    }
+
+    for (const player of players) {
+      player.button.addEventListener('click', async () => {
+        if (!player.audio.paused) {
+          player.audio.pause()
+          return
+        }
+        for (const other of players) {
+          if (other !== player) other.audio.pause()
+        }
+        try {
+          await player.audio.play()
+        } catch {
+          render(player, false)
+        }
+      })
+
+      player.audio.addEventListener('play', () => render(player, true))
+      player.audio.addEventListener('pause', () => render(player, false))
+      player.audio.addEventListener('ended', () => {
+        render(player, false)
+        player.progress.style.width = '0%'
+        player.time.textContent = player.card.dataset.duration ?? player.time.textContent
+      })
+      player.audio.addEventListener('timeupdate', () => {
+        const duration = Number.isFinite(player.audio.duration)
+          ? player.audio.duration
+          : 0
+        const ratio = duration > 0 ? player.audio.currentTime / duration : 0
+        player.progress.style.width = `${Math.min(100, Math.max(0, ratio * 100))}%`
+        player.time.textContent = `${formatTime(player.audio.currentTime)} / ${formatTime(duration)}`
+      })
+    }
+  })
+</script>
+
+<style>
+  .voice-grid {
+    display: grid;
+    gap: var(--space-5);
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  }
+
+  .voice-card {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--panel-2);
+    box-shadow: var(--shadow-panel);
+  }
+
+  .voice-card__strip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-4);
+    border-bottom: 1px solid var(--line);
+    background: var(--ink);
+  }
+
+  .voice-card__tag {
+    font-size: 0.625rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--signal);
+  }
+
+  .voice-card__voice {
+    font-size: 0.625rem;
+    letter-spacing: 0.12em;
+    color: var(--steel);
+  }
+
+  .voice-card__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-5);
+  }
+
+  .voice-card__body h3 {
+    font-size: 1.125rem;
+  }
+
+  .voice-player {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-top: auto;
+    padding-top: var(--space-4);
+  }
+
+  .voice-player__toggle {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid var(--signal);
+    border-radius: 50%;
+    background: var(--signal);
+    color: var(--ink);
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+  }
+
+  .voice-player__toggle:hover {
+    background: var(--signal-strong);
+    border-color: var(--signal-strong);
+  }
+
+  .voice-player__icon {
+    display: inline-flex;
+  }
+
+  .voice-player__icon--pause {
+    display: none;
+  }
+
+  .voice-card.is-playing .voice-player__icon--play {
+    display: none;
+  }
+
+  .voice-card.is-playing .voice-player__icon--pause {
+    display: inline-flex;
+  }
+
+  .voice-player__bar {
+    flex: 1;
+    height: 0.25rem;
+    overflow: hidden;
+    border-radius: 999px;
+    background: var(--line);
+  }
+
+  .voice-player__bar span {
+    display: block;
+    width: 0;
+    height: 100%;
+    background: var(--signal);
+    transition: width 0.12s linear;
+  }
+
+  .voice-player__time {
+    flex: 0 0 auto;
+    font-size: 0.625rem;
+    color: var(--steel);
+  }
+
+  .voice-card__transcript {
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--line);
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    color: var(--steel);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .voice-player__bar span,
+    .voice-player__toggle {
+      transition: none;
+    }
+  }
+</style>

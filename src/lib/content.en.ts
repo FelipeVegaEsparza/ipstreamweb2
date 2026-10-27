@@ -1,4 +1,43 @@
-import type { Feature } from './content'
+import type { Feature, VoiceSample } from './content'
+
+export const VOICE_SAMPLES: VoiceSample[] = [
+  {
+    title: 'Track intro',
+    description: 'The assistant announces the next track in your station’s voice.',
+    voice: 'Pedro',
+    tag: 'AUTO DJ',
+    duration: '00:08',
+    audioUrl: '/audio/locuciones/presentacion.mp3',
+    transcript: 'Estás escuchando CasterFly Radio. Ahora suena La distancia, de Los Bunkers. Mantente en sintonía.',
+  },
+  {
+    title: 'Time and weather',
+    description: 'Your city’s time and weather, voiced automatically.',
+    voice: 'Fernanda',
+    tag: 'LIVE',
+    duration: '00:09',
+    audioUrl: '/audio/locuciones/hora-clima.mp3',
+    transcript: 'Son las ocho de la mañana con quince minutos. En Santiago, la temperatura actual es de dieciocho grados Celsius, con cielo despejado.',
+  },
+  {
+    title: 'Info capsule',
+    description: 'A script becomes a ready-to-air capsule.',
+    voice: 'George',
+    tag: 'AI CAPSULE',
+    duration: '00:11',
+    audioUrl: '/audio/locuciones/capsula.mp3',
+    transcript: 'CasterFly informa. La inteligencia artificial ya es parte de la radio: presenta la música, locuta la hora y el clima, y genera cápsulas con la voz de tu emisora.',
+  },
+  {
+    title: 'Station ID',
+    description: 'Your station’s voice in just a few seconds.',
+    voice: 'Isabela',
+    tag: 'BRAND',
+    duration: '00:05',
+    audioUrl: '/audio/locuciones/identificacion.mp3',
+    transcript: 'CasterFly. La radio que suena profesional, con la voz de tu emisora.',
+  },
+];
 
 export const PILLARS: Feature[] = [
   {
