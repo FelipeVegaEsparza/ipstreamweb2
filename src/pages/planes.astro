@@ -101,6 +101,34 @@ const groups = await getPanelPlanGroups(locale);
     )
   }
 
+  <section class="band band--panel" id="como-se-mide">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">{tr('plans.measure.eyebrow')}</p>
+        <h2>{tr('plans.measure.title')}</h2>
+        <p class="muted">{tr('plans.measure.description')}</p>
+      </div>
+      <div class="measure-grid">
+        <article class="measure-card">
+          <span class="mono measure-code">01</span>
+          <h3>{tr('plans.measure.card1Title')}</h3>
+          <p class="muted">{tr('plans.measure.card1Text')}</p>
+        </article>
+        <article class="measure-card">
+          <span class="mono measure-code">02</span>
+          <h3>{tr('plans.measure.card2Title')}</h3>
+          <p class="muted">{tr('plans.measure.card2Text')}</p>
+        </article>
+        <article class="measure-card">
+          <span class="mono measure-code">03</span>
+          <h3>{tr('plans.measure.card3Title')}</h3>
+          <p class="muted">{tr('plans.measure.card3Text')}</p>
+        </article>
+      </div>
+      <p class="measure-note">{tr('plans.measure.note')}</p>
+    </div>
+  </section>
+
   <section class="band band--dark">
     <div class="container cta">
       <div>
@@ -285,5 +313,38 @@ const groups = await getPanelPlanGroups(locale);
     align-items: center;
     justify-content: space-between;
     gap: var(--space-6);
+  }
+
+  .measure-grid {
+    display: grid;
+    gap: var(--space-5);
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+
+  .measure-card {
+    padding-top: var(--space-5);
+    border-top: 2px solid var(--line);
+  }
+
+  .measure-code {
+    display: block;
+    margin-bottom: var(--space-3);
+    font-size: 0.6875rem;
+    letter-spacing: 0.2em;
+    color: var(--signal);
+  }
+
+  .measure-card h3 {
+    margin-bottom: var(--space-2);
+    font-size: 1.125rem;
+  }
+
+  .measure-note {
+    max-width: 52rem;
+    margin-top: var(--space-6);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--line);
+    font-size: 0.875rem;
+    color: var(--steel);
   }
 </style>
