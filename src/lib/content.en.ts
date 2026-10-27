@@ -87,6 +87,14 @@ export const HIGHLIGHTS: Feature[] = [
     points: ['From the panel', 'Devices with the app', 'Announcements and promos'],
     icon: 'bell',
   },
+  {
+    code: '08',
+    title: 'Live chat with your audience',
+    description:
+      'Open a live chat on your radio’s website and PWA. Listeners join with their name and email, staff replies from the panel, and new messages are announced instantly.',
+    points: ['Website and PWA', 'Moderation and bans', 'New message alerts'],
+    icon: 'chat',
+  },
 ]
 
 export const AI_FEATURES: Feature[] = [

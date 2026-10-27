@@ -94,6 +94,14 @@ export const HIGHLIGHTS: Feature[] = [
     points: ['Desde el panel', 'Dispositivos con la app', 'Anuncios y promociones'],
     icon: 'bell',
   },
+  {
+    code: '08',
+    title: 'Chat en vivo con tu audiencia',
+    description:
+      'Abre un chat en vivo en el sitio de tu radio y en la app PWA. Tus oyentes conversan identificados con nombre y correo, el staff responde desde el panel y los mensajes nuevos se avisan al instante.',
+    points: ['Sitio y app PWA', 'Moderación y bans', 'Aviso de mensajes nuevos'],
+    icon: 'chat',
+  },
 ];
 
 export const AI_FEATURES: Feature[] = [

@@ -6,12 +6,19 @@ import Icon from '../components/ui/Icon.astro';
 import FrequencyStrip from '../components/ui/FrequencyStrip.astro';
 import PlayerCard from '../components/PlayerCard.astro';
 import HeroBackground from '../components/HeroBackground.astro';
+import ChatDemo from '../components/ChatDemo.astro';
 import { getContent } from '../lib/content-i18n';
 import { getLocale, localizedPath, t } from '../lib/i18n';
 
 const locale = getLocale(Astro.locals);
 const tr = t(locale);
 const { PILLARS, HIGHLIGHTS, STUDIO_FEATURES, PLAYERS, AI_FEATURES } = getContent(locale);
+const chatFeature = HIGHLIGHTS.find((item) => item.icon === 'chat')!;
+const chatMessages = [
+  { name: 'María', body: tr('home.chat.demoMsg1'), time: '21:04' },
+  { name: tr('home.chat.demoStaff'), body: tr('home.chat.demoMsg2'), time: '21:05', staff: true },
+  { name: 'Diego', body: tr('home.chat.demoMsg3'), time: '21:06' },
+];
 
 ---
 
@@ -123,6 +130,27 @@ const { PILLARS, HIGHLIGHTS, STUDIO_FEATURES, PLAYERS, AI_FEATURES } = getConten
           loading="lazy"
         />
       </div>
+    </div>
+  </section>
+
+  <section class="band band--dark" id="chat-en-vivo">
+    <div class="container chat-feature">
+      <div class="chat-feature__copy">
+        <p class="eyebrow">{tr('home.chat.eyebrow')}</p>
+        <h2 class="display">{chatFeature.title}</h2>
+        <p class="muted">{chatFeature.description}</p>
+        <ul class="points">
+          {chatFeature.points.map((point) => <li>{point}</li>)}
+        </ul>
+      </div>
+      <ChatDemo
+        ariaLabel={tr('home.chat.demoAria')}
+        title={tr('home.chat.demoTitle')}
+        online={tr('home.chat.demoOnline')}
+        messages={chatMessages}
+        input={tr('home.chat.demoInput')}
+        send={tr('home.chat.demoSend')}
+      />
     </div>
   </section>
 
@@ -238,6 +266,33 @@ const { PILLARS, HIGHLIGHTS, STUDIO_FEATURES, PLAYERS, AI_FEATURES } = getConten
 
   .studio h2 {
     margin-block: var(--space-3);
+  }
+
+  .chat-feature {
+    display: grid;
+    gap: var(--space-8);
+    align-items: center;
+  }
+
+  .chat-feature__copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-4);
+  }
+
+  .chat-feature__copy h2 {
+    font-size: clamp(1.75rem, 1rem + 3vw, 3rem);
+  }
+
+  .chat-feature__copy .muted {
+    max-width: 36rem;
+  }
+
+  @media (min-width: 980px) {
+    .chat-feature {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
   }
 
   .studio-grid {

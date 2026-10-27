@@ -1,0 +1,182 @@
+---
+import Icon from './ui/Icon.astro';
+
+interface DemoMessage {
+  name: string;
+  body: string;
+  time: string;
+  staff?: boolean;
+}
+
+interface Props {
+  ariaLabel: string;
+  title: string;
+  online: string;
+  messages: DemoMessage[];
+  input: string;
+  send: string;
+}
+
+const { ariaLabel, title, online, messages, input, send } = Astro.props;
+---
+
+<figure class="chat-demo" aria-label={ariaLabel}>
+  <div class="chat-demo__strip">
+    <span class="chat-demo__title mono">
+      <span class="chat-demo__dot" aria-hidden="true"></span>
+      {title}
+    </span>
+    <span class="chat-demo__online mono">{online}</span>
+  </div>
+  <div class="chat-demo__body">
+    <div class="chat-demo__messages">
+      {
+        messages.map((message) => (
+          <div class:list={['msg', message.staff ? 'msg--staff' : 'msg--listener']}>
+            <span class="msg__name mono">{message.name}</span>
+            <p class="msg__body">{message.body}</p>
+            <span class="msg__time mono">{message.time}</span>
+          </div>
+        ))
+      }
+    </div>
+    <div class="chat-demo__composer" aria-hidden="true">
+      <span class="chat-demo__input">{input}</span>
+      <span class="chat-demo__send">
+        <Icon name="chevron-right" size={13} />
+        {send}
+      </span>
+    </div>
+  </div>
+</figure>
+
+<style>
+  .chat-demo {
+    margin: 0;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-panel);
+    overflow: hidden;
+  }
+
+  .chat-demo__strip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-4);
+    border-bottom: 1px solid var(--line);
+    background: var(--panel-2);
+  }
+
+  .chat-demo__title {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: 0.625rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+
+  .chat-demo__dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--ok);
+    box-shadow: 0 0 10px rgba(70, 209, 127, 0.5);
+  }
+
+  .chat-demo__online {
+    font-size: 0.625rem;
+    letter-spacing: 0.12em;
+    color: var(--steel);
+  }
+
+  .chat-demo__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-4);
+  }
+
+  .chat-demo__messages {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .msg {
+    max-width: 88%;
+    padding: var(--space-3);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--panel-2);
+  }
+
+  .msg--staff {
+    align-self: flex-end;
+    border-color: color-mix(in srgb, var(--signal) 32%, var(--line));
+    background: color-mix(in srgb, var(--signal) 8%, var(--panel-2));
+  }
+
+  .msg__name {
+    display: block;
+    margin-bottom: var(--space-1);
+    font-size: 0.625rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--steel);
+  }
+
+  .msg--staff .msg__name {
+    color: var(--signal);
+  }
+
+  .msg__body {
+    font-size: 0.9375rem;
+    line-height: 1.4;
+    color: var(--text);
+  }
+
+  .msg__time {
+    display: block;
+    margin-top: var(--space-1);
+    font-size: 0.625rem;
+    color: var(--steel);
+    text-align: right;
+  }
+
+  .chat-demo__composer {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--ink);
+  }
+
+  .chat-demo__input {
+    flex: 1;
+    padding-left: var(--space-2);
+    font-size: 0.8125rem;
+    color: var(--steel);
+  }
+
+  .chat-demo__send {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: 0.4rem 0.55rem;
+    border-radius: var(--radius-sm);
+    background: var(--signal);
+    color: var(--ink);
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+</style>

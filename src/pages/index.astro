@@ -7,6 +7,7 @@ import Icon from '../components/ui/Icon.astro';
 import PlayerCard from '../components/PlayerCard.astro';
 import HeroBackground from '../components/HeroBackground.astro';
 import ContactSection from '../components/ContactSection.astro';
+import ChatDemo from '../components/ChatDemo.astro';
 import { getDatabase } from '../lib/db/client';
 import { listNews } from '../lib/db/repositories/news';
 import { listPortfolio } from '../lib/db/repositories/portfolio';
@@ -18,6 +19,12 @@ import { getPanelPlanGroups } from '../lib/panel-plans';
 const locale = getLocale(Astro.locals);
 const tr = t(locale);
 const { PILLARS, HIGHLIGHTS, STUDIO_FEATURES, PLAYERS, AI_FEATURES } = getContent(locale);
+const chatFeature = HIGHLIGHTS.find((item) => item.icon === 'chat')!;
+const chatMessages = [
+  { name: 'María', body: tr('home.chat.demoMsg1'), time: '21:04' },
+  { name: tr('home.chat.demoStaff'), body: tr('home.chat.demoMsg2'), time: '21:05', staff: true },
+  { name: 'Diego', body: tr('home.chat.demoMsg3'), time: '21:06' },
+];
 const db = getDatabase();
 const planGroups = await getPanelPlanGroups(locale);
 const latestNews = listNews(db, { activeOnly: true, limit: 3 });
@@ -162,6 +169,30 @@ const aiMusicMinutes = aiPlan?.aiMusicMinutes ?? 10;
           <span class="mono">{tr('home.studio.aiVoice')}</span>
         </figcaption>
       </figure>
+    </div>
+  </section>
+
+  <section class="band band--dark" id="chat-en-vivo">
+    <div class="container chat-feature">
+      <div class="chat-feature__copy">
+        <p class="eyebrow">{tr('home.chat.eyebrow')}</p>
+        <h2 class="display">{chatFeature.title}</h2>
+        <p class="muted">{chatFeature.description}</p>
+        <ul class="points chat-feature__points">
+          {chatFeature.points.map((point) => <li>{point}</li>)}
+        </ul>
+        <ConsoleButton href={localizedPath(locale, '/caracteristicas#chat-en-vivo')}>
+          {tr('home.chat.cta')}
+        </ConsoleButton>
+      </div>
+      <ChatDemo
+        ariaLabel={tr('home.chat.demoAria')}
+        title={tr('home.chat.demoTitle')}
+        online={tr('home.chat.demoOnline')}
+        messages={chatMessages}
+        input={tr('home.chat.demoInput')}
+        send={tr('home.chat.demoSend')}
+      />
     </div>
   </section>
 
@@ -582,6 +613,38 @@ const aiMusicMinutes = aiPlan?.aiMusicMinutes ?? 10;
 
   .studio-lead {
     max-width: 34rem;
+  }
+
+  .chat-feature {
+    display: grid;
+    gap: var(--space-8);
+    align-items: center;
+  }
+
+  .chat-feature__copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-4);
+  }
+
+  .chat-feature__copy h2 {
+    font-size: clamp(1.75rem, 1rem + 3vw, 3rem);
+  }
+
+  .chat-feature__copy .muted {
+    max-width: 36rem;
+  }
+
+  .chat-feature__points {
+    margin-top: var(--space-2);
+    padding-top: 0;
+  }
+
+  @media (min-width: 980px) {
+    .chat-feature {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
   }
 
   /* Lista de canales estilo consola / tracklist */
