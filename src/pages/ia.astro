@@ -4,6 +4,7 @@ import HeroBackground from '../components/HeroBackground.astro';
 import ConsoleButton from '../components/ui/ConsoleButton.astro';
 import Module from '../components/ui/Module.astro';
 import Icon from '../components/ui/Icon.astro';
+import AiFeatureGrid from '../components/AiFeatureGrid.astro';
 import OnAirBadge from '../components/ui/OnAirBadge.astro';
 import FrequencyStrip from '../components/ui/FrequencyStrip.astro';
 import { createSiteTranslator, getSiteContent } from '../lib/panel-content';
@@ -70,17 +71,7 @@ const formattedCharacters = aiCharacters.toLocaleString(locale === 'en' ? 'en-US
         <h2>{tr('ia.features.title')}</h2>
         <p class="muted">{tr('ia.features.description')}</p>
       </div>
-      <div class="grid-3">
-        {
-          AI_FEATURES.map((feature) => (
-            <Module label={`${locale === 'en' ? 'AI' : 'IA'} ${feature.code}`} icon={feature.icon} led="signal">
-              <h3>{feature.title}</h3>
-              <p class="muted">{feature.description}</p>
-              <ul class="points">{feature.points.map((point) => <li>{point}</li>)}</ul>
-            </Module>
-          ))
-        }
-      </div>
+      <AiFeatureGrid features={AI_FEATURES} locale={locale} />
     </div>
   </section>
 
@@ -269,33 +260,6 @@ const formattedCharacters = aiCharacters.toLocaleString(locale === 'en' ? 'en-US
     color: var(--text);
     letter-spacing: 0.1em;
     text-transform: uppercase;
-  }
-
-  .grid-3 {
-    display: grid;
-    gap: var(--space-5);
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  }
-
-  .grid-3 h3 {
-    margin-bottom: var(--space-2);
-  }
-
-  .points {
-    list-style: none;
-    padding: 0;
-    margin-top: var(--space-4);
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
-  }
-
-  .points li {
-    font-size: 0.8125rem;
-    color: var(--steel);
-    border: 1px solid var(--line);
-    border-radius: var(--radius-sm);
-    padding: 0.2rem 0.5rem;
   }
 
   .steps {

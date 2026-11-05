@@ -1,0 +1,130 @@
+---
+import Icon from './ui/Icon.astro'
+import type { Feature } from '../lib/content'
+
+interface Props {
+  items: Feature[]
+  tone?: 'dark' | 'paper'
+}
+
+const { items, tone = 'dark' } = Astro.props
+---
+
+<div class:list={['highlights', { 'highlights--paper': tone === 'paper' }]}>
+  {items.map((item, index) => (
+    <article class="highlight-row">
+      <div class="highlight-row__rail">
+        <span class="highlight-row__icon">
+          <Icon name={item.icon ?? 'play'} size={22} />
+        </span>
+        <span class="mono highlight-row__code">
+          {item.code || String(index + 1).padStart(2, '0')}
+        </span>
+      </div>
+      <div class="highlight-row__body">
+        <h3>{item.title}</h3>
+        <p class="muted">{item.description}</p>
+        {item.points.length > 0 && (
+          <ul class="highlight-row__tags">
+            {item.points.map((point) => <li>{point}</li>)}
+          </ul>
+        )}
+      </div>
+    </article>
+  ))}
+</div>
+
+<style>
+  .highlights {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0 var(--space-7);
+  }
+
+  .highlights--paper {
+    --rack-line: var(--line-paper);
+    --rack-muted: var(--muted-on-paper);
+  }
+
+  .highlight-row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: var(--space-4);
+    padding-block: var(--space-5);
+    border-top: 1px solid var(--rack-line, var(--line));
+    transition: border-color 0.15s ease;
+  }
+
+  .highlight-row:hover {
+    border-top-color: var(--signal);
+  }
+
+  .highlight-row__rail {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .highlight-row__icon {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid var(--rack-line, var(--line));
+    border-radius: var(--radius);
+    color: var(--signal);
+    background: color-mix(in srgb, var(--signal) 6%, transparent);
+    transition: border-color 0.15s ease, color 0.15s ease;
+  }
+
+  .highlight-row:hover .highlight-row__icon {
+    color: var(--signal-strong);
+    border-color: color-mix(in srgb, var(--signal) 45%, var(--rack-line, var(--line)));
+  }
+
+  .highlight-row__code {
+    font-size: 0.625rem;
+    letter-spacing: 0.18em;
+    color: var(--rack-muted, var(--steel));
+  }
+
+  .highlight-row__body {
+    min-width: 0;
+  }
+
+  .highlight-row h3 {
+    margin-block: 0 var(--space-2);
+    font-size: 1.125rem;
+  }
+
+  .highlight-row p {
+    max-width: 48ch;
+    font-size: 0.9375rem;
+  }
+
+  .highlight-row__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
+    padding: 0;
+    list-style: none;
+  }
+
+  .highlight-row__tags li {
+    padding: 0.18rem 0.5rem;
+    border: 1px solid var(--rack-line, var(--line));
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.06em;
+    color: var(--rack-muted, var(--steel));
+  }
+
+  @media (min-width: 900px) {
+    .highlights {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

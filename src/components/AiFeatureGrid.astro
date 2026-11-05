@@ -1,0 +1,78 @@
+---
+import Module from './ui/Module.astro'
+import Icon from './ui/Icon.astro'
+import type { Feature } from '../lib/content'
+import type { Locale } from '../lib/i18n'
+
+interface Props {
+  features: Feature[]
+  locale: Locale
+}
+
+const { features, locale } = Astro.props
+---
+
+<div class="ai-features">
+  {features.map((feature) => (
+    <Module label={`${locale === 'en' ? 'AI' : 'IA'} ${feature.code}`} led="signal">
+      <span class="ai-features__icon" aria-hidden="true">
+        <Icon name={feature.icon ?? 'mic'} size={22} />
+      </span>
+      <h3>{feature.title}</h3>
+      <p class="muted">{feature.description}</p>
+      {feature.points.length > 0 && (
+        <ul class="ai-features__points">
+          {feature.points.map((point) => <li>{point}</li>)}
+        </ul>
+      )}
+    </Module>
+  ))}
+</div>
+
+<style>
+  .ai-features {
+    display: grid;
+    gap: var(--space-5);
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  }
+
+  .ai-features__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    align-self: flex-start;
+    width: 2.75rem;
+    height: 2.75rem;
+    margin-bottom: var(--space-4);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--panel-2);
+    color: var(--signal);
+  }
+
+  h3 {
+    margin-bottom: var(--space-2);
+  }
+
+  p {
+    font-size: 0.9375rem;
+  }
+
+  .ai-features__points {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-top: auto;
+    padding: var(--space-4) 0 0;
+    list-style: none;
+  }
+
+  .ai-features__points li {
+    padding: 0.2rem 0.5rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    color: var(--steel);
+    font-size: 0.8125rem;
+  }
+</style>

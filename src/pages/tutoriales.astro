@@ -1,6 +1,5 @@
 ---
 import SiteLayout from '../layouts/SiteLayout.astro';
-import Module from '../components/ui/Module.astro';
 import OnAirBadge from '../components/ui/OnAirBadge.astro';
 import HeroBackground from '../components/HeroBackground.astro';
 import { getDatabase } from '../lib/db/client';
@@ -45,19 +44,22 @@ const total = groups.reduce((sum, group) => sum + group.tutorials.length, 0);
               <p class="eyebrow">[ {String(index + 1).padStart(2, '0')} / {group.category.name.toUpperCase()} ]</p>
               <h2>{group.category.name}</h2>
             </div>
-            <div class="grid-3">
+            <div class="tutorials">
               {group.tutorials.map((tutorial) => (
-                <Module label={tutorial.difficulty} led="signal">
+                <article class="tutorial-row">
+                  <div class="tutorial-row__meta">
+                    <span class="tutorial-row__level mono">{tutorial.difficulty}</span>
+                    {tutorial.duration && <span class="mono">{tutorial.duration}</span>}
+                  </div>
                   <h3>{tutorial.title}</h3>
                   {tutorial.description && <p class="muted">{tutorial.description}</p>}
-                  <p class="meta mono">
-                    {tutorial.duration && <span>{tutorial.duration}</span>}
-                    <span>{tr('tutorials.views', { count: tutorial.views })}</span>
-                  </p>
-                  {tutorial.videoUrl && (
-                    <a class="link mono" href={tutorial.videoUrl} rel="noopener external" target="_blank">{tr('tutorials.watch')}</a>
-                  )}
-                </Module>
+                  <div class="tutorial-row__foot">
+                    <span class="mono">{tr('tutorials.views', { count: tutorial.views })}</span>
+                    {tutorial.videoUrl && (
+                      <a class="link mono" href={tutorial.videoUrl} rel="noopener external" target="_blank">{tr('tutorials.watch')}</a>
+                    )}
+                  </div>
+                </article>
               ))}
             </div>
           </div>
@@ -73,20 +75,76 @@ const total = groups.reduce((sum, group) => sum + group.tutorials.length, 0);
     max-width: 40rem;
   }
 
-  .grid-3 {
+  .tutorials {
+    --tutorial-line: var(--line);
+    --tutorial-muted: var(--steel);
     display: grid;
-    gap: var(--space-5);
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    grid-template-columns: 1fr;
+    gap: 0 var(--space-7);
   }
 
-  .meta {
+  .band--paper .tutorials {
+    --tutorial-line: var(--line-paper);
+    --tutorial-muted: var(--muted-on-paper);
+  }
+
+  .tutorial-row {
     display: flex;
-    gap: var(--space-4);
-    margin-block: var(--space-4);
-    font-size: 0.6875rem;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding-block: var(--space-5);
+    border-top: 1px solid var(--tutorial-line);
+    transition: border-color 0.15s ease;
+  }
+
+  .tutorial-row:hover {
+    border-top-color: var(--signal);
+  }
+
+  .tutorial-row__meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    color: var(--tutorial-muted);
+    font-size: 0.625rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: var(--steel);
+  }
+
+  .tutorial-row__level {
+    padding: 0.18rem 0.5rem;
+    border: 1px solid var(--tutorial-line);
+    border-radius: var(--radius-sm);
+    color: var(--signal);
+  }
+
+  .tutorial-row h3 {
+    font-size: 1.125rem;
+  }
+
+  .tutorial-row p {
+    max-width: 48ch;
+    font-size: 0.9375rem;
+  }
+
+  .tutorial-row__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    margin-top: auto;
+    padding-top: var(--space-2);
+    color: var(--tutorial-muted);
+    font-size: 0.6875rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  @media (min-width: 900px) {
+    .tutorials {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
 
   .link {

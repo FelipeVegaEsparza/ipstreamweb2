@@ -3,13 +3,14 @@ import SiteLayout from '../layouts/SiteLayout.astro';
 import ConsoleButton from '../components/ui/ConsoleButton.astro';
 import OnAirBadge from '../components/ui/OnAirBadge.astro';
 import Module from '../components/ui/Module.astro';
-import Icon from '../components/ui/Icon.astro';
 import PlayerCard from '../components/PlayerCard.astro';
 import HeroBackground from '../components/HeroBackground.astro';
 import ContactSection from '../components/ContactSection.astro';
 import ChatDemo from '../components/ChatDemo.astro';
 import VoiceSamples from '../components/VoiceSamples.astro';
 import LiveAudioDemo from '../components/LiveAudioDemo.astro';
+import AiFeatureGrid from '../components/AiFeatureGrid.astro';
+import HighlightRack from '../components/HighlightRack.astro';
 import { getDatabase } from '../lib/db/client';
 import { listNews } from '../lib/db/repositories/news';
 import { listPortfolio } from '../lib/db/repositories/portfolio';
@@ -110,20 +111,7 @@ const aiMusicMinutes = aiPlan?.aiMusicMinutes ?? 10;
         <h2>{tr('home.ai.title')}</h2>
         <p class="muted">{tr('home.ai.description')}</p>
       </div>
-      <div class="grid-3">
-        {
-          AI_FEATURES.slice(0, 6).map((feature) => (
-            <Module label={`${locale === 'en' ? 'AI' : 'IA'} ${feature.code}`} led="signal">
-              <span class="ai-feature__icon" aria-hidden="true">
-                <Icon name={feature.icon ?? 'mic'} size={22} />
-              </span>
-              <h3>{feature.title}</h3>
-              <p class="muted">{feature.description}</p>
-              <ul class="points">{feature.points.map((point) => <li>{point}</li>)}</ul>
-            </Module>
-          ))
-        }
-      </div>
+      <AiFeatureGrid features={AI_FEATURES.slice(0, 6)} locale={locale} />
       <div class="ai-more">
         <ConsoleButton href={localizedPath(locale, '/ia')}>{tr('home.ai.cta')}</ConsoleButton>
       </div>
@@ -242,31 +230,7 @@ const aiMusicMinutes = aiPlan?.aiMusicMinutes ?? 10;
         <p class="eyebrow">{tr('home.highlights.eyebrow')}</p>
         <h2>{tr('home.highlights.title')}</h2>
       </div>
-      <div class="highlights">
-        {
-          HIGHLIGHTS.map((item, index) => (
-            <article class="highlight-row">
-              <div class="highlight-row__rail">
-                <span class="highlight-row__icon">
-                  <Icon name={item.icon ?? 'play'} size={22} />
-                </span>
-                <span class="mono highlight-row__code">
-                  {item.code || String(index + 1).padStart(2, '0')}
-                </span>
-              </div>
-              <div class="highlight-row__body">
-                <h3>{item.title}</h3>
-                <p class="muted">{item.description}</p>
-                {item.points.length > 0 && (
-                  <ul class="highlight-row__tags">
-                    {item.points.map((point) => <li>{point}</li>)}
-                  </ul>
-                )}
-              </div>
-            </article>
-          ))
-        }
-      </div>
+      <HighlightRack items={HIGHLIGHTS} />
     </div>
   </section>
 
@@ -599,21 +563,6 @@ const aiMusicMinutes = aiPlan?.aiMusicMinutes ?? 10;
     text-transform: uppercase;
   }
 
-  .ai-feature__icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex: none;
-    align-self: flex-start;
-    width: 2.75rem;
-    height: 2.75rem;
-    margin-bottom: var(--space-4);
-    border: 1px solid var(--line);
-    border-radius: var(--radius);
-    background: var(--panel-2);
-    color: var(--signal);
-  }
-
   .ai-more {
     display: flex;
     justify-content: flex-end;
@@ -923,94 +872,6 @@ const aiMusicMinutes = aiPlan?.aiMusicMinutes ?? 10;
     letter-spacing: 0.18em;
     text-transform: uppercase;
     color: var(--signal);
-  }
-
-  .highlights {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 0 var(--space-7);
-  }
-
-  .highlight-row {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    gap: var(--space-4);
-    padding-block: var(--space-5);
-    border-top: 1px solid var(--line);
-    transition: border-color 0.15s ease;
-  }
-
-  .highlight-row:hover {
-    border-top-color: var(--signal);
-  }
-
-  .highlight-row__rail {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--space-3);
-  }
-
-  .highlight-row__icon {
-    display: grid;
-    place-items: center;
-    width: 2.75rem;
-    height: 2.75rem;
-    border: 1px solid var(--line);
-    border-radius: var(--radius);
-    color: var(--signal);
-    background: color-mix(in srgb, var(--signal) 6%, transparent);
-    transition: border-color 0.15s ease, color 0.15s ease;
-  }
-
-  .highlight-row:hover .highlight-row__icon {
-    color: var(--signal-strong);
-    border-color: color-mix(in srgb, var(--signal) 45%, var(--line));
-  }
-
-  .highlight-row__code {
-    font-size: 0.625rem;
-    letter-spacing: 0.18em;
-    color: var(--steel);
-  }
-
-  .highlight-row__body {
-    min-width: 0;
-  }
-
-  .highlight-row h3 {
-    margin-block: 0 var(--space-2);
-    font-size: 1.125rem;
-  }
-
-  .highlight-row p {
-    max-width: 48ch;
-    font-size: 0.9375rem;
-  }
-
-  .highlight-row__tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
-    margin-top: var(--space-3);
-    padding: 0;
-    list-style: none;
-  }
-
-  .highlight-row__tags li {
-    padding: 0.18rem 0.5rem;
-    border: 1px solid var(--line);
-    border-radius: var(--radius-sm);
-    font-family: var(--font-mono);
-    font-size: 0.625rem;
-    letter-spacing: 0.06em;
-    color: var(--steel);
-  }
-
-  @media (min-width: 900px) {
-    .highlights {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
   }
 
   .players {
