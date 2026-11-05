@@ -242,18 +242,27 @@ const aiMusicMinutes = aiPlan?.aiMusicMinutes ?? 10;
         <p class="eyebrow">{tr('home.highlights.eyebrow')}</p>
         <h2>{tr('home.highlights.title')}</h2>
       </div>
-      <div class="grid-3">
+      <div class="highlights">
         {
-          HIGHLIGHTS.map((item) => (
-            <article class="highlight">
-              <div class="highlight__head">
-                <span class="highlight__icon">
+          HIGHLIGHTS.map((item, index) => (
+            <article class="highlight-row">
+              <div class="highlight-row__rail">
+                <span class="highlight-row__icon">
                   <Icon name={item.icon ?? 'play'} size={22} />
                 </span>
-                <span class="mono highlight-code">{item.code}</span>
+                <span class="mono highlight-row__code">
+                  {item.code || String(index + 1).padStart(2, '0')}
+                </span>
               </div>
-              <h3>{item.title}</h3>
-              <p class="muted">{item.description}</p>
+              <div class="highlight-row__body">
+                <h3>{item.title}</h3>
+                <p class="muted">{item.description}</p>
+                {item.points.length > 0 && (
+                  <ul class="highlight-row__tags">
+                    {item.points.map((point) => <li>{point}</li>)}
+                  </ul>
+                )}
+              </div>
             </article>
           ))
         }
@@ -916,52 +925,92 @@ const aiMusicMinutes = aiPlan?.aiMusicMinutes ?? 10;
     color: var(--signal);
   }
 
-  .highlight-code {
-    font-size: 0.6875rem;
-    letter-spacing: 0.2em;
-    color: var(--steel);
+  .highlights {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0 var(--space-7);
   }
 
-  .highlight {
-    display: flex;
-    flex-direction: column;
-    border-top: 2px solid var(--line);
-    padding-top: var(--space-5);
+  .highlight-row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: var(--space-4);
+    padding-block: var(--space-5);
+    border-top: 1px solid var(--line);
     transition: border-color 0.15s ease;
   }
 
-  .highlight:hover {
+  .highlight-row:hover {
     border-top-color: var(--signal);
   }
 
-  .highlight__head {
+  .highlight-row__rail {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: space-between;
     gap: var(--space-3);
-    margin-bottom: var(--space-4);
   }
 
-  .highlight__icon {
+  .highlight-row__icon {
     display: grid;
     place-items: center;
-    width: 2.5rem;
-    height: 2.5rem;
+    width: 2.75rem;
+    height: 2.75rem;
     border: 1px solid var(--line);
     border-radius: var(--radius);
     color: var(--signal);
     background: color-mix(in srgb, var(--signal) 6%, transparent);
-    transition: border-color 0.15s ease, box-shadow 0.15s ease, color 0.15s ease;
+    transition: border-color 0.15s ease, color 0.15s ease;
   }
 
-  .highlight:hover .highlight__icon {
+  .highlight-row:hover .highlight-row__icon {
     color: var(--signal-strong);
     border-color: color-mix(in srgb, var(--signal) 45%, var(--line));
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--signal) 14%, transparent);
   }
 
-  .highlight h3 {
+  .highlight-row__code {
+    font-size: 0.625rem;
+    letter-spacing: 0.18em;
+    color: var(--steel);
+  }
+
+  .highlight-row__body {
+    min-width: 0;
+  }
+
+  .highlight-row h3 {
     margin-block: 0 var(--space-2);
+    font-size: 1.125rem;
+  }
+
+  .highlight-row p {
+    max-width: 48ch;
+    font-size: 0.9375rem;
+  }
+
+  .highlight-row__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
+    padding: 0;
+    list-style: none;
+  }
+
+  .highlight-row__tags li {
+    padding: 0.18rem 0.5rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.06em;
+    color: var(--steel);
+  }
+
+  @media (min-width: 900px) {
+    .highlights {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
 
   .players {
