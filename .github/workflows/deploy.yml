@@ -1,0 +1,94 @@
+name: Deploy public site
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'openspec/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: public-site-deploy
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+  deploy:
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
+
+      - name: Add VPS to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H "${{ secrets.VPS_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null || true
+
+      - name: Tag current image for rollback
+        run: |
+          ssh -o ServerAliveInterval=30 -o ServerAliveCountMax=10 \
+            "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" \
+            "docker tag casterfly-site-site:latest casterfly-site-site:rollback-\$(date +%Y%m%d%H%M) 2>/dev/null || true"
+
+      - name: Sync source to VPS
+        run: |
+          rsync -az --delete \
+            --exclude '.git/' \
+            --exclude '.env' \
+            --exclude 'node_modules/' \
+            --exclude 'dist/' \
+            --exclude '.astro/' \
+            --exclude 'data/' \
+            --exclude 'uploads/' \
+            -e "ssh -o ServerAliveInterval=30 -o ServerAliveCountMax=10" \
+            ./ "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/opt/casterfly-site/"
+
+      - name: Rebuild and restart site
+        run: |
+          ssh -o ServerAliveInterval=30 -o ServerAliveCountMax=10 \
+            "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" \
+            "cd /opt/casterfly-site && docker compose -f docker-compose.panel.yml up -d --build site"
+
+      - name: Verify public site
+        run: |
+          curl -fsS --retry 5 --retry-delay 3 https://casterfly.com/api/health
