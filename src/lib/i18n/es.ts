@@ -82,6 +82,7 @@ export const es = {
   'home.voice.description': 'Ejemplos reales de locución generados con el asistente de IA: presentaciones, hora y clima, cápsulas e identificación de emisora.',
   'home.voice.play': 'Reproducir',
   'home.voice.pause': 'Pausar',
+  'home.voice.transcript': 'Transcripción',
   'home.voice.aria': 'Ejemplos de locución con IA',
   'home.ai.eyebrow': '[ 01 / IA EN EL AIRE ]',
   'home.ai.title': 'Una radio que trabaja contigo',

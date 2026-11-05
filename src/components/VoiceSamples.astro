@@ -18,10 +18,29 @@ interface Props {
   samples: VoiceSample[]
   playLabel: string
   pauseLabel: string
+  transcriptLabel: string
   ariaLabel: string
 }
 
-const { eyebrow, title, description, samples, playLabel, pauseLabel, ariaLabel } = Astro.props
+const {
+  eyebrow,
+  title,
+  description,
+  samples,
+  playLabel,
+  pauseLabel,
+  transcriptLabel,
+  ariaLabel,
+} = Astro.props
+
+const waveBarsFor = (seed: number) =>
+  Array.from({ length: 28 }, (_, index) => {
+    const value =
+      Math.abs(Math.sin((index + seed) * 0.7) * 0.5) +
+      Math.abs(Math.sin((index + seed) * 0.23) * 0.3) +
+      0.15
+    return Math.round(Math.min(value, 1) * 100) / 100
+  })
 ---
 
 <section class="band band--panel voice-section" aria-label={ariaLabel}>
@@ -39,40 +58,53 @@ const { eyebrow, title, description, samples, playLabel, pauseLabel, ariaLabel }
       data-pause-label={pauseLabel}
     >
       {
-        samples.map((sample) => (
+        samples.map((sample, index) => (
           <article class="voice-card" data-voice-sample data-duration={sample.duration}>
-            <div class="voice-card__strip">
+            <div class="voice-card__meta">
               <span class="mono voice-card__tag">{sample.tag}</span>
               <span class="mono voice-card__voice">{sample.voice}</span>
             </div>
-            <div class="voice-card__body">
-              <h3>{sample.title}</h3>
-              <p class="muted">{sample.description}</p>
 
-              <div class="voice-player">
-                <button
-                  type="button"
-                  class="voice-player__toggle"
-                  data-voice-toggle
-                  data-title={sample.title}
-                  aria-label={`${playLabel}: ${sample.title}`}
-                  aria-pressed="false"
-                >
-                  <span class="voice-player__icon voice-player__icon--play" aria-hidden="true">
-                    <Icon name="play" size={15} />
-                  </span>
-                  <span class="voice-player__icon voice-player__icon--pause" aria-hidden="true">
-                    <Icon name="pause" size={15} />
-                  </span>
-                </button>
-                <div class="voice-player__bar" aria-hidden="true">
-                  <span data-voice-progress></span>
+            <h3>{sample.title}</h3>
+            <p class="muted voice-card__desc">{sample.description}</p>
+
+            <div class="voice-player">
+              <button
+                type="button"
+                class="voice-player__toggle"
+                data-voice-toggle
+                data-title={sample.title}
+                aria-label={`${playLabel}: ${sample.title}`}
+                aria-pressed="false"
+              >
+                <span class="voice-player__icon voice-player__icon--play" aria-hidden="true">
+                  <Icon name="play" size={15} />
+                </span>
+                <span class="voice-player__icon voice-player__icon--pause" aria-hidden="true">
+                  <Icon name="pause" size={15} />
+                </span>
+              </button>
+
+              <div class="voice-player__meter">
+                <div class="voice-player__wave" aria-hidden="true">
+                  {waveBarsFor(index + 1).map((height, barIndex) => (
+                    <span
+                      data-voice-bar
+                      style={`--h:${height};--i:${barIndex}`}
+                    />
+                  ))}
                 </div>
                 <span class="mono voice-player__time" data-voice-time>{sample.duration}</span>
               </div>
-
-              {sample.transcript && <p class="voice-card__transcript">“{sample.transcript}”</p>}
             </div>
+
+            {sample.transcript && (
+              <details class="voice-card__transcript">
+                <summary>{transcriptLabel}</summary>
+                <p>“{sample.transcript}”</p>
+              </details>
+            )}
+
             <audio data-voice-audio preload="none" src={sample.audioUrl}></audio>
           </article>
         ))
@@ -98,12 +130,16 @@ const { eyebrow, title, description, samples, playLabel, pauseLabel, ariaLabel }
       .map((card) => {
         const audio = card.querySelector<HTMLAudioElement>('[data-voice-audio]')
         const button = card.querySelector<HTMLButtonElement>('[data-voice-toggle]')
-        const progress = card.querySelector<HTMLElement>('[data-voice-progress]')
+        const bars = Array.from(card.querySelectorAll<HTMLElement>('[data-voice-bar]'))
         const time = card.querySelector<HTMLElement>('[data-voice-time]')
-        if (!audio || !button || !progress || !time) return null
-        return { card, audio, button, progress, time, title: button.dataset.title ?? '' }
+        if (!audio || !button || bars.length === 0 || !time) return null
+        return { card, audio, button, bars, time, title: button.dataset.title ?? '' }
       })
       .filter((player): player is NonNullable<typeof player> => Boolean(player))
+
+    const resetBars = (player: (typeof players)[number]) => {
+      for (const bar of player.bars) bar.classList.remove('is-played')
+    }
 
     const render = (player: (typeof players)[number], playing: boolean) => {
       player.card.classList.toggle('is-playing', playing)
@@ -134,15 +170,16 @@ const { eyebrow, title, description, samples, playLabel, pauseLabel, ariaLabel }
       player.audio.addEventListener('pause', () => render(player, false))
       player.audio.addEventListener('ended', () => {
         render(player, false)
-        player.progress.style.width = '0%'
+        resetBars(player)
         player.time.textContent = player.card.dataset.duration ?? player.time.textContent
       })
       player.audio.addEventListener('timeupdate', () => {
-        const duration = Number.isFinite(player.audio.duration)
-          ? player.audio.duration
-          : 0
+        const duration = Number.isFinite(player.audio.duration) ? player.audio.duration : 0
         const ratio = duration > 0 ? player.audio.currentTime / duration : 0
-        player.progress.style.width = `${Math.min(100, Math.max(0, ratio * 100))}%`
+        const active = Math.round(Math.min(1, Math.max(0, ratio)) * player.bars.length)
+        player.bars.forEach((bar, index) => {
+          bar.classList.toggle('is-played', index < active)
+        })
         player.time.textContent = `${formatTime(player.audio.currentTime)} / ${formatTime(duration)}`
       })
     }
@@ -153,52 +190,47 @@ const { eyebrow, title, description, samples, playLabel, pauseLabel, ariaLabel }
   .voice-grid {
     display: grid;
     gap: var(--space-5);
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    grid-template-columns: 1fr;
   }
 
   .voice-card {
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    gap: var(--space-3);
+    padding: var(--space-5);
     border: 1px solid var(--line);
     border-radius: var(--radius-lg);
     background: var(--panel-2);
-    box-shadow: var(--shadow-panel);
   }
 
-  .voice-card__strip {
+  .voice-card__meta {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: var(--space-3);
-    padding: var(--space-2) var(--space-4);
-    border-bottom: 1px solid var(--line);
-    background: var(--ink);
+  }
+
+  .voice-card__tag,
+  .voice-card__voice {
+    font-size: 0.625rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
   }
 
   .voice-card__tag {
-    font-size: 0.625rem;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
     color: var(--signal);
   }
 
   .voice-card__voice {
-    font-size: 0.625rem;
-    letter-spacing: 0.12em;
     color: var(--steel);
   }
 
-  .voice-card__body {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    gap: var(--space-3);
-    padding: var(--space-5);
+  .voice-card h3 {
+    font-size: 1.125rem;
   }
 
-  .voice-card__body h3 {
-    font-size: 1.125rem;
+  .voice-card__desc {
+    font-size: 0.9375rem;
   }
 
   .voice-player {
@@ -244,38 +276,111 @@ const { eyebrow, title, description, samples, playLabel, pauseLabel, ariaLabel }
     display: inline-flex;
   }
 
-  .voice-player__bar {
+  .voice-player__meter {
+    display: flex;
     flex: 1;
-    height: 0.25rem;
-    overflow: hidden;
-    border-radius: 999px;
-    background: var(--line);
+    align-items: center;
+    gap: var(--space-3);
+    min-width: 0;
   }
 
-  .voice-player__bar span {
-    display: block;
-    width: 0;
-    height: 100%;
-    background: var(--signal);
-    transition: width 0.12s linear;
+  .voice-player__wave {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: 2px;
+    height: 2.25rem;
+  }
+
+  .voice-player__wave span {
+    flex: 1 1 0;
+    height: calc(var(--h, 0.5) * 100%);
+    min-height: 2px;
+    border-radius: 1px;
+    background: color-mix(in srgb, var(--signal) 18%, var(--line));
+    transition: background-color 0.15s ease;
+  }
+
+  .voice-player__wave span.is-played {
+    background: var(--signal-gradient-v);
+  }
+
+  .voice-card.is-playing .voice-player__wave span {
+    animation: voice-wave 1.3s ease-in-out infinite;
+    animation-delay: calc(var(--i) * -0.045s);
   }
 
   .voice-player__time {
     flex: 0 0 auto;
     font-size: 0.625rem;
     color: var(--steel);
+    font-variant-numeric: tabular-nums;
   }
 
   .voice-card__transcript {
+    margin-top: var(--space-2);
     padding-top: var(--space-3);
     border-top: 1px solid var(--line);
-    font-size: 0.8125rem;
-    line-height: 1.5;
+  }
+
+  .voice-card__transcript summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    cursor: pointer;
+    list-style: none;
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
     color: var(--steel);
   }
 
+  .voice-card__transcript summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .voice-card__transcript summary::after {
+    content: '+';
+    color: var(--signal);
+    font-size: 0.875rem;
+    line-height: 1;
+  }
+
+  .voice-card__transcript[open] summary::after {
+    content: '−';
+  }
+
+  .voice-card__transcript p {
+    margin-top: var(--space-3);
+    font-size: 0.8125rem;
+    line-height: 1.55;
+    color: var(--steel);
+  }
+
+  @keyframes voice-wave {
+    0%,
+    100% {
+      transform: scaleY(0.72);
+    }
+    50% {
+      transform: scaleY(1);
+    }
+  }
+
+  @media (min-width: 720px) {
+    .voice-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    .voice-player__bar span,
+    .voice-card.is-playing .voice-player__wave span {
+      animation: none;
+    }
+
+    .voice-player__wave span,
     .voice-player__toggle {
       transition: none;
     }

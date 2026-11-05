@@ -83,6 +83,7 @@ export const en: Record<keyof typeof es, string> = {
   'home.voice.description': 'Real voice-over examples generated with the AI assistant: track intros, time and weather, capsules and station IDs.',
   'home.voice.play': 'Play',
   'home.voice.pause': 'Pause',
+  'home.voice.transcript': 'Transcript',
   'home.voice.aria': 'AI voice-over examples',
   'home.ai.eyebrow': '[ 01 / AI ON AIR ]',
   'home.ai.title': 'A radio that works with you',
