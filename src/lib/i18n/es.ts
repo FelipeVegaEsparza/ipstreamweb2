@@ -57,6 +57,7 @@ export const es = {
   'home.hero.description': 'Sitio, app PWA con mensajería push, chat en vivo, consola en vivo y un copiloto de IA que locuta, informa y programa. Todo en una sola plataforma, con la voz y el estilo de tu emisora.',
   'home.hero.ctaAI': 'Conocer la IA',
   'home.hero.ctaPlans': 'Ver planes',
+  'home.hero.imageAlt': 'CasterFly en vivo: panel y reproductor de tu radio online',
   'home.demo.eyebrow': '[ DEMO EN VIVO ]',
   'home.demo.title': 'Escucha una radio real operada con IA',
   'home.demo.description': 'Dale play y escucha una emisora creada con CasterFly: AutoDJ, locuciones y programación funcionando en vivo, sin instalar nada.',

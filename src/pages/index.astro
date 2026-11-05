@@ -59,20 +59,31 @@ const aiMusicMinutes = aiPlan?.aiMusicMinutes ?? 10;
       </div>
 
       <div class="hero-console">
-        <Module label="AI / ON AIR" icon="mic" led="signal" class="hero-ai">
-          <p class="mono hero-ai-kicker">{tr('home.hero.aiKicker')}</p>
-          <h2 class="hero-ai-title">{tr('home.hero.aiTitle')}</h2>
-          <ul class="hero-ai-list">
-            <li><span class="mono">01</span> {tr('home.hero.aiItem1')}</li>
-            <li><span class="mono">02</span> {tr('home.hero.aiItem2')}</li>
-            <li><span class="mono">03</span> {tr('home.hero.aiItem3')}</li>
-            <li><span class="mono">04</span> {tr('home.hero.aiItem4')}</li>
-          </ul>
-          <div class="hero-ai-foot">
-            <span>{aiPlanName}</span>
-            <span class="mono">{tr('home.hero.aiCharacters', { count: aiCharacters.toLocaleString(locale === 'en' ? 'en-US' : 'es-CL') })}</span>
-          </div>
-        </Module>
+        {content.global.heroImage ? (
+          <img
+            class="hero-image"
+            src={content.global.heroImage}
+            alt={tr('home.hero.imageAlt')}
+            width="500"
+            height="400"
+            fetchpriority="high"
+          />
+        ) : (
+          <Module label="AI / ON AIR" icon="mic" led="signal" class="hero-ai">
+            <p class="mono hero-ai-kicker">{tr('home.hero.aiKicker')}</p>
+            <h2 class="hero-ai-title">{tr('home.hero.aiTitle')}</h2>
+            <ul class="hero-ai-list">
+              <li><span class="mono">01</span> {tr('home.hero.aiItem1')}</li>
+              <li><span class="mono">02</span> {tr('home.hero.aiItem2')}</li>
+              <li><span class="mono">03</span> {tr('home.hero.aiItem3')}</li>
+              <li><span class="mono">04</span> {tr('home.hero.aiItem4')}</li>
+            </ul>
+            <div class="hero-ai-foot">
+              <span>{aiPlanName}</span>
+              <span class="mono">{tr('home.hero.aiCharacters', { count: aiCharacters.toLocaleString(locale === 'en' ? 'en-US' : 'es-CL') })}</span>
+            </div>
+          </Module>
+        )}
       </div>
     </div>
   </section>

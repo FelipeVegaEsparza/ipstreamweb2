@@ -63,6 +63,7 @@ export interface SiteGlobal {
   contactEmail: string
   panelUrl: string
   demoStreamUrl: string
+  heroImage: string
   social: Record<string, string>
 }
 
@@ -215,6 +216,7 @@ function defaultGlobal(): SiteGlobal {
     contactEmail: SITE.email,
     panelUrl: SITE.panelUrl,
     demoStreamUrl: SITE.demoStreamUrl,
+    heroImage: '/images/hero1.png',
     social: {
       facebook: '',
       youtube: '',

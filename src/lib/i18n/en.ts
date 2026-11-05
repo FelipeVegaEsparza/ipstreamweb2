@@ -58,6 +58,7 @@ export const en: Record<keyof typeof es, string> = {
   'home.hero.description': 'Website, PWA app with push messaging, live chat, live console and an AI co-pilot that voices, informs and schedules. All in one platform, with your station’s voice and style.',
   'home.hero.ctaAI': 'Discover AI',
   'home.hero.ctaPlans': 'View plans',
+  'home.hero.imageAlt': 'CasterFly live: your online radio panel and player',
   'home.demo.eyebrow': '[ LIVE DEMO ]',
   'home.demo.title': 'Listen to a real AI-run radio station',
   'home.demo.description': 'Press play and listen to a station built with CasterFly: AutoDJ, voice-overs and scheduling running live, with nothing to install.',

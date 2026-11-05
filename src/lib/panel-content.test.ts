@@ -80,6 +80,7 @@ describe('panel content client', () => {
     const es = await getSiteContent('es')
 
     expect(es.global.siteName).toBe('CasterFly')
+    expect(es.global.heroImage).toBe('/images/hero1.png')
     expect(es.i18n).toEqual({})
     expect(es.collections.pillars.length).toBeGreaterThan(0)
     expect(es.collections.faq.length).toBeGreaterThan(0)
