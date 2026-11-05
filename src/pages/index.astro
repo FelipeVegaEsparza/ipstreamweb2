@@ -16,7 +16,7 @@ import { listPortfolio } from '../lib/db/repositories/portfolio';
 import { createSiteTranslator, getSiteContent } from '../lib/panel-content';
 import { getLocale, localizedPath } from '../lib/i18n';
 import { formatUSD, formatDateShort } from '../lib/format';
-import { getPanelPlanGroups } from '../lib/panel-plans';
+import { getPanelPlans } from '../lib/panel-plans';
 
 const locale = getLocale(Astro.locals);
 const content = await getSiteContent(locale);
@@ -29,15 +29,12 @@ const chatMessages = [
   { name: 'Diego', body: tr('home.chat.demoMsg3'), time: '21:06' },
 ];
 const db = getDatabase();
-const planGroups = await getPanelPlanGroups(locale);
+const allPlans = await getPanelPlans(locale);
+const homePlans = allPlans.slice(0, 3);
 const latestNews = listNews(db, { activeOnly: true, limit: 3 });
 const clients = listPortfolio(db, { activeOnly: true }).slice(0, 8);
 const carouselClients = [...clients, ...clients];
 
-const minUsd = (group: (typeof planGroups)[number]) =>
-  Math.min(...group.plans.map((plan) => plan.usdAmount));
-
-const allPlans = planGroups.flatMap((group) => group.plans);
 const aiPlan = allPlans.find((plan) => plan.aiLiveEnabled) ?? null;
 const aiPlanName = aiPlan?.name ?? tr('ia.plans.planFallback');
 const aiCharacters = aiPlan?.aiMonthlyCharacters ?? 50000;
@@ -287,27 +284,63 @@ const aiMusicMinutes = aiPlan?.aiMusicMinutes ?? 10;
         <p class="eyebrow">{tr('home.plans.eyebrow')}</p>
         <h2>{tr('home.plans.title')}</h2>
       </div>
-      <div class="grid-3">
-        {
-          planGroups.map((group) => (
-            <Module label={group.label} led="ok">
-              <p class="muted">{group.description}</p>
-              <p class="plan-from">
-                {tr('home.plans.from')} <span class="mono">{formatUSD(minUsd(group))}</span>{tr('home.plans.perMonth')}
-              </p>
-              <ConsoleButton variant="ghost" href={localizedPath(locale, '/planes')}>{tr('home.plans.viewPlans', { count: group.plans.length })}</ConsoleButton>
-            </Module>
-          ))
-        }
-      </div>
-      <div class="ai-plan-note">
-        <div>
-          <span class="mono">{tr('home.aiPlan.eyebrow')}</span>
-          <strong>{aiPlanName}</strong>
-          <span class="muted">{tr('home.aiPlan.characters', { count: aiCharacters.toLocaleString(locale === 'en' ? 'en-US' : 'es-CL'), minutes: aiMusicMinutes })}</span>
+      {homePlans.length === 0 ? (
+        <div class="plans-empty">
+          <OnAirBadge label={tr('common.noSignal')} tone="danger" />
+          <h3>{tr('plans.empty.title')}</h3>
+          <p class="muted">{tr('plans.empty.text')}</p>
         </div>
-        <ConsoleButton variant="ghost" href={localizedPath(locale, '/ia')}>{tr('home.aiPlan.cta')}</ConsoleButton>
-      </div>
+      ) : (
+        <>
+          <div class="grid-3 home-plans">
+            {homePlans.map((plan) => (
+              <Module
+                label={plan.aiLiveEnabled ? tr('plans.badge.ai') : tr('plans.badge.noAi')}
+                led={plan.aiLiveEnabled ? 'signal' : 'off'}
+              >
+                {plan.imageUrl && (
+                  <img
+                    class="home-plan__image"
+                    src={plan.imageUrl}
+                    alt={plan.name}
+                    loading="lazy"
+                  />
+                )}
+                <h3>{plan.name}</h3>
+                <p class="muted home-plan__desc">{plan.description}</p>
+                <p class="home-plan__price">
+                  <span class="mono">{formatUSD(plan.usdAmount)}</span>
+                  <span class="home-plan__period">{tr('plans.perMonth')}</span>
+                </p>
+                <div class="home-plan__actions">
+                  <ConsoleButton
+                    href={plan.contractUrl?.trim() || `mailto:${content.global.contactEmail}`}
+                    target={/^https?:\/\//i.test(plan.contractUrl?.trim() ?? '') ? '_blank' : undefined}
+                    rel={/^https?:\/\//i.test(plan.contractUrl?.trim() ?? '') ? 'noopener' : undefined}
+                  >
+                    {tr('plans.contract')}
+                  </ConsoleButton>
+                </div>
+              </Module>
+            ))}
+          </div>
+          <div class="plans-more">
+            <ConsoleButton variant="ghost" href={localizedPath(locale, '/planes')}>
+              {tr('home.plans.viewPlans', { count: allPlans.length })}
+            </ConsoleButton>
+          </div>
+        </>
+      )}
+      {aiPlan && (
+        <div class="ai-plan-note">
+          <div>
+            <span class="mono">{tr('home.aiPlan.eyebrow')}</span>
+            <strong>{aiPlanName}</strong>
+            <span class="muted">{tr('home.aiPlan.characters', { count: aiCharacters.toLocaleString(locale === 'en' ? 'en-US' : 'es-CL'), minutes: aiMusicMinutes })}</span>
+          </div>
+          <ConsoleButton variant="ghost" href={localizedPath(locale, '/ia')}>{tr('home.aiPlan.cta')}</ConsoleButton>
+        </div>
+      )}
     </div>
   </section>
 
@@ -576,6 +609,64 @@ const aiMusicMinutes = aiPlan?.aiMusicMinutes ?? 10;
     display: flex;
     justify-content: flex-end;
     margin-top: var(--space-6);
+  }
+
+  .home-plan__image {
+    width: 100%;
+    height: auto;
+    margin-bottom: var(--space-4);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+  }
+
+  .home-plan__desc {
+    display: -webkit-box;
+    overflow: hidden;
+    margin-top: var(--space-2);
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+
+  .home-plan__price {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+    color: var(--text);
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+
+  .home-plan__price .mono {
+    color: var(--signal);
+    font-size: 1.5rem;
+  }
+
+  .home-plan__period {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    color: var(--steel);
+  }
+
+  .home-plan__actions {
+    margin-top: auto;
+    padding-top: var(--space-4);
+  }
+
+  .plans-more {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: var(--space-5);
+  }
+
+  .plans-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
   }
 
   .ai-plan-note {
