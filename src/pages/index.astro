@@ -116,7 +116,10 @@ const aiMusicMinutes = aiPlan?.aiMusicMinutes ?? 10;
       <div class="grid-3">
         {
           AI_FEATURES.slice(0, 6).map((feature) => (
-            <Module label={`${locale === 'en' ? 'AI' : 'IA'} ${feature.code}`} icon={feature.icon} led="signal">
+            <Module label={`${locale === 'en' ? 'AI' : 'IA'} ${feature.code}`} led="signal">
+              <span class="ai-feature__icon" aria-hidden="true">
+                <Icon name={feature.icon ?? 'mic'} size={22} />
+              </span>
               <h3>{feature.title}</h3>
               <p class="muted">{feature.description}</p>
               <ul class="points">{feature.points.map((point) => <li>{point}</li>)}</ul>
@@ -551,6 +554,21 @@ const aiMusicMinutes = aiPlan?.aiMusicMinutes ?? 10;
     color: var(--text);
     letter-spacing: 0.1em;
     text-transform: uppercase;
+  }
+
+  .ai-feature__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    align-self: flex-start;
+    width: 2.75rem;
+    height: 2.75rem;
+    margin-bottom: var(--space-4);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--panel-2);
+    color: var(--signal);
   }
 
   .ai-more {
