@@ -28,6 +28,37 @@
       animation-timeline: var(--sd-scroll);
     }
 
+    /* Home hero: parallax + signal waveform tied to the hero's exit. */
+    .site-scroll .hero {
+      --sd-hero-timeline: --sd-hero;
+      view-timeline-name: --sd-hero;
+      view-timeline-axis: block;
+    }
+
+    .site-scroll .hero .hero-bg {
+      animation: sd-hero-bg linear both;
+      animation-timeline: var(--sd-hero-timeline);
+      animation-range: exit 0% exit 100%;
+    }
+
+    .site-scroll .hero .hero-copy {
+      animation: sd-hero-copy linear both;
+      animation-timeline: var(--sd-hero-timeline);
+      animation-range: exit 0% exit 100%;
+    }
+
+    .site-scroll .hero .hero-console {
+      animation: sd-hero-console linear both;
+      animation-timeline: var(--sd-hero-timeline);
+      animation-range: exit 0% exit 100%;
+    }
+
+    .site-scroll .hero-wave__bars--fill {
+      animation: sd-hero-fill linear both;
+      animation-timeline: var(--sd-hero-timeline);
+      animation-range: exit 0% exit 100%;
+    }
+
     /* Section headings reveal as they enter. */
     .site-scroll .band:not(.hero):not(.hero-band) .section-head {
       animation: sd-rise linear both;
@@ -100,6 +131,46 @@
     @keyframes sd-progress {
       to {
         scale: 1 1;
+      }
+    }
+
+    @keyframes sd-hero-bg {
+      from {
+        translate: 0 0;
+        scale: 1.02;
+      }
+      to {
+        translate: 0 38px;
+        scale: 1.06;
+      }
+    }
+
+    @keyframes sd-hero-copy {
+      from {
+        translate: 0 0;
+      }
+      to {
+        translate: 0 -18px;
+      }
+    }
+
+    @keyframes sd-hero-console {
+      from {
+        translate: 0 0;
+        scale: 1;
+      }
+      to {
+        translate: 0 56px;
+        scale: 1.045;
+      }
+    }
+
+    @keyframes sd-hero-fill {
+      from {
+        clip-path: inset(0 100% 0 0);
+      }
+      to {
+        clip-path: inset(0 0 0 0);
       }
     }
 

@@ -40,11 +40,31 @@ const aiPlan = allPlans.find((plan) => plan.aiLiveEnabled) ?? null;
 const aiPlanName = aiPlan?.name ?? tr('ia.plans.planFallback');
 const aiCharacters = aiPlan?.aiMonthlyCharacters ?? 50000;
 const aiMusicMinutes = aiPlan?.aiMusicMinutes ?? 10;
+
+const heroWaveBars = Array.from({ length: 64 }, (_, index) => {
+  const value =
+    Math.abs(Math.sin(index * 0.55) * 0.5) +
+    Math.abs(Math.sin(index * 0.18) * 0.32) +
+    0.15;
+  return Math.round(Math.min(value, 1) * 100) / 100;
+});
 ---
 
 <SiteLayout page="home" title={tr('home.metaTitle')} description={tr('home.metaDescription')}>
   <section class="hero band band--dark">
     <HeroBackground />
+    <div class="hero-wave" aria-hidden="true">
+      <div class="hero-wave__bars">
+        {heroWaveBars.map((height, index) => (
+          <span style={`--h:${height};--i:${index}`} />
+        ))}
+      </div>
+      <div class="hero-wave__bars hero-wave__bars--fill">
+        {heroWaveBars.map((height, index) => (
+          <span style={`--h:${height};--i:${index}`} />
+        ))}
+      </div>
+    </div>
     <div class="container hero-grid">
       <div class="hero-copy">
         <OnAirBadge label={tr('home.hero.badge')} />
@@ -462,6 +482,41 @@ const aiMusicMinutes = aiPlan?.aiMusicMinutes ?? 10;
     overflow: hidden;
     padding-block: var(--space-9) var(--space-8);
     border-bottom: 1px solid var(--line);
+  }
+
+  .hero-wave {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 0;
+    height: clamp(4.5rem, 12vw, 9rem);
+    overflow: hidden;
+    pointer-events: none;
+    -webkit-mask-image: linear-gradient(to top, #000 0%, rgba(0, 0, 0, 0.65) 55%, transparent 100%);
+    mask-image: linear-gradient(to top, #000 0%, rgba(0, 0, 0, 0.65) 55%, transparent 100%);
+  }
+
+  .hero-wave__bars {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    padding-inline: var(--space-5);
+  }
+
+  .hero-wave__bars span {
+    flex: 1 1 0;
+    height: calc(var(--h) * 100%);
+    min-height: 2px;
+    border-radius: 1px;
+    background: color-mix(in srgb, var(--signal) 20%, var(--line));
+    opacity: 0.55;
+  }
+
+  .hero-wave__bars--fill span {
+    background: var(--signal-gradient-v);
+    opacity: 0.8;
   }
 
   .live-demo-band {
