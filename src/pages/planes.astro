@@ -22,10 +22,6 @@ const groups = await getPanelPlanGroups(locale);
       <p class="eyebrow">{tr('plans.hero.eyebrow')}</p>
       <h1 class="display">{tr('plans.hero.title')}</h1>
       <p class="lede muted">{tr('plans.hero.description')}</p>
-      <p class="hero-trial">
-        <span class="hero-trial__tag mono">{tr('plans.hero.trialTag')}</span>
-        {tr('plans.hero.trialText')}
-      </p>
     </div>
   </section>
 
@@ -51,12 +47,11 @@ const groups = await getPanelPlanGroups(locale);
             <div class="plans">
               {group.plans.map((plan, planIndex) => (
                 <Module label={String(planIndex + 1).padStart(2, '0')} led="signal">
-                  <div class:list={['plan-media', { 'plan-media--bare': !plan.imageUrl }]}>
-                    {plan.imageUrl && (
+                  {plan.imageUrl && (
+                    <div class="plan-media">
                       <img class="plan-image" src={plan.imageUrl} alt={plan.name} loading="lazy" />
-                    )}
-                    <span class="trial mono">{tr('plans.hero.trialTag')}</span>
-                  </div>
+                    </div>
+                  )}
                   <div class="plan-title">
                     <h3>{plan.name}</h3>
                     {plan.aiLiveEnabled ? (
@@ -154,31 +149,6 @@ const groups = await getPanelPlanGroups(locale);
     max-width: 40rem;
   }
 
-  .hero-trial {
-    display: inline-flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: var(--space-3);
-    margin-top: var(--space-5);
-    padding: var(--space-3) var(--space-4);
-    border: 1px solid var(--signal);
-    border-radius: var(--radius);
-    background: rgba(53, 214, 208, 0.08);
-    color: var(--text);
-    max-width: 40rem;
-  }
-
-  .hero-trial__tag {
-    padding: var(--space-1) var(--space-3);
-    font-size: 0.6875rem;
-    font-weight: 600;
-    letter-spacing: 0.14em;
-    color: var(--ink);
-    background: var(--signal);
-    border-radius: var(--radius-sm);
-    white-space: nowrap;
-  }
-
   .plans {
     display: grid;
     gap: var(--space-5);
@@ -196,30 +166,6 @@ const groups = await getPanelPlanGroups(locale);
     height: auto;
     border-radius: var(--radius-sm);
     border: 1px solid var(--line);
-  }
-
-  .trial {
-    position: absolute;
-    top: var(--space-3);
-    right: var(--space-3);
-    padding: var(--space-1) var(--space-3);
-    font-size: 0.6875rem;
-    font-weight: 600;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--ink);
-    background: var(--signal);
-    border-radius: var(--radius-sm);
-    box-shadow: 0 8px 20px -10px rgba(53, 214, 208, 0.9);
-  }
-
-  .plan-media--bare .trial {
-    position: static;
-    display: inline-block;
-    color: var(--signal);
-    background: transparent;
-    border: 1px solid var(--line);
-    box-shadow: none;
   }
 
   .prices {
