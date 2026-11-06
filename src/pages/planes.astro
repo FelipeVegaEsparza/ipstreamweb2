@@ -6,7 +6,7 @@ import Module from '../components/ui/Module.astro';
 import OnAirBadge from '../components/ui/OnAirBadge.astro';
 import HeroBackground from '../components/HeroBackground.astro';
 import { getPanelPlanGroups } from '../lib/panel-plans';
-import { formatUSD } from '../lib/format';
+import { formatCLP, formatUSD } from '../lib/format';
 import { SITE } from '../lib/site';
 import { getLocale, t } from '../lib/i18n';
 
@@ -70,10 +70,18 @@ const groups = await getPanelPlanGroups(locale);
                   )}
 
                   <dl class="prices">
-                    <div>
-                      <dt class="mono">{tr('plans.usd')}</dt>
-                      <dd class="mono price">{formatUSD(plan.usdAmount)}<span class="per">{plan.interval === 'yearly' ? tr('plans.perYear') : tr('plans.perMonth')}</span></dd>
-                    </div>
+                    {plan.usdAmount != null && (
+                      <div>
+                        <dt class="mono">{tr('plans.usd')}</dt>
+                        <dd class="mono price">{formatUSD(plan.usdAmount)}<span class="per">{plan.interval === 'yearly' ? tr('plans.perYear') : tr('plans.perMonth')}</span></dd>
+                      </div>
+                    )}
+                    {plan.clpAmount != null && (
+                      <div>
+                        <dt class="mono">{tr('plans.clp')}</dt>
+                        <dd class="mono price">{formatCLP(plan.clpAmount)}<span class="per">{plan.interval === 'yearly' ? tr('plans.perYear') : tr('plans.perMonth')}</span></dd>
+                      </div>
+                    )}
                   </dl>
 
                   {plan.features && plan.features.length > 0 && (
@@ -170,6 +178,7 @@ const groups = await getPanelPlanGroups(locale);
 
   .prices {
     display: flex;
+    flex-wrap: wrap;
     gap: var(--space-6);
     margin-block: var(--space-5);
     padding-block: var(--space-4);

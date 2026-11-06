@@ -10,8 +10,9 @@ export interface PanelPlan {
   description: string
   interval: string
   services: string
-  usdAmount: number
-  currency: 'USD'
+  usdAmount: number | null
+  clpAmount: number | null
+  currency: 'USD' | 'CLP'
   features: string[]
   maxDjs: number
   aiLiveEnabled: boolean
@@ -224,6 +225,8 @@ function localPlans(): PanelPlan[] {
       .flatMap((group) => group.plans)
       .map((plan) => {
         const services = /tv/i.test(plan.planName) ? 'tv' : 'radio'
+        const usdAmount = plan.usdPrice && plan.usdPrice > 0 ? plan.usdPrice : null
+        const clpAmount = plan.price > 0 ? plan.price : null
         return {
           id: String(plan.id),
           slug: panelSlugFromLocal(plan.contractUrl, plan.planName),
@@ -231,8 +234,9 @@ function localPlans(): PanelPlan[] {
           description: plan.description ?? '',
           interval: 'monthly',
           services,
-          usdAmount: plan.usdPrice ?? 0,
-          currency: 'USD' as const,
+          usdAmount,
+          clpAmount,
+          currency: usdAmount !== null ? ('USD' as const) : ('CLP' as const),
           features: plan.features ?? [],
           maxDjs: 0,
           aiLiveEnabled: false,
@@ -245,7 +249,7 @@ function localPlans(): PanelPlan[] {
           contractUrl: plan.contractUrl ?? `${SITE.panelUrl}planes/${panelSlugFromLocal(plan.contractUrl, plan.planName)}`,
         }
       })
-      .filter((plan) => plan.usdAmount > 0)
+      .filter((plan) => (plan.usdAmount ?? 0) > 0 || (plan.clpAmount ?? 0) > 0)
   } catch {
     return []
   }
@@ -262,7 +266,11 @@ export async function fetchPanelPlans(): Promise<PanelPlan[]> {
     if (!res.ok) throw new Error(`panel plans ${res.status}`)
     const data = (await res.json()) as { plans?: PanelPlan[] }
     const plans = Array.isArray(data.plans)
-      ? data.plans.filter((plan) => typeof plan.usdAmount === 'number' && plan.usdAmount > 0)
+      ? data.plans.filter(
+          (plan) =>
+            (typeof plan.usdAmount === 'number' && plan.usdAmount > 0) ||
+            (typeof plan.clpAmount === 'number' && plan.clpAmount > 0)
+        )
       : []
     cache = { at: Date.now(), plans }
     return plans

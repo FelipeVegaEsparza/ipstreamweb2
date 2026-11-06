@@ -16,7 +16,7 @@ import { listNews } from '../lib/db/repositories/news';
 import { listPortfolio } from '../lib/db/repositories/portfolio';
 import { createSiteTranslator, getSiteContent } from '../lib/panel-content';
 import { getLocale, localizedPath } from '../lib/i18n';
-import { formatUSD, formatDateShort } from '../lib/format';
+import { formatCLP, formatUSD, formatDateShort } from '../lib/format';
 import { getPanelPlans } from '../lib/panel-plans';
 
 const locale = getLocale(Astro.locals);
@@ -281,10 +281,22 @@ const aiMusicMinutes = aiPlan?.aiMusicMinutes ?? 10;
                 )}
                 <h3>{plan.name}</h3>
                 <p class="muted home-plan__desc">{plan.description}</p>
-                <p class="home-plan__price">
-                  <span class="mono">{formatUSD(plan.usdAmount)}</span>
-                  <span class="home-plan__period">{tr('plans.perMonth')}</span>
-                </p>
+                {plan.usdAmount != null && (
+                  <p class="home-plan__price">
+                    <span class="mono">{formatUSD(plan.usdAmount)}</span>
+                    <span class="home-plan__period">
+                      {plan.interval === 'yearly' ? tr('plans.perYear') : tr('plans.perMonth')}
+                    </span>
+                  </p>
+                )}
+                {plan.clpAmount != null && (
+                  <p class="home-plan__price home-plan__price--clp">
+                    <span class="mono">{formatCLP(plan.clpAmount)}</span>
+                    <span class="home-plan__period">
+                      {tr('plans.clp')}{plan.interval === 'yearly' ? tr('plans.perYear') : tr('plans.perMonth')}
+                    </span>
+                  </p>
+                )}
                 <div class="home-plan__actions">
                   <ConsoleButton
                     href={plan.contractUrl?.trim() || `mailto:${content.global.contactEmail}`}
@@ -599,6 +611,20 @@ const aiMusicMinutes = aiPlan?.aiMusicMinutes ?? 10;
   .home-plan__price .mono {
     color: var(--signal);
     font-size: 1.5rem;
+  }
+
+  .home-plan__price--clp {
+    margin-top: var(--space-1);
+    font-size: 1rem;
+  }
+
+  .home-plan__price--clp .mono {
+    color: var(--text);
+    font-size: 1.125rem;
+  }
+
+  .home-plan__price--clp .home-plan__period {
+    font-size: 0.625rem;
   }
 
   .home-plan__period {
