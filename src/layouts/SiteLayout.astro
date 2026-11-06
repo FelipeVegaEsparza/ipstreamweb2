@@ -8,6 +8,7 @@ import { DEFAULT_SEO, getPageSeo, getSeoSettings, type SeoSettings } from '../li
 import { getLocale } from '../lib/i18n';
 import { SITE } from '../lib/site';
 import { getSiteContent } from '../lib/panel-content';
+import '../styles/scroll-driven.css';
 
 interface Props {
   title: string;
@@ -63,7 +64,7 @@ const noindex = rest.noindex || pageSeo?.noindex || false;
 >
   <a class="skip-link" href="#contenido">Saltar al contenido</a>
   <Header email={panelContent.global.contactEmail || SITE.email} />
-  <main id="contenido"><slot /></main>
+  <main id="contenido" class="site-scroll"><slot /></main>
   <Footer social={social} email={panelContent.global.contactEmail || SITE.email} />
 </BaseLayout>
 
