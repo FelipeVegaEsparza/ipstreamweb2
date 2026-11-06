@@ -66,6 +66,72 @@ const noindex = rest.noindex || pageSeo?.noindex || false;
   <Header email={panelContent.global.contactEmail || SITE.email} />
   <main id="contenido" class="site-scroll"><slot /></main>
   <Footer social={social} email={panelContent.global.contactEmail || SITE.email} />
+  <script>
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const supportsScrollTimeline =
+      typeof CSS !== 'undefined' && CSS.supports('animation-timeline: view()')
+
+    if (!prefersReduced && !supportsScrollTimeline && 'IntersectionObserver' in window) {
+      const root = document.documentElement
+      root.classList.add('scroll-fallback')
+
+      const revealSelector = [
+        '.site-scroll .band:not(.hero):not(.hero-band) .section-head',
+        '.site-scroll .band:not(.hero):not(.hero-band) .module',
+        '.site-scroll .voice-card',
+        '.site-scroll .client',
+        '.site-scroll .news-card',
+        '.site-scroll .tutorial-row',
+        '.site-scroll .highlight-row',
+        '.site-scroll .measure-card',
+        '.site-scroll .related-item',
+        '.site-scroll .step',
+        '.site-scroll .pro-item',
+        '.site-scroll .player',
+        '.site-scroll .live-demo',
+        '.site-scroll .studio',
+        '.site-scroll .chat-feature',
+        '.site-scroll .contact-grid',
+        '.site-scroll .ai-plan',
+        '.site-scroll .ai-plan-note',
+        '.site-scroll .cta',
+        '.site-scroll .cta-inner',
+        '.site-scroll .plans-more',
+        '.site-scroll .ai-more',
+        '.site-scroll .more',
+        '.site-scroll .empty',
+        '.site-scroll .plans-empty',
+      ].join(',')
+
+      const elements = Array.from(document.querySelectorAll(revealSelector))
+      elements.forEach((element) => element.classList.add('sd-reveal'))
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (!entry.isIntersecting) continue
+            entry.target.classList.add('sd-visible')
+            observer.unobserve(entry.target)
+          }
+        },
+        { rootMargin: '0px 0px -8% 0px', threshold: 0.08 }
+      )
+
+      elements.forEach((element) => observer.observe(element))
+
+      const updateProgress = () => {
+        const max = root.scrollHeight - window.innerHeight
+        root.style.setProperty(
+          '--sd-scroll-progress',
+          String(max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0)
+        )
+      }
+
+      updateProgress()
+      window.addEventListener('scroll', updateProgress, { passive: true })
+      window.addEventListener('resize', updateProgress)
+    }
+  </script>
 </BaseLayout>
 
 <style>

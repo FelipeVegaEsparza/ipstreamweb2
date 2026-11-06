@@ -32,7 +32,7 @@
     .site-scroll .band:not(.hero):not(.hero-band) .section-head {
       animation: sd-rise linear both;
       animation-timeline: var(--sd-view);
-      animation-range: entry 0% entry 60%;
+      animation-range: entry 0% entry 90%;
       animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
     }
 
@@ -50,7 +50,7 @@
     .site-scroll .player {
       animation: sd-rise linear both;
       animation-timeline: var(--sd-view);
-      animation-range: entry 6% cover 32%;
+      animation-range: entry 0% entry 100%;
       animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
     }
 
@@ -70,7 +70,7 @@
     .site-scroll .plans-empty {
       animation: sd-rise linear both;
       animation-timeline: var(--sd-view);
-      animation-range: entry 4% cover 30%;
+      animation-range: entry 0% entry 90%;
       animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
     }
 
@@ -85,7 +85,7 @@
     .site-scroll .article .hero-image img {
       animation: sd-settle linear both;
       animation-timeline: var(--sd-view);
-      animation-range: entry 0% cover 42%;
+      animation-range: entry 0% entry 100%;
       animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
       transform-origin: center;
     }
@@ -122,5 +122,43 @@
         scale: 1;
       }
     }
+  }
+}
+
+/*
+ * Fallback for browsers without animation-timeline support.
+ * The class is added by the site script only when needed, so no-JS users and
+ * users who prefer reduced motion always see the content immediately.
+ */
+html.scroll-fallback .site-scroll::before {
+  content: '';
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 60;
+  height: 2px;
+  pointer-events: none;
+  background: var(--signal-gradient);
+  transform-origin: left center;
+  transform: scaleX(var(--sd-scroll-progress, 0));
+}
+
+html.scroll-fallback .site-scroll .sd-reveal {
+  opacity: 0;
+  translate: 0 22px;
+  transition:
+    opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+    translate 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html.scroll-fallback .site-scroll .sd-reveal.sd-visible {
+  opacity: 1;
+  translate: 0 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.scroll-fallback .site-scroll .sd-reveal {
+    opacity: 1;
+    translate: 0 0;
+    transition: none;
   }
 }
