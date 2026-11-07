@@ -36,6 +36,13 @@
       "when": 1790401846706,
       "tag": "0004_messy_rhino",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1794014733880,
+      "tag": "0005_analytics",
+      "breakpoints": true
     }
   ]
 }

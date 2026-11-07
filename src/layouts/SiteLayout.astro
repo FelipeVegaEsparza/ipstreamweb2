@@ -139,6 +139,261 @@ const noindex = rest.noindex || pageSeo?.noindex || false;
       window.addEventListener('resize', updateProgress)
     }
   </script>
+  <script>
+    const analyticsEnabled =
+      !navigator.webdriver &&
+      navigator.doNotTrack !== '1' &&
+      (navigator as Navigator & { globalPrivacyControl?: boolean }).globalPrivacyControl !== true
+
+    if (analyticsEnabled) {
+      const storageGet = (storage: Storage, key: string): string | null => {
+        try {
+          return storage.getItem(key)
+        } catch {
+          return null
+        }
+      }
+      const storageSet = (storage: Storage, key: string, value: string): void => {
+        try {
+          storage.setItem(key, value)
+        } catch {}
+      }
+      const randomId = (): string =>
+        typeof crypto.randomUUID === 'function'
+          ? crypto.randomUUID()
+          : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`
+
+      const VISITOR_KEY = 'cf_vid'
+      const SESSION_KEY = 'cf_sid'
+      const SESSION_TS_KEY = 'cf_sid_ts'
+      const SESSION_TTL = 30 * 60 * 1000
+
+      let visitorId = storageGet(localStorage, VISITOR_KEY)
+      if (!visitorId) {
+        visitorId = randomId()
+        storageSet(localStorage, VISITOR_KEY, visitorId)
+      }
+
+      let sessionId = storageGet(sessionStorage, SESSION_KEY)
+      const lastActivity = Number(storageGet(sessionStorage, SESSION_TS_KEY) || 0)
+      if (!sessionId || !lastActivity || Date.now() - lastActivity > SESSION_TTL) {
+        sessionId = randomId()
+        storageSet(sessionStorage, SESSION_KEY, sessionId)
+      }
+      storageSet(sessionStorage, SESSION_TS_KEY, String(Date.now()))
+
+      const pageviewId = randomId()
+      const path = window.location.pathname
+      const startedAt = Date.now()
+      const params = new URLSearchParams(window.location.search)
+      let maxScrollDepth = 0
+      let pageLeft = false
+
+      const send = (payload: Record<string, unknown>): void => {
+        const body = JSON.stringify(payload)
+        try {
+          if (typeof navigator.sendBeacon === 'function') {
+            const blob = new Blob([body], { type: 'application/json' })
+            if (navigator.sendBeacon('/api/analytics/collect', blob)) return
+          }
+          void fetch('/api/analytics/collect', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body,
+            keepalive: true,
+          }).catch(() => {})
+        } catch {}
+      }
+
+      const base = () => ({
+        sessionId,
+        visitorId,
+        pageviewId,
+        path,
+        locale: document.documentElement.lang === 'en' ? 'en' : 'es',
+        screenWidth: window.screen?.width,
+        screenHeight: window.screen?.height,
+        utmSource: params.get('utm_source') || undefined,
+        utmMedium: params.get('utm_medium') || undefined,
+        utmCampaign: params.get('utm_campaign') || undefined,
+      })
+
+      send({
+        type: 'pageview',
+        ...base(),
+        title: document.title,
+        referrer: document.referrer,
+      })
+
+      const updateScroll = () => {
+        const total = document.documentElement.scrollHeight - window.innerHeight
+        const depth = total > 0 ? (window.scrollY / total) * 100 : 100
+        maxScrollDepth = Math.max(maxScrollDepth, Math.min(100, Math.round(depth)))
+      }
+
+      let scrollScheduled = false
+      window.addEventListener(
+        'scroll',
+        () => {
+          if (scrollScheduled) return
+          scrollScheduled = true
+          requestAnimationFrame(() => {
+            updateScroll()
+            scrollScheduled = false
+          })
+        },
+        { passive: true }
+      )
+      updateScroll()
+
+      const sectionSlug = (value: string): string =>
+        value
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-+|-+$/g, '')
+
+      const sectionElements = Array.from(
+        document.querySelectorAll<HTMLElement>('main.site-scroll .band')
+      ).filter((element) => !element.parentElement?.closest('.band'))
+      const activeSections = new Map<
+        HTMLElement,
+        { key: string; label: string; startedAt: number; maxRatio: number }
+      >()
+
+      const sectionInfo = (section: HTMLElement, index: number) => {
+        const heading = section.querySelector('h1, h2')?.textContent?.trim() || ''
+        const attr = section.getAttribute('data-analytics-section') || ''
+        const label = heading || attr || `Sección ${index + 1}`
+        const key = attr || section.id || sectionSlug(heading) || `section-${index + 1}`
+        return { key, label }
+      }
+
+      const flushSection = (section: HTMLElement) => {
+        const data = activeSections.get(section)
+        if (!data) return
+        activeSections.delete(section)
+        send({
+          type: 'section',
+          ...base(),
+          sectionKey: data.key,
+          sectionLabel: data.label,
+          durationMs: Math.min(Date.now() - data.startedAt, 30 * 60 * 1000),
+          maxVisibleRatio: data.maxRatio,
+        })
+      }
+
+      if ('IntersectionObserver' in window) {
+        const sectionObserver = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              const section = entry.target as HTMLElement
+              const index = sectionElements.indexOf(section)
+              const info = sectionInfo(section, index)
+              const active = activeSections.get(section)
+
+              if (entry.isIntersecting) {
+                if (active) {
+                  active.maxRatio = Math.max(active.maxRatio, entry.intersectionRatio)
+                } else {
+                  activeSections.set(section, {
+                    ...info,
+                    startedAt: Date.now(),
+                    maxRatio: entry.intersectionRatio,
+                  })
+                }
+              } else if (active) {
+                active.maxRatio = Math.max(active.maxRatio, entry.intersectionRatio)
+                flushSection(section)
+              }
+            }
+          },
+          { threshold: [0, 0.25, 0.5, 0.75, 1], rootMargin: '0px 0px -8% 0px' }
+        )
+        sectionElements.forEach((section) => sectionObserver.observe(section))
+      }
+
+      const leave = () => {
+        if (pageLeft) return
+        pageLeft = true
+        updateScroll()
+        activeSections.forEach((_, section) => flushSection(section))
+        send({
+          type: 'pageleave',
+          ...base(),
+          durationMs: Date.now() - startedAt,
+          maxScrollDepth,
+        })
+      }
+
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') leave()
+      })
+      window.addEventListener('pagehide', leave)
+
+      document.addEventListener('click', (event) => {
+        const target = event.target as Element | null
+        const element = target?.closest<HTMLElement>('a, button')
+        if (!element || element.closest('header, footer')) return
+
+        const href = element instanceof HTMLAnchorElement ? element.getAttribute('href') || '' : ''
+        const planModule = element.closest<HTMLElement>('.module')
+        const planActions = planModule?.querySelector('.plan-actions') ?? null
+        const isPlanAction = Boolean(planActions)
+        const isPlanDemo =
+          isPlanAction && planActions
+            ? Array.from(planActions.querySelectorAll('a, button')).indexOf(element) > 0
+            : false
+        const planName =
+          (isPlanAction ? planModule?.querySelector('h3')?.textContent?.trim() : '') ||
+          element.textContent?.trim().replace(/\s+/g, ' ').slice(0, 80) ||
+          ''
+
+        let name: string | null = null
+        let label = planName
+
+        if (isPlanAction) {
+          name = isPlanDemo ? 'plan_demo' : 'plan_click'
+        } else if (href.includes('/planes/')) {
+          name = 'plan_click'
+        } else if (href.includes('/planes')) {
+          name = 'cta_planes'
+        } else if (href.includes('/ia')) {
+          name = 'cta_ia'
+        } else if (href.includes('/registro') || href.includes('panel.casterfly.com')) {
+          name = 'cta_registro'
+        } else if (href.startsWith('mailto:')) {
+          name = 'cta_email'
+        } else if (href.includes('wa.me') || href.includes('whatsapp')) {
+          name = 'cta_whatsapp'
+        } else if (element.matches('[data-live-toggle]')) {
+          name = 'demo_play'
+        } else if (element.matches('[data-voice-toggle]')) {
+          name = 'voice_play'
+        }
+
+        if (!name) return
+        send({
+          type: 'event',
+          ...base(),
+          name,
+          label: label || undefined,
+        })
+      })
+
+      document.addEventListener('submit', (event) => {
+        const form = event.target as HTMLFormElement | null
+        if (!form?.matches('.contact-form')) return
+        send({
+          type: 'event',
+          ...base(),
+          name: 'contact_submit',
+          label: 'Formulario de contacto',
+        })
+      })
+    }
+  </script>
 </BaseLayout>
 
 <style>

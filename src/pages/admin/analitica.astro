@@ -1,0 +1,458 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { getDatabase } from '../../lib/db/client';
+import {
+  getAnalyticsOverview,
+  parseAnalyticsRange,
+  type AnalyticsRow,
+} from '../../lib/db/repositories/analytics';
+
+const db = getDatabase();
+const requested = Astro.url.searchParams.get('range');
+const days = parseAnalyticsRange(requested);
+const overview = getAnalyticsOverview(db, days);
+
+const ranges = [
+  { value: 7, label: '7 días' },
+  { value: 30, label: '30 días' },
+  { value: 90, label: '90 días' },
+];
+
+const numberFormat = new Intl.NumberFormat('es-CL');
+
+const formatNumber = (value: number) => numberFormat.format(Math.round(value));
+
+const formatDuration = (ms: number | undefined) => {
+  if (!ms || ms < 1000) return '—';
+  const totalSeconds = Math.round(ms / 1000);
+  if (totalSeconds < 60) return `${totalSeconds} s`;
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  if (minutes < 60) return `${minutes}m ${seconds}s`;
+  const hours = Math.floor(minutes / 60);
+  return `${hours}h ${minutes % 60}m`;
+};
+
+const formatPercent = (value: number | undefined) =>
+  value === undefined || Number.isNaN(value) ? '—' : `${Math.round(value)}%`;
+
+const maxViews = (rows: AnalyticsRow[]) => Math.max(1, ...rows.map((row) => row.views));
+
+const countryNames = new Intl.DisplayNames(['es'], { type: 'region' });
+const formatCountry = (code: string) => {
+  if (code.length !== 2) return code;
+  try {
+    return countryNames.of(code) ?? code;
+  } catch {
+    return code;
+  }
+};
+
+const DEVICE_LABELS: Record<string, string> = {
+  desktop: 'Escritorio',
+  mobile: 'Móvil',
+  tablet: 'Tablet',
+  console: 'Consola',
+  smarttv: 'Smart TV',
+  wearable: 'Wearable',
+  embedded: 'Otro',
+};
+const formatDevice = (code: string) => DEVICE_LABELS[code] || code;
+
+const countries = overview.countries.map((row) => ({ ...row, label: formatCountry(row.label) }));
+const devices = overview.devices.map((row) => ({ ...row, label: formatDevice(row.label) }));
+
+const kpis = [
+  { label: 'Páginas vistas', value: formatNumber(overview.kpis.pageviews) },
+  { label: 'Visitantes únicos', value: formatNumber(overview.kpis.visitors) },
+  { label: 'Sesiones', value: formatNumber(overview.kpis.sessions) },
+  { label: 'Rebote', value: `${overview.kpis.bounceRate}%` },
+  { label: 'Tiempo medio', value: formatDuration(overview.kpis.avgDuration) },
+  { label: 'Scroll medio', value: formatPercent(overview.kpis.avgScroll) },
+];
+
+const hasData = overview.kpis.pageviews > 0;
+const funnelMax = Math.max(1, ...overview.funnel.map((step) => step.value));
+const sectionsMax = maxViews(overview.sections);
+const referrersMax = maxViews(overview.referrers);
+const devicesMax = maxViews(overview.devices);
+const countriesMax = maxViews(overview.countries);
+const eventsMax = maxViews(overview.events);
+const plansMax = maxViews(overview.plans);
+
+const sinceLabel = new Date(`${overview.since.replace(' ', 'T')}Z`).toLocaleDateString('es-CL', {
+  day: '2-digit',
+  month: 'short',
+  year: 'numeric',
+});
+---
+
+<AdminLayout title="Analítica">
+  <div class="analytics-head">
+    <p class="hint">
+      Medición propia del sitio público, sin cookies de terceros ni IPs almacenadas. Desde {sinceLabel}.
+    </p>
+    <nav class="analytics-ranges" aria-label="Rango de tiempo">
+      {
+        ranges.map((range) => (
+          <a
+            href={`/admin/analitica?range=${range.value}`}
+            class:list={{ 'is-active': days === range.value }}
+            aria-current={days === range.value ? 'page' : undefined}
+          >
+            {range.label}
+          </a>
+        ))
+      }
+    </nav>
+  </div>
+
+  <div class="analytics-kpis">
+    {
+      kpis.map((kpi) => (
+        <div class="analytics-kpi">
+          <span class="analytics-kpi__label">{kpi.label}</span>
+          <span class="analytics-kpi__value mono">{kpi.value}</span>
+        </div>
+      ))
+    }
+  </div>
+
+  {
+    !hasData ? (
+      <div class="admin-card">
+        <h2>Sin datos todavía</h2>
+        <p class="hint">
+          La analítica empieza a registrar desde que esta versión está en producción. Las visitas que
+          entren desde ahora aparecerán aquí. Si usas un bloqueador o activaste Do Not Track, el sitio
+          no registra tu visita.
+        </p>
+      </div>
+    ) : (
+      <>
+        <div class="admin-card">
+          <h2>Páginas más vistas</h2>
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Página</th>
+                <th>Vistas</th>
+                <th>Visitantes</th>
+                <th>Tiempo medio</th>
+                <th>Scroll medio</th>
+              </tr>
+            </thead>
+            <tbody>
+              {overview.topPages.map((page) => (
+                <tr>
+                  <td class="mono">{page.label}</td>
+                  <td>{formatNumber(page.views)}</td>
+                  <td>{formatNumber(page.visitors ?? 0)}</td>
+                  <td>{formatDuration(page.avgDuration)}</td>
+                  <td>{formatPercent(page.avgScroll)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="analytics-grid">
+          <div class="admin-card">
+            <h2>Secciones vistas</h2>
+            <p class="hint">Bloques que las personas realmente vieron, con tiempo y proporción visible.</p>
+            <ul class="analytics-bars">
+              {overview.sections.map((row) => (
+                <li>
+                  <div class="analytics-bar__head">
+                    <span>{row.label}</span>
+                    <span class="mono">
+                      {formatNumber(row.views)} · {formatDuration(row.avgDuration)} ·{' '}
+                      {formatPercent(row.avgScroll)}
+                    </span>
+                  </div>
+                  <div class="analytics-bar">
+                    <span style={`width: ${Math.round((row.views / sectionsMax) * 100)}%`} />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div class="admin-card">
+            <h2>Procedencia</h2>
+            <p class="hint">Dominio de referencia de la primera página vista.</p>
+            <ul class="analytics-bars">
+              {overview.referrers.map((row) => (
+                <li>
+                  <div class="analytics-bar__head">
+                    <span>{row.label}</span>
+                    <span class="mono">{formatNumber(row.views)}</span>
+                  </div>
+                  <div class="analytics-bar">
+                    <span style={`width: ${Math.round((row.views / referrersMax) * 100)}%`} />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div class="admin-card">
+            <h2>Dispositivos</h2>
+            <ul class="analytics-bars">
+              {devices.map((row) => (
+                <li>
+                  <div class="analytics-bar__head">
+                    <span>{row.label}</span>
+                    <span class="mono">{formatNumber(row.views)}</span>
+                  </div>
+                  <div class="analytics-bar">
+                    <span style={`width: ${Math.round((row.views / devicesMax) * 100)}%`} />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div class="admin-card">
+            <h2>Países</h2>
+            <ul class="analytics-bars">
+              {countries.map((row) => (
+                <li>
+                  <div class="analytics-bar__head">
+                    <span>{row.label}</span>
+                    <span class="mono">{formatNumber(row.views)}</span>
+                  </div>
+                  <div class="analytics-bar">
+                    <span style={`width: ${Math.round((row.views / countriesMax) * 100)}%`} />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        <div class="analytics-grid">
+          <div class="admin-card">
+            <h2>Interés en planes</h2>
+            <p class="hint">Clics en las tarjetas o botones de cada plan.</p>
+            {overview.plans.length === 0 ? (
+              <p class="hint">Todavía no hay clics registrados.</p>
+            ) : (
+              <ul class="analytics-bars">
+                {overview.plans.map((row) => (
+                  <li>
+                    <div class="analytics-bar__head">
+                      <span>{row.label}</span>
+                      <span class="mono">{formatNumber(row.views)}</span>
+                    </div>
+                    <div class="analytics-bar">
+                      <span style={`width: ${Math.round((row.views / plansMax) * 100)}%`} />
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          <div class="admin-card">
+            <h2>Embudo de conversión</h2>
+            <p class="hint">De la home al clic en contratar.</p>
+            <ul class="analytics-funnel">
+              {overview.funnel.map((step) => (
+                <li>
+                  <span class="analytics-funnel__label">{step.label}</span>
+                  <div class="analytics-funnel__track">
+                    <span style={`width: ${Math.max(4, Math.round((step.value / funnelMax) * 100))}%`} />
+                  </div>
+                  <span class="mono analytics-funnel__value">{formatNumber(step.value)}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        <div class="admin-card">
+          <h2>Eventos</h2>
+          <p class="hint">Clics en CTAs, demos, formularios y otros puntos de contacto.</p>
+          {overview.events.length === 0 ? (
+            <p class="hint">Todavía no hay eventos registrados.</p>
+          ) : (
+            <ul class="analytics-bars">
+              {overview.events.map((row) => (
+                <li>
+                  <div class="analytics-bar__head">
+                    <span>{row.label}</span>
+                    <span class="mono">{formatNumber(row.views)}</span>
+                  </div>
+                  <div class="analytics-bar">
+                    <span style={`width: ${Math.round((row.views / eventsMax) * 100)}%`} />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </>
+    )
+  }
+</AdminLayout>
+
+<style>
+  .analytics-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin-bottom: var(--space-5);
+  }
+
+  .analytics-head .hint {
+    margin: 0;
+  }
+
+  .analytics-ranges {
+    display: inline-flex;
+    gap: 0.25rem;
+    padding: 0.25rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--ink);
+  }
+
+  .analytics-ranges a {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.35rem 0.6rem;
+    border-radius: var(--radius-sm);
+    color: var(--steel);
+  }
+
+  .analytics-ranges a:hover {
+    color: var(--text);
+  }
+
+  .analytics-ranges a.is-active {
+    background: rgba(53, 214, 208, 0.12);
+    color: var(--signal);
+  }
+
+  .analytics-kpis {
+    display: grid;
+    gap: var(--space-3);
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    margin-bottom: var(--space-6);
+  }
+
+  .analytics-kpi {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: linear-gradient(180deg, var(--panel), color-mix(in srgb, var(--panel) 88%, var(--ink)));
+    box-shadow: var(--shadow-panel);
+  }
+
+  .analytics-kpi__label {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--steel);
+  }
+
+  .analytics-kpi__value {
+    font-size: 1.6rem;
+    line-height: 1;
+    color: var(--text);
+  }
+
+  .analytics-grid {
+    display: grid;
+    gap: var(--space-5);
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  }
+
+  .analytics-grid .admin-card {
+    min-width: 0;
+  }
+
+  .analytics-bars,
+  .analytics-funnel {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .analytics-bar__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-3);
+    font-size: 0.8125rem;
+    margin-bottom: 0.35rem;
+  }
+
+  .analytics-bar__head > span:first-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .analytics-bar__head .mono {
+    flex-shrink: 0;
+    font-size: 0.6875rem;
+    color: var(--steel);
+  }
+
+  .analytics-bar {
+    height: 0.35rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--line) 60%, transparent);
+    overflow: hidden;
+  }
+
+  .analytics-bar > span {
+    display: block;
+    height: 100%;
+    min-width: 2px;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--signal), var(--signal-strong));
+  }
+
+  .analytics-funnel li {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.35rem;
+  }
+
+  .analytics-funnel__label {
+    font-size: 0.8125rem;
+  }
+
+  .analytics-funnel__track {
+    height: 0.5rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--line) 60%, transparent);
+    overflow: hidden;
+  }
+
+  .analytics-funnel__track > span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--signal), var(--signal-strong));
+  }
+
+  .analytics-funnel__value {
+    font-size: 0.6875rem;
+    color: var(--steel);
+  }
+</style>

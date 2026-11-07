@@ -31,13 +31,17 @@ afterAll(() => {
 });
 
 describe('esquema y migraciones', () => {
-  it('crea las 9 tablas de contenido', () => {
+  it('crea las tablas de contenido y de analítica', () => {
     const rows = handle.sqlite
       .prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '__drizzle%'")
       .all() as Array<{ name: string }>;
     const names = rows.map((row) => row.name).sort();
     expect(names).toEqual(
       [
+        'analytics_events',
+        'analytics_pageviews',
+        'analytics_section_views',
+        'analytics_sessions',
         'client_portfolio',
         'community_radios',
         'contact_messages',

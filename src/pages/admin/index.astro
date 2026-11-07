@@ -6,10 +6,13 @@ import { listNews } from '../../lib/db/repositories/news';
 import { listTutorials, listTutorialCategories } from '../../lib/db/repositories/tutorials';
 import { listPortfolio } from '../../lib/db/repositories/portfolio';
 import { listContactMessages } from '../../lib/db/repositories/contact';
+import { getAnalyticsOverview } from '../../lib/db/repositories/analytics';
 import { SITE } from '../../lib/site';
 
 const db = getDatabase();
+const analytics = getAnalyticsOverview(db, 7);
 const cards: Array<{ label: string; value: string | number; href: string; icon: string; external?: boolean }> = [
+  { label: 'Visitas (7 días)', value: analytics.kpis.pageviews, href: '/admin/analitica', icon: 'analytics' },
   { label: 'Planes y pagos (dashboard)', value: '↗', href: `${SITE.panelUrl}admin/billing`, icon: 'layers', external: true },
   { label: 'Noticias', value: listNews(db).length, href: '/admin/noticias', icon: 'news' },
   { label: 'Tutoriales', value: listTutorials(db).length, href: '/admin/tutoriales', icon: 'book' },
