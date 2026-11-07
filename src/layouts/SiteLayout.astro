@@ -64,12 +64,19 @@ const noindex = rest.noindex || pageSeo?.noindex || false;
 >
   <a class="skip-link" href="#contenido">Saltar al contenido</a>
   <Header email={panelContent.global.contactEmail || SITE.email} />
-  <main id="contenido" class="site-scroll"><slot /></main>
+  <main
+    id="contenido"
+    class:list={['site-scroll', { 'site-scroll--deck': page === 'home' }]}
+  ><slot /></main>
   <Footer social={social} email={panelContent.global.contactEmail || SITE.email} />
   <script>
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const supportsScrollTimeline =
       typeof CSS !== 'undefined' && CSS.supports('animation-timeline: view()')
+
+    if (document.querySelector('.site-scroll--deck')) {
+      document.documentElement.classList.add('site-deck')
+    }
 
     if (!prefersReduced && !supportsScrollTimeline && 'IntersectionObserver' in window) {
       const root = document.documentElement

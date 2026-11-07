@@ -233,3 +233,24 @@ html.scroll-fallback .site-scroll .sd-reveal.sd-visible {
     transition: none;
   }
 }
+
+/*
+ * Home deck: sections stop near their top like pages, and a fine top shadow
+ * makes each band read as a sheet sliding over the previous one.
+ */
+@media (min-width: 900px) and (prefers-reduced-motion: no-preference) {
+  html.site-deck {
+    scroll-snap-type: y proximity;
+    scroll-padding-top: 4.5625rem;
+  }
+
+  html.site-deck .site-scroll--deck > .band {
+    scroll-snap-align: start;
+    scroll-snap-stop: normal;
+    box-shadow: 0 -22px 42px -36px rgba(0, 0, 0, 0.9);
+  }
+
+  html.site-deck .site-scroll--deck > .band:first-child {
+    box-shadow: none;
+  }
+}
