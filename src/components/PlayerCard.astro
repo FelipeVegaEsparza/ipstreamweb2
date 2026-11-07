@@ -1,13 +1,4 @@
 ---
-import { Image } from 'astro:assets';
-import type { ImageMetadata } from 'astro';
-import player1 from '../assets/players/1.png';
-import player2 from '../assets/players/2.png';
-import player3 from '../assets/players/3.png';
-import player4 from '../assets/players/4.png';
-import player5 from '../assets/players/5.png';
-import player6 from '../assets/players/6.png';
-
 interface Props {
   code: string;
   title: string;
@@ -18,16 +9,16 @@ interface Props {
 
 const { code, title, description, tags, image } = Astro.props;
 
-const PLAYER_IMAGES: Record<string, ImageMetadata> = {
-  '/images/players/1.png': player1,
-  '/images/players/2.png': player2,
-  '/images/players/3.png': player3,
-  '/images/players/4.png': player4,
-  '/images/players/5.png': player5,
-  '/images/players/6.png': player6,
+const PLAYER_IDS: Record<string, string> = {
+  '/images/players/1.png': '1',
+  '/images/players/2.png': '2',
+  '/images/players/3.png': '3',
+  '/images/players/4.png': '4',
+  '/images/players/5.png': '5',
+  '/images/players/6.png': '6',
 };
 
-const source = PLAYER_IMAGES[image];
+const id = PLAYER_IDS[image];
 ---
 
 <article class="player">
@@ -38,14 +29,14 @@ const source = PLAYER_IMAGES[image];
 
   <div class="player__screen">
     {
-      source ? (
-        <Image
-          src={source}
-          alt={title}
-          widths={[400, 800]}
+      id ? (
+        <img
+          src={`/media/players/${id}-800.webp`}
+          srcset={`/media/players/${id}-400.webp 400w, /media/players/${id}-800.webp 800w, /media/players/${id}-1200.webp 1200w`}
           sizes="(min-width: 1100px) 360px, (min-width: 700px) 45vw, 85vw"
-          format="webp"
-          quality={82}
+          alt={title}
+          width="800"
+          height="428"
           loading="lazy"
           decoding="async"
         />

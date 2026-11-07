@@ -55,3 +55,13 @@ Antes de cerrar un cambio, correr `npm run typecheck && npm run lint && npm test
   respetan DNT/GPC y se filtran bots. Solo se guarda país.
 - Retención: `ANALYTICS_RETENTION_DAYS` (default 400, mínimo 90). La limpieza
   corre como máximo una vez al día de forma perezosa.
+
+## Imágenes de reproductores
+
+- Las fuentes están en `src/assets/players/*.png`. Los WebP responsive se
+  generan con `npm run optimize:players` en `src/assets/players/generated/`.
+- `PlayerCard.astro` los sirve desde `/media/players/<id>-<ancho>.webp` con
+  `srcset` 400/800/1200 y caché de 30 días.
+- Al agregar o reemplazar una imagen, actualizar el mapeo `PLAYER_IDS`, correr
+  `npm run optimize:players` y ajustar la regex de la ruta si cambia el rango
+  de ids.
