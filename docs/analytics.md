@@ -13,8 +13,10 @@ GA4, GTM ni cookies de terceros.
 - `POST /api/analytics/collect` valida el cuerpo con Zod, descarta bots y
   peticiones limitadas por rate limit, y resuelve país con `geoip-lite` y
   dispositivo/navegador/SO con `ua-parser-js`.
-- El panel vive en `/admin/analitica` (`?range=7`, `30` o `90`) y se alimenta de
-  `src/lib/db/repositories/analytics.ts`.
+- El panel vive en `/admin/analitica` (`?range=7`, `30`, `90` o `365`) y se
+  alimenta de `src/lib/db/repositories/analytics.ts`.
+- Incluye actividad diaria, comparación con el periodo anterior y exportación
+  CSV (`/admin/analitica/export?range=30`).
 
 ## Privacidad
 
@@ -35,8 +37,16 @@ Tablas creadas por `drizzle/0005_analytics.sql`:
   proporción visible.
 - `analytics_events`: clics y envíos (`plan_click`, `cta_registro`, etc.).
 
+## Retención
+
+Los datos crudos se conservan `ANALYTICS_RETENTION_DAYS` días (por defecto 400;
+mínimo 90, máximo 3650). La limpieza corre como máximo una vez al día, de forma
+perezosa, al recibir una visita o abrir el panel. Con el valor por defecto los
+cuatro rangos del panel (7, 30, 90 y 365 días) tienen detalle completo.
+
 ## Variables
 
 - `ANALYTICS_SALT` (opcional): sal del hash de visitante. Si falta, se usa
   `SESSION_SECRET`.
+- `ANALYTICS_RETENTION_DAYS` (opcional): días de datos crudos, default 400.
 - No hace falta tocar nodos ni el panel de clientes: es solo del sitio.

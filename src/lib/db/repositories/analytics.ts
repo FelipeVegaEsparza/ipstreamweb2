@@ -1,5 +1,6 @@
-import { and, avg, count, desc, eq, gte, lte, sql } from 'drizzle-orm';
+import { and, avg, count, desc, eq, gte, lt, lte, sql, type SQL } from 'drizzle-orm';
 import type { AppDatabase } from '../client';
+import { getSetting, setSetting } from './settings';
 import {
   analyticsEvents,
   analyticsPageviews,
@@ -7,7 +8,7 @@ import {
   analyticsSessions,
 } from '../schema';
 
-export type AnalyticsRange = 7 | 30 | 90;
+export type AnalyticsRange = 7 | 30 | 90 | 365;
 
 export interface AnalyticsContext {
   sessionId: string;
@@ -65,9 +66,19 @@ function num(value: unknown): number {
   return Number.isFinite(n) ? n : 0;
 }
 
-function sinceFor(days: number): string {
-  const date = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+function startOfUtcDay(daysAgo: number): string {
+  const date = new Date();
+  date.setUTCHours(0, 0, 0, 0);
+  date.setUTCDate(date.getUTCDate() - daysAgo);
   return date.toISOString().slice(0, 19).replace('T', ' ');
+}
+
+function sinceFor(days: number): string {
+  return startOfUtcDay(days - 1);
+}
+
+function previousSinceFor(days: number): string {
+  return startOfUtcDay(days * 2 - 1);
 }
 
 function touchSession(
@@ -251,10 +262,22 @@ export interface AnalyticsFunnelStep {
   value: number;
 }
 
+export interface AnalyticsDailyPoint {
+  date: string;
+  pageviews: number;
+  visitors: number;
+  sessions: number;
+  bounces: number;
+  durationTotal: number;
+  scrollTotal: number;
+}
+
 export interface AnalyticsOverview {
   days: AnalyticsRange;
   since: string;
   kpis: AnalyticsKpis;
+  previous: AnalyticsKpis;
+  daily: AnalyticsDailyPoint[];
   topPages: AnalyticsRow[];
   sections: AnalyticsRow[];
   referrers: AnalyticsRow[];
@@ -263,18 +286,40 @@ export interface AnalyticsOverview {
   events: AnalyticsRow[];
   plans: AnalyticsRow[];
   funnel: AnalyticsFunnelStep[];
+  retentionDays: number;
 }
 
 export function parseAnalyticsRange(value: string | null | undefined): AnalyticsRange {
   const n = Number(value);
-  return n === 7 || n === 90 ? n : 30;
+  return n === 7 || n === 90 || n === 365 ? n : 30;
 }
 
-export function getAnalyticsOverview(db: AppDatabase, requestedDays: number): AnalyticsOverview {
-  const days = parseAnalyticsRange(String(requestedDays));
-  const since = sinceFor(days);
-  const inRange = gte(analyticsPageviews.createdAt, since);
-  const sessionRange = gte(analyticsSessions.startedAt, since);
+export function analyticsRetentionDays(): number {
+  const raw = Number(process.env.ANALYTICS_RETENTION_DAYS);
+  if (!Number.isFinite(raw)) return 400;
+  return Math.min(3650, Math.max(90, Math.round(raw)));
+}
+
+interface KpiWhere {
+  pageWhere: SQL;
+  sessionWhere: SQL;
+}
+
+function kpiWhere(since: string, until?: string): KpiWhere {
+  if (!until) {
+    return {
+      pageWhere: gte(analyticsPageviews.createdAt, since),
+      sessionWhere: gte(analyticsSessions.startedAt, since),
+    };
+  }
+  return {
+    pageWhere: and(gte(analyticsPageviews.createdAt, since), lt(analyticsPageviews.createdAt, until)) as SQL,
+    sessionWhere: and(gte(analyticsSessions.startedAt, since), lt(analyticsSessions.startedAt, until)) as SQL,
+  };
+}
+
+function readKpis(db: AppDatabase, since: string, until?: string): AnalyticsKpis {
+  const { pageWhere, sessionWhere } = kpiWhere(since, until);
 
   const pageTotals = db
     .select({
@@ -284,7 +329,7 @@ export function getAnalyticsOverview(db: AppDatabase, requestedDays: number): An
       avgScroll: avg(analyticsPageviews.maxScrollDepth),
     })
     .from(analyticsPageviews)
-    .where(inRange)
+    .where(pageWhere)
     .get();
 
   const sessionTotals = db
@@ -293,17 +338,147 @@ export function getAnalyticsOverview(db: AppDatabase, requestedDays: number): An
       visitors: sql<number>`count(distinct ${analyticsSessions.visitorHash})`,
     })
     .from(analyticsSessions)
-    .where(sessionRange)
+    .where(sessionWhere)
     .get();
 
   const bounceTotals = db
     .select({ bounces: count() })
     .from(analyticsSessions)
-    .where(and(sessionRange, lte(analyticsSessions.pageviews, 1)))
+    .where(and(sessionWhere, lte(analyticsSessions.pageviews, 1)))
     .get();
 
   const sessions = num(sessionTotals?.sessions);
   const bounces = num(bounceTotals?.bounces);
+
+  return {
+    pageviews: num(pageTotals?.pageviews),
+    visitors: Math.max(num(pageTotals?.visitors), num(sessionTotals?.visitors)),
+    sessions,
+    bounceRate: sessions > 0 ? Math.round((bounces / sessions) * 100) : 0,
+    avgDuration: num(pageTotals?.avgDuration),
+    avgScroll: num(pageTotals?.avgScroll),
+  };
+}
+
+export function getAnalyticsDaily(db: AppDatabase, requestedDays: number): AnalyticsDailyPoint[] {
+  const days = parseAnalyticsRange(String(requestedDays));
+  const since = sinceFor(days);
+
+  const pageRows = db
+    .select({
+      date: sql<string>`date(${analyticsPageviews.createdAt})`,
+      pageviews: count(),
+      visitors: sql<number>`count(distinct ${analyticsPageviews.visitorHash})`,
+      durationTotal: sql<number>`coalesce(sum(${analyticsPageviews.durationMs}), 0)`,
+      scrollTotal: sql<number>`coalesce(sum(${analyticsPageviews.maxScrollDepth}), 0)`,
+    })
+    .from(analyticsPageviews)
+    .where(gte(analyticsPageviews.createdAt, since))
+    .groupBy(sql`date(${analyticsPageviews.createdAt})`)
+    .all();
+
+  const sessionRows = db
+    .select({
+      date: sql<string>`date(${analyticsSessions.startedAt})`,
+      sessions: count(),
+      bounces: sql<number>`coalesce(sum(case when ${analyticsSessions.pageviews} <= 1 then 1 else 0 end), 0)`,
+    })
+    .from(analyticsSessions)
+    .where(gte(analyticsSessions.startedAt, since))
+    .groupBy(sql`date(${analyticsSessions.startedAt})`)
+    .all();
+
+  const pageByDate = new Map(pageRows.map((row) => [row.date, row]));
+  const sessionByDate = new Map(sessionRows.map((row) => [row.date, row]));
+
+  const cursor = new Date(`${since.slice(0, 10)}T00:00:00Z`);
+  const today = new Date();
+  today.setUTCHours(0, 0, 0, 0);
+
+  const points: AnalyticsDailyPoint[] = [];
+  while (cursor <= today) {
+    const date = cursor.toISOString().slice(0, 10);
+    const page = pageByDate.get(date);
+    const session = sessionByDate.get(date);
+    points.push({
+      date,
+      pageviews: num(page?.pageviews),
+      visitors: num(page?.visitors),
+      sessions: num(session?.sessions),
+      bounces: num(session?.bounces),
+      durationTotal: num(page?.durationTotal),
+      scrollTotal: num(page?.scrollTotal),
+    });
+    cursor.setUTCDate(cursor.getUTCDate() + 1);
+  }
+
+  return points;
+}
+
+export interface PruneResult {
+  cutoff: string;
+  pageviews: number;
+  sections: number;
+  events: number;
+  sessions: number;
+}
+
+export function pruneAnalytics(db: AppDatabase, retentionDays: number): PruneResult {
+  const cutoff = startOfUtcDay(retentionDays);
+  const pageviews = db
+    .delete(analyticsPageviews)
+    .where(lt(analyticsPageviews.createdAt, cutoff))
+    .run().changes;
+  const sections = db
+    .delete(analyticsSectionViews)
+    .where(lt(analyticsSectionViews.createdAt, cutoff))
+    .run().changes;
+  const events = db
+    .delete(analyticsEvents)
+    .where(lt(analyticsEvents.createdAt, cutoff))
+    .run().changes;
+  const sessions = db
+    .delete(analyticsSessions)
+    .where(lt(analyticsSessions.lastSeenAt, cutoff))
+    .run().changes;
+  return { cutoff, pageviews, sections, events, sessions };
+}
+
+const MAINTENANCE_CHECK_INTERVAL = 6 * 60 * 60 * 1000;
+const PRUNE_INTERVAL = 24 * 60 * 60 * 1000;
+let lastMaintenanceCheck = 0;
+
+export function maybeRunAnalyticsMaintenance(
+  db: AppDatabase,
+  now = Date.now(),
+): PruneResult | null {
+  if (now - lastMaintenanceCheck < MAINTENANCE_CHECK_INTERVAL) return null;
+  lastMaintenanceCheck = now;
+
+  const previous = Number(getSetting(db, 'analytics_last_prune', '0'));
+  if (Number.isFinite(previous) && previous > 0 && now - previous < PRUNE_INTERVAL) {
+    return null;
+  }
+
+  try {
+    const result = pruneAnalytics(db, analyticsRetentionDays());
+    setSetting(db, 'analytics_last_prune', String(now));
+    return result;
+  } catch (error) {
+    console.error('[analytics] maintenance error:', error);
+    return null;
+  }
+}
+
+export function getAnalyticsOverview(db: AppDatabase, requestedDays: number): AnalyticsOverview {
+  maybeRunAnalyticsMaintenance(db);
+
+  const days = parseAnalyticsRange(String(requestedDays));
+  const since = sinceFor(days);
+  const previousSince = previousSinceFor(days);
+  const inRange = gte(analyticsPageviews.createdAt, since);
+  const kpis = readKpis(db, since);
+  const previous = readKpis(db, previousSince, since);
 
   const topPages = db
     .select({
@@ -427,17 +602,15 @@ export function getAnalyticsOverview(db: AppDatabase, requestedDays: number): An
     { label: 'Clics en registro', value: countEvents('cta_registro') },
   ];
 
+  const daily = getAnalyticsDaily(db, days);
+  const retentionDays = analyticsRetentionDays();
+
   return {
     days,
     since,
-    kpis: {
-      pageviews: num(pageTotals?.pageviews),
-      visitors: Math.max(num(pageTotals?.visitors), num(sessionTotals?.visitors)),
-      sessions,
-      bounceRate: sessions > 0 ? Math.round((bounces / sessions) * 100) : 0,
-      avgDuration: num(pageTotals?.avgDuration),
-      avgScroll: num(pageTotals?.avgScroll),
-    },
+    kpis,
+    previous,
+    daily,
     topPages,
     sections,
     referrers,
@@ -446,5 +619,6 @@ export function getAnalyticsOverview(db: AppDatabase, requestedDays: number): An
     events,
     plans,
     funnel,
+    retentionDays,
   };
 }

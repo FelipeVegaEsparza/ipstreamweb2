@@ -5,6 +5,7 @@ import geoip from 'geoip-lite';
 import { UAParser } from 'ua-parser-js';
 import { getDatabase } from '../../../lib/db/client';
 import {
+  maybeRunAnalyticsMaintenance,
   recordEvent,
   recordPageLeave,
   recordPageview,
@@ -198,6 +199,8 @@ export const POST: APIRoute = async ({ request }) => {
         metadata: metadata && metadata.length <= 2000 ? metadata : null,
       });
     }
+
+    maybeRunAnalyticsMaintenance(db);
 
     return new Response(null, { status: 204 });
   } catch (error) {
