@@ -140,8 +140,13 @@ const linePoints = daily
   )
   .join(' ');
 const gridLines = [0, 0.5, 1].map((ratio) => chartTop + plotHeight - ratio * plotHeight);
-const formatChartDate = (date: string) =>
-  new Date(`${date}T00:00:00Z`).toLocaleDateString('es-CL', { day: '2-digit', month: 'short' });
+const formatChartDate = (date: string, withYear = false) =>
+  new Date(`${date}T00:00:00Z`).toLocaleDateString(
+    'es-CL',
+    withYear ? { day: '2-digit', month: 'short', year: 'numeric' } : { day: '2-digit', month: 'short' },
+  );
+const formatChartAxis = (date: string) => formatChartDate(date, days >= 365);
+const formatChartTooltip = (date: string) => formatChartDate(date, true);
 const xLabelIndexes = Array.from(
   new Set([0, Math.floor((daily.length - 1) / 3), Math.floor(((daily.length - 1) * 2) / 3), daily.length - 1]),
 ).filter((index) => index >= 0);
@@ -216,7 +221,7 @@ const sinceLabel = new Date(`${overview.since.replace(' ', 'T')}Z`).toLocaleDate
                 rx="1"
                 class="analytics-chart__bar"
               >
-                <title>{formatChartDate(point.date)}: {formatNumber(point.pageviews)} páginas vistas · {formatNumber(point.sessions)} sesiones</title>
+                <title>{formatChartTooltip(point.date)}: {formatNumber(point.pageviews)} páginas vistas · {formatNumber(point.sessions)} sesiones</title>
               </rect>
             ))
           }
@@ -229,7 +234,7 @@ const sinceLabel = new Date(`${overview.since.replace(' ', 'T')}Z`).toLocaleDate
                 text-anchor={index === 0 ? 'start' : index === daily.length - 1 ? 'end' : 'middle'}
                 class="analytics-chart__axis"
               >
-                {formatChartDate(daily[index].date)}
+                {formatChartAxis(daily[index].date)}
               </text>
             ))
           }
