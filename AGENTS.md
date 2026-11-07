@@ -42,3 +42,16 @@ Antes de cerrar un cambio, correr `npm run typecheck && npm run lint && npm test
 - Admin: `/admin` y subrutas, protegidas por `src/middleware.ts`.
 - Health: `/api/health`.
 - `/uploads/[...path]` sirve las imágenes del volumen de uploads.
+
+## Analítica del sitio
+
+- El tracker vive en `src/layouts/SiteLayout.astro` (solo páginas públicas;
+  `/admin` usa `AdminLayout` y no se mide).
+- Ingesta: `POST /api/analytics/collect`. Tablas `analytics_sessions`,
+  `analytics_pageviews`, `analytics_section_views` y `analytics_events`.
+- Panel: `/admin/analitica` (rangos 7/30/90/365) y CSV en
+  `/admin/analitica/export?range=30`.
+- Privacidad: no se guarda IP cruda, el visitante se hashea con HMAC, se
+  respetan DNT/GPC y se filtran bots. Solo se guarda país.
+- Retención: `ANALYTICS_RETENTION_DAYS` (default 400, mínimo 90). La limpieza
+  corre como máximo una vez al día de forma perezosa.
