@@ -525,10 +525,10 @@ export function getAnalyticsOverview(db: AppDatabase, requestedDays: number): An
     }));
 
   const referrers = db
-    .select({ label: analyticsPageviews.referrer, views: count() })
-    .from(analyticsPageviews)
-    .where(inRange)
-    .groupBy(analyticsPageviews.referrer)
+    .select({ label: analyticsSessions.referrer, views: count() })
+    .from(analyticsSessions)
+    .where(gte(analyticsSessions.startedAt, since))
+    .groupBy(analyticsSessions.referrer)
     .orderBy(desc(count()))
     .limit(12)
     .all()

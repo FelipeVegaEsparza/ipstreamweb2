@@ -186,6 +186,16 @@ const noindex = rest.noindex || pageSeo?.noindex || false;
       const path = window.location.pathname
       const startedAt = Date.now()
       const params = new URLSearchParams(window.location.search)
+      const externalReferrer = (() => {
+        try {
+          if (!document.referrer) return ''
+          return new URL(document.referrer).hostname === window.location.hostname
+            ? ''
+            : document.referrer
+        } catch {
+          return ''
+        }
+      })()
       let maxScrollDepth = 0
       let pageLeft = false
 
@@ -222,7 +232,7 @@ const noindex = rest.noindex || pageSeo?.noindex || false;
         type: 'pageview',
         ...base(),
         title: document.title,
-        referrer: document.referrer,
+        referrer: externalReferrer,
       })
 
       const updateScroll = () => {

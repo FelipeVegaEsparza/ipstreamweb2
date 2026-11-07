@@ -77,6 +77,9 @@ const deltaPoints = (current: number, previous: number): string => {
   return `${change > 0 ? '+' : ''}${change} pts`;
 };
 
+const previousHasPageviews = overview.previous.pageviews > 0;
+const previousHasSessions = overview.previous.sessions > 0;
+
 const kpis = [
   {
     label: 'Páginas vistas',
@@ -96,17 +99,23 @@ const kpis = [
   {
     label: 'Rebote',
     value: `${overview.kpis.bounceRate}%`,
-    delta: deltaPoints(overview.kpis.bounceRate, overview.previous.bounceRate),
+    delta: previousHasSessions
+      ? deltaPoints(overview.kpis.bounceRate, overview.previous.bounceRate)
+      : '—',
   },
   {
     label: 'Tiempo medio',
     value: formatDuration(overview.kpis.avgDuration),
-    delta: deltaPercent(overview.kpis.avgDuration, overview.previous.avgDuration),
+    delta: previousHasPageviews
+      ? deltaPercent(overview.kpis.avgDuration, overview.previous.avgDuration)
+      : '—',
   },
   {
     label: 'Scroll medio',
     value: formatPercent(overview.kpis.avgScroll),
-    delta: deltaPoints(overview.kpis.avgScroll, overview.previous.avgScroll),
+    delta: previousHasPageviews
+      ? deltaPoints(overview.kpis.avgScroll, overview.previous.avgScroll)
+      : '—',
   },
 ];
 
@@ -307,7 +316,7 @@ const sinceLabel = new Date(`${overview.since.replace(' ', 'T')}Z`).toLocaleDate
 
           <div class="admin-card">
             <h2>Procedencia</h2>
-            <p class="hint">Dominio de referencia de la primera página vista.</p>
+            <p class="hint">Sesiones agrupadas por el dominio desde el que llegaron.</p>
             <ul class="analytics-bars">
               {overview.referrers.map((row) => (
                 <li>

@@ -75,10 +75,21 @@ function normalizePath(value: string): string {
   }
 }
 
-function normalizeReferrer(value: string | undefined): string | null {
+function normalizeReferrer(value: string | undefined, requestHost: string | null): string | null {
   if (!value) return null;
   try {
-    return new URL(value).hostname.slice(0, 200) || null;
+    const hostname = new URL(value).hostname.toLowerCase();
+    const ownHost = (requestHost || '').split(':')[0].toLowerCase();
+    const ownDomains = ['casterfly.com', 'ipstream.cl'];
+    if (
+      (ownHost && (hostname === ownHost || hostname === `www.${ownHost}`)) ||
+      ownDomains.some((domain) => hostname === domain) ||
+      hostname.endsWith('.casterfly.com') ||
+      hostname.endsWith('.ipstream.cl')
+    ) {
+      return null;
+    }
+    return hostname.slice(0, 200) || null;
   } catch {
     return null;
   }
@@ -132,7 +143,7 @@ export const POST: APIRoute = async ({ request }) => {
     const parser = new UAParser(ua).getResult();
     const geo = ip ? geoip.lookup(ip) : null;
     const language = request.headers.get('accept-language')?.split(',')[0]?.slice(0, 20) || null;
-    const referrer = normalizeReferrer(body.referrer);
+    const referrer = normalizeReferrer(body.referrer, request.headers.get('host'));
 
     const context = {
       sessionId,
